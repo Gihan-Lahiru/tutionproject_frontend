@@ -1,6 +1,7 @@
 import { useState, useContext, useEffect } from 'react'
 import { Routes, Route, Link, useLocation } from 'react-router-dom'
 import { AuthContext } from '../../contexts/AuthContext'
+import api from '../../api/axios'
 import { 
   LayoutDashboard, BookOpen, FileText, Users, Video, DollarSign, Settings as SettingsIcon,
   LogOut, GraduationCap, ChevronLeft, ChevronRight, Menu, X
@@ -19,6 +20,7 @@ export default function TeacherDashboard() {
   const { user, logout } = useContext(AuthContext)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [desktopCollapsed, setDesktopCollapsed] = useState(false)
+  const [pendingReceiptsCount, setPendingReceiptsCount] = useState(0)
   const location = useLocation()
 
   useEffect(() => {
@@ -26,13 +28,30 @@ export default function TeacherDashboard() {
     setSidebarOpen(false)
   }, [location.pathname])
 
+  // Fetch pending receipts count
+  useEffect(() => {
+    const fetchPendingCount = async () => {
+      try {
+        const response = await api.get('/payments/receipts/pending')
+        const count = (response.data.payments || []).length
+        setPendingReceiptsCount(count)
+      } catch (error) {
+        console.error('Error fetching pending receipts:', error)
+      }
+    }
+
+    fetchPendingCount()
+    const interval = setInterval(fetchPendingCount, 10000)
+    return () => clearInterval(interval)
+  }, [])
+
   const navItems = [
     { path: '/teacher/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { path: '/teacher/classes', icon: BookOpen, label: 'Classes' },
     { path: '/teacher/students', icon: Users, label: 'Students' },
     { path: '/teacher/papers', icon: FileText, label: 'Papers' },
     { path: '/teacher/videos', icon: Video, label: 'Videos' },
-    { path: '/teacher/fees', icon: DollarSign, label: 'Fees' },
+    { path: '/teacher/fees', icon: DollarSign, label: 'Fees', badge: pendingReceiptsCount > 0 ? pendingReceiptsCount : null },
     { path: '/teacher/settings', icon: SettingsIcon, label: 'Settings' },
   ]
 
@@ -84,7 +103,18 @@ export default function TeacherDashboard() {
                   }`}
                 >
                   <Icon className="w-5 h-5 shrink-0" />
-                  {!desktopCollapsed && <span className="font-medium">{item.label}</span>}
+                  {!desktopCollapsed && (
+                    <div className="flex items-center justify-between flex-1">
+                      <span className="font-medium">{item.label}</span>
+                      {item.badge && (
+                        <span className={`ml-2 px-2 py-1 text-xs font-bold rounded-full ${
+                          isActive ? 'bg-white text-primary' : 'bg-red-600 text-white'
+                        }`}>
+                          {item.badge}
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </Link>
               )
             })}

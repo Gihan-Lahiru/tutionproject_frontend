@@ -70,18 +70,41 @@ export default function PastPapers() {
         console.error('Download count update error:', err)
       })
 
+      const extensionByMime = {
+        'application/pdf': 'pdf',
+        'application/msword': 'doc',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
+        'application/vnd.ms-excel': 'xls',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
+        'application/vnd.ms-powerpoint': 'ppt',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'pptx',
+        'text/plain': 'txt',
+        'image/png': 'png',
+        'image/jpeg': 'jpg',
+      }
+
       const downloadFromResponse = (response) => {
-        const blob = new Blob([response.data], { type: response.headers['content-type'] || 'application/octet-stream' })
+        const contentType = (response.headers['content-type'] || 'application/octet-stream')
+          .split(';')[0]
+          .trim()
+          .toLowerCase()
+        const blob = new Blob([response.data], { type: contentType || 'application/octet-stream' })
         const url = window.URL.createObjectURL(blob)
         const link = document.createElement('a')
         link.href = url
 
-        let filename = `${(paper.topic || paper.title || 'paper').trim()}.pdf`
+        let filename = (paper.topic || paper.title || 'paper').trim()
         const contentDisposition = response.headers['content-disposition']
         if (contentDisposition) {
           const filenameMatch = contentDisposition.match(/filename="?(.+?)"?$/)
           if (filenameMatch) {
             filename = filenameMatch[1]
+          }
+        } else {
+          const hasExt = /\.[a-z0-9]{2,6}$/i.test(filename)
+          if (!hasExt) {
+            const guessedExt = extensionByMime[contentType]
+            if (guessedExt) filename = `${filename}.${guessedExt}`
           }
         }
 
@@ -89,19 +112,20 @@ export default function PastPapers() {
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)
-        window.URL.revokeObjectURL(url)
+        // Delay revoking the object URL to avoid race conditions in some browsers
+        setTimeout(() => window.URL.revokeObjectURL(url), 5000)
       }
 
       try {
         const response = await api.get(`/papers/${paper.id}/download`, {
-          responseType: 'blob'
+          responseType: 'arraybuffer'
         })
         downloadFromResponse(response)
       } catch (watermarkError) {
         // Non-PDF files cannot be watermarked; fallback to direct file download.
         console.warn('Watermark download failed, using direct file:', watermarkError)
         const fallbackResponse = await api.get(`/papers/${paper.id}/file`, {
-          responseType: 'blob'
+          responseType: 'arraybuffer'
         })
         downloadFromResponse(fallbackResponse)
       }

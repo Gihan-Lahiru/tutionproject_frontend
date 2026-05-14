@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Send, CheckCircle2, AlertCircle } from "lucide-react";
+import { Send, CheckCircle2, AlertCircle, Check, X } from "lucide-react";
 import api from "../../api/axios";
 import { toast } from "react-toastify";
 
@@ -8,18 +8,28 @@ export default function FeeTable() {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sendingReminderIds, setSendingReminderIds] = useState(new Set());
+  const [pendingReceipts, setPendingReceipts] = useState([]);
+  const [approvingIds, setApprovingIds] = useState(new Set());
+  const [rejectingIds, setRejectingIds] = useState(new Set());
+  const [selectedReceiptId, setSelectedReceiptId] = useState(null)
+  const [approvalNotes, setApprovalNotes] = useState('')
 
   useEffect(() => {
     const fetchPayments = async () => {
       try {
         setLoading(true);
-        const [paymentsRes, studentsRes] = await Promise.all([
+        const [paymentsRes, studentsRes, receiptsRes] = await Promise.all([
           api.get('/payments/all'),
           api.get('/users/students'),
+          api.get('/payments/receipts/pending').catch(() => ({ data: { payments: [] } })),
         ]);
 
         const rows = paymentsRes.data.payments || [];
         const studentRows = studentsRes.data.users || [];
+        const receipts = receiptsRes.data.payments || [];
+        
+        setStudents(studentRows);
+        setPendingReceipts(receipts);
         setStudents(studentRows);
 
         const normalizeGradeForRecord = (value) => {
@@ -195,6 +205,48 @@ export default function FeeTable() {
 
   const collectionRate = totalPaid + totalPending > 0 ? Math.round((totalPaid / (totalPaid + totalPending)) * 100) : 0;
 
+  const handleApproveReceipt = async (receiptId) => {
+    try {
+      setApprovingIds((prev) => new Set(prev).add(receiptId));
+      await api.post(`/payments/${receiptId}/receipt/approve`, {
+        notes: approvalNotes,
+      });
+      toast.success('Payment receipt approved and completed!');
+      setSelectedReceiptId(null);
+      setApprovalNotes('');
+      setPendingReceipts((prev) => prev.filter((r) => r.id !== receiptId));
+    } catch (error) {
+      toast.error(error?.response?.data?.message || 'Failed to approve receipt');
+    } finally {
+      setApprovingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(receiptId);
+        return next;
+      });
+    }
+  };
+
+  const handleRejectReceipt = async (receiptId) => {
+    try {
+      setRejectingIds((prev) => new Set(prev).add(receiptId));
+      await api.post(`/payments/${receiptId}/receipt/reject`, {
+        notes: approvalNotes,
+      });
+      toast.success('Payment receipt rejected. Student has been notified.');
+      setSelectedReceiptId(null);
+      setApprovalNotes('');
+      setPendingReceipts((prev) => prev.filter((r) => r.id !== receiptId));
+    } catch (error) {
+      toast.error(error?.response?.data?.message || 'Failed to reject receipt');
+    } finally {
+      setRejectingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(receiptId);
+        return next;
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
@@ -214,6 +266,161 @@ export default function FeeTable() {
           </p>
         </div>
       </div>
+
+      {/* Pending Receipt Approvals */}
+      {pendingReceipts.length > 0 && (
+        <div className="bg-white rounded-xl shadow-md p-6 space-y-4 border-l-4 border-blue-500">
+          <div>
+            <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-blue-600" />
+              Pending Receipt Approvals ({pendingReceipts.length})
+            </h3>
+            <p className="text-sm text-gray-600">Review and approve payment receipts from students</p>
+          </div>
+
+          <div className="grid gap-4">
+            {pendingReceipts.map((receipt) => (
+              <div
+                key={receipt.id}
+                className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 border border-blue-200 bg-blue-50 rounded-lg"
+              >
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <p className="font-semibold text-gray-900">{receipt.payer_name || 'Student'}</p>
+                    <span className="text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded">
+                      {receipt.grade || '-'}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    {receipt.month} {receipt.year} • Rs. {Number(receipt.amount || 0).toLocaleString()}
+                  </p>
+                  <p className="text-xs text-gray-500">Email: {receipt.payer_email || '-'}</p>
+                </div>
+
+                <div className="flex gap-2">
+                  <a
+                    href={receipt.receipt_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    View Receipt
+                  </a>
+                  <button
+                    onClick={() => setSelectedReceiptId(receipt.id)}
+                    className="px-3 py-2 text-sm bg-gray-200 text-gray-900 rounded-lg hover:bg-gray-300 transition-colors"
+                  >
+                    Review
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Receipt Approval Modal */}
+      {selectedReceiptId && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl w-full max-w-lg p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-gray-900">Receipt Review & Approval</h3>
+              <button
+                onClick={() => {
+                  setSelectedReceiptId(null)
+                  setApprovalNotes('')
+                }}
+                className="text-gray-500 hover:text-gray-700 text-2xl"
+              >
+                ×
+              </button>
+            </div>
+
+            {selectedReceiptId && (
+              <>
+                {pendingReceipts.find((r) => r.id === selectedReceiptId)?.receipt_url && (() => {
+                  const receiptUrl = pendingReceipts.find((r) => r.id === selectedReceiptId)?.receipt_url;
+                  const isPdf = receiptUrl?.toLowerCase().includes('.pdf') || receiptUrl?.toLowerCase().includes('/pdf') || receiptUrl?.toLowerCase().includes('pdf');
+                  const isImage = receiptUrl?.toLowerCase().match(/\.(jpg|jpeg|png|gif|webp)$/i);
+                  
+                  return (
+                    <div className="border border-gray-300 rounded-lg overflow-hidden bg-gray-100 space-y-2">
+                      {isPdf ? (
+                        <div className="h-96 w-full flex flex-col">
+                          <embed
+                            src={receiptUrl}
+                            type="application/pdf"
+                            className="w-full h-full"
+                          />
+                        </div>
+                      ) : (
+                        <div className="h-96 flex items-center justify-center">
+                          <img
+                            src={receiptUrl}
+                            alt="Receipt"
+                            className="max-w-full max-h-full object-contain"
+                          />
+                        </div>
+                      )}
+                      <div className="flex items-center justify-center gap-2 px-4 py-2 border-t border-gray-300 bg-gray-50">
+                        <a
+                          href={receiptUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800 font-medium text-sm"
+                        >
+                          Open {isPdf ? 'PDF' : 'Image'} in new window ↗
+                        </a>
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    Approval Notes (optional)
+                  </label>
+                  <textarea
+                    value={approvalNotes}
+                    onChange={(e) => setApprovalNotes(e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    rows={3}
+                    placeholder="Add notes for the student (e.g., 'Receipt unclear, please resubmit')"
+                  />
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      setSelectedReceiptId(null)
+                      setApprovalNotes('')
+                    }}
+                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => handleRejectReceipt(selectedReceiptId)}
+                    disabled={rejectingIds.has(selectedReceiptId)}
+                    className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+                  >
+                    <X className="w-4 h-4" />
+                    {rejectingIds.has(selectedReceiptId) ? 'Rejecting...' : 'Reject'}
+                  </button>
+                  <button
+                    onClick={() => handleApproveReceipt(selectedReceiptId)}
+                    disabled={approvingIds.has(selectedReceiptId)}
+                    className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+                  >
+                    <Check className="w-4 h-4" />
+                    {approvingIds.has(selectedReceiptId) ? 'Approving...' : 'Approve'}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="bg-white rounded-xl shadow-md p-6 space-y-4">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">

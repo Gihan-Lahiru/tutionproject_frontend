@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/UI/Ca
 import Button from '../../components/UI/Button'
 import Badge from '../../components/UI/Badge'
 import PayNowButton from '../../components/Student/PayNowButton'
-import { FiCreditCard, FiDownload, FiCheckCircle, FiXCircle, FiCalendar } from 'react-icons/fi'
+import { FiCreditCard, FiDownload, FiCheckCircle, FiXCircle, FiCalendar, FiUpload } from 'react-icons/fi'
 import { AuthContext } from '../../contexts/AuthContext'
 import { toast } from 'react-toastify'
 import api from '../../api/axios'
@@ -20,6 +20,9 @@ export default function PaymentHistory() {
   const [isDownloadingCard, setIsDownloadingCard] = useState(false)
   const [reactivationMessage, setReactivationMessage] = useState('')
   const [sendingReactivation, setSendingReactivation] = useState(false)
+  const [receiptUploadPaymentId, setReceiptUploadPaymentId] = useState(null)
+  const [receiptFile, setReceiptFile] = useState(null)
+  const [uploading, setUploading] = useState(false)
   const cardRef = useRef(null)
 
   const isInactiveStudent = String(user?.status || 'active').toLowerCase() === 'inactive'
@@ -118,12 +121,20 @@ export default function PaymentHistory() {
     })
   }, [payments, currentMonthIndex, currentYear])
 
-  const isProcessingForCurrentMonth = useMemo(() => {
-    return (payments || []).some((p) => {
+  const currentMonthPendingPayment = useMemo(() => {
+    return (payments || []).find((p) => {
       const status = String(p.status || '').toLowerCase()
       return status === 'pending' && isCurrentMonthPayment(p)
-    })
+    }) || null
   }, [payments, currentMonthIndex, currentYear])
+
+  const isProcessingForCurrentMonth = useMemo(() => {
+    return currentMonthPendingPayment && currentMonthPendingPayment.receipt_url
+  }, [currentMonthPendingPayment])
+
+  const isPendingWithoutReceiptForCurrentMonth = useMemo(() => {
+    return currentMonthPendingPayment && !currentMonthPendingPayment.receipt_url
+  }, [currentMonthPendingPayment])
 
   const currentDueDateISO = useMemo(() => {
     // Due date: 14th of the current month
@@ -242,27 +253,13 @@ export default function PaymentHistory() {
   }
 
   const handlePaymentSuccess = async (result) => {
-    const orderId = result?.orderId
+    const paymentId = result?.paymentId
     const status = String(result?.status || '').toLowerCase()
 
     setRefreshKey((prev) => prev + 1)
 
     if (status === 'completed') {
       toast.success('Payment completed successfully!')
-
-      if (orderId) {
-        try {
-          const res = await api.get(`/payments/payhere/status/${encodeURIComponent(orderId)}`)
-          const completedPayment = res?.data?.payment
-          if (completedPayment) {
-            setSelectedPayment(completedPayment)
-            return
-          }
-        } catch (error) {
-          console.error('Failed to load completed payment for card popup:', error)
-        }
-      }
-
       setTimeout(() => {
         setRefreshKey((prev) => prev + 1)
       }, 1000)
@@ -270,7 +267,7 @@ export default function PaymentHistory() {
     }
 
     if (status === 'processing') {
-      toast.info('Payment received. Waiting for confirmation...')
+      toast.info('Payment receipt uploaded. Waiting for teacher approval...')
     }
   }
 
@@ -293,6 +290,32 @@ export default function PaymentHistory() {
       }
     } finally {
       setSendingReactivation(false)
+    }
+  }
+
+  const handleReceiptUpload = async () => {
+    if (!receiptFile || !receiptUploadPaymentId) {
+      toast.error('Please select a file to upload')
+      return
+    }
+
+    try {
+      setUploading(true)
+      const formData = new FormData()
+      formData.append('receipt', receiptFile)
+
+      const res = await api.post(`/payments/${receiptUploadPaymentId}/receipt`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+
+      toast.success('Receipt uploaded successfully!')
+      setReceiptFile(null)
+      setReceiptUploadPaymentId(null)
+      setRefreshKey((prev) => prev + 1)
+    } catch (error) {
+      toast.error(error?.response?.data?.message || 'Failed to upload receipt')
+    } finally {
+      setUploading(false)
     }
   }
 
@@ -404,11 +427,38 @@ export default function PaymentHistory() {
                   <FiCheckCircle className="h-4 w-4" />
                   <span>Paid for {currentMonthName} {currentYear}</span>
                 </Badge>
+              ) : isPendingWithoutReceiptForCurrentMonth ? (
+                <Button
+                  onClick={() => setReceiptUploadPaymentId(currentMonthPendingPayment.id)}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2"
+                >
+                  <FiUpload className="h-4 w-4" />
+                  Upload Receipt to Pay
+                </Button>
               ) : isProcessingForCurrentMonth ? (
                 <Badge variant="warning" className="flex items-center gap-1 text-sm py-2 justify-center">
                   <FiCalendar className="h-4 w-4" />
-                  <span>Payment processing for {currentMonthName} {currentYear}</span>
+                  <span>Receipt submitted - Awaiting approval</span>
                 </Badge>
+              ) : currentMonthPendingPayment && String(currentMonthPendingPayment.approval_status || '').toLowerCase() === 'rejected' ? (
+                <div className="space-y-2">
+                  <Badge variant="error" className="flex items-center gap-1 text-sm py-2 justify-center w-full">
+                    <FiXCircle className="h-4 w-4" />
+                    <span>Receipt Rejected - Please Retry</span>
+                  </Badge>
+                  {currentMonthPendingPayment.approval_notes && (
+                    <p className="text-xs text-red-600 bg-red-50 p-2 rounded">
+                      Reason: {currentMonthPendingPayment.approval_notes}
+                    </p>
+                  )}
+                  <Button
+                    onClick={() => setReceiptUploadPaymentId(currentMonthPendingPayment.id)}
+                    className="w-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center gap-2"
+                  >
+                    <FiUpload className="h-4 w-4" />
+                    Upload New Receipt
+                  </Button>
+                </div>
               ) : (
                 <PayNowButton 
                   amount={monthlyFee}
@@ -440,35 +490,56 @@ export default function PaymentHistory() {
                 const badgeClass = isCompleted ? 'bg-green-100 text-green-600' : status === 'failed' ? 'bg-red-100 text-red-600' : 'bg-yellow-100 text-yellow-700'
                 const when = payment.payment_date || payment.date
                 const label = [payment.month, payment.year].filter(Boolean).join(' ') || 'Payment'
+                const hasReceipt = payment.receipt_url
+                const approvalStatus = String(payment.approval_status || 'pending').toLowerCase()
+
                 return (
                   <div
                     key={payment.id || `${label}_${when}`}
-                    className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
                   >
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 flex-1">
                       <div className={`flex h-10 w-10 items-center justify-center rounded-full ${badgeClass}`}>
                         {isCompleted ? <FiCheckCircle className="h-5 w-5" /> : <FiXCircle className="h-5 w-5" />}
                       </div>
-                      <div>
+                      <div className="flex-1">
                         <p className="font-semibold text-gray-900">{label}</p>
                         <p className="text-sm text-gray-600">
                           Status: {status || 'pending'}{when ? ` • ${formatWhen(when)}` : ''}
                         </p>
+                        {hasReceipt && (
+                          <p className="text-xs text-blue-600 mt-1">
+                            Receipt: {approvalStatus === 'approved' ? '✓ Approved' : approvalStatus === 'rejected' ? '✗ Rejected' : 'Pending Review'}
+                          </p>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center gap-4">
                       <div className="text-right">
                         <p className="font-bold text-gray-900">Rs. {Number(payment.amount || 0).toLocaleString()}</p>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        disabled={!isCompleted}
-                        onClick={() => setSelectedPayment(payment)}
-                        title={isCompleted ? 'Generate payment card' : 'Card available after completed payment'}
-                      >
-                        <FiDownload className="h-4 w-4" />
-                      </Button>
+                      <div className="flex gap-2">
+                        {isCompleted && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setSelectedPayment(payment)}
+                            title="Generate payment card"
+                          >
+                            <FiDownload className="h-4 w-4" />
+                          </Button>
+                        )}
+                        {!isCompleted && !hasReceipt && status === 'pending' && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setReceiptUploadPaymentId(payment.id)}
+                            title="Upload receipt"
+                          >
+                            <FiUpload className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )
@@ -477,6 +548,63 @@ export default function PaymentHistory() {
           )}
         </CardContent>
       </Card>
+
+      {receiptUploadPaymentId && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl w-full max-w-md p-5 shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-gray-900">Upload Payment Receipt</h3>
+              <button
+                onClick={() => {
+                  setReceiptUploadPaymentId(null)
+                  setReceiptFile(null)
+                }}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                <FiUpload className="h-10 w-10 text-gray-400 mx-auto mb-2" />
+                <label className="cursor-pointer">
+                  <p className="text-sm text-gray-600 mb-1">
+                    {receiptFile ? receiptFile.name : 'Click to select receipt file'}
+                  </p>
+                  <input
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    onChange={(e) => setReceiptFile(e.target.files?.[0] || null)}
+                    className="hidden"
+                  />
+                  <p className="text-xs text-gray-500">PDF, JPG, or PNG (Max 5MB)</p>
+                </label>
+              </div>
+
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setReceiptUploadPaymentId(null)
+                    setReceiptFile(null)
+                  }}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleReceiptUpload}
+                  disabled={!receiptFile || uploading}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  {uploading ? 'Uploading...' : 'Upload Receipt'}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {selectedPayment && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">

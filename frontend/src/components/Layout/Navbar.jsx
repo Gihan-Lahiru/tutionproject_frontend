@@ -49,7 +49,16 @@ export default function Navbar() {
           );
 
           newUnread.slice(0, 3).forEach((n) => {
-            if (isPaymentReminderNotification(n)) {
+            const type = String(n.type || '').toLowerCase();
+            
+            // Show receipt pending approval as success/info
+            if (type === 'receipt_pending_approval') {
+              toast.info(n.message, {
+                position: 'top-right',
+                autoClose: 6000,
+                closeOnClick: true,
+              });
+            } else if (isPaymentReminderNotification(n)) {
               toast.error(n.message, {
                 position: 'top-right',
                 autoClose: 5000,
@@ -76,8 +85,8 @@ export default function Navbar() {
 
     fetchNotifications();
     
-    // Refresh notifications frequently so new reminders appear quickly.
-    const interval = setInterval(fetchNotifications, 15000);
+    // Fetch notifications more frequently for teachers (every 10 seconds) vs students (every 15 seconds)
+    const interval = setInterval(fetchNotifications, user?.role === 'teacher' || user?.role === 'admin' ? 10000 : 15000);
     
     return () => clearInterval(interval);
   }, [user, isDashboard]);
@@ -97,6 +106,37 @@ export default function Navbar() {
           position: 'top-right',
           autoClose: 5000,
           closeOnClick: true,
+        });
+      } else {
+        toast.info(n.message, {
+          position: 'top-right',
+          autoClose: 5000,
+          closeOnClick: true,
+        });
+      }
+      announcedNotificationIdsRef.current.add(n.id);
+    });
+  }, [location.pathname, notifications, user]);
+
+  // Show unread notification popups when teacher lands on or navigates inside dashboard.
+  useEffect(() => {
+    if (!user || (user.role !== 'teacher' && user.role !== 'admin')) return;
+    if (!location.pathname.startsWith('/teacher')) return;
+
+    const unreadToAnnounce = notifications.filter(
+      (n) => n.unread && !announcedNotificationIdsRef.current.has(n.id)
+    );
+
+    unreadToAnnounce.slice(0, 3).forEach((n) => {
+      const type = String(n.type || '').toLowerCase();
+      
+      // Show receipt notifications prominently
+      if (type === 'receipt_pending_approval') {
+        toast.info(n.message, {
+          position: 'top-right',
+          autoClose: 6000,
+          closeOnClick: true,
+          className: 'bg-blue-50 border-2 border-blue-500',
         });
       } else {
         toast.info(n.message, {
