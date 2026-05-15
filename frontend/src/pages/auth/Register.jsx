@@ -10,23 +10,23 @@ import { toast } from 'react-toastify'
 export default function Register() {
   const navigate = useNavigate()
   const { setAuthSession } = useContext(AuthContext)
-  const [step, setStep] = useState(1) // 1: Email, 2: Complete Registration
+  const [step, setStep] = useState(1) // 1: Register, 2: Verify Email
   const [email, setEmail] = useState('')
   const [verificationCode, setVerificationCode] = useState(['', '', '', '', '', ''])
+  const [devVerificationCode, setDevVerificationCode] = useState('')
   const [formData, setFormData] = useState({
     name: '',
     password: '',
     confirmPassword: '',
     role: 'student',
     grade: '',
-    phone: '',
     institute: '',
   })
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
 
-  // Step 1: Send verification code to email
-  const handleSendCode = async (e) => {
+  // Step 1: Register user
+  const handleRegister = async (e) => {
     e.preventDefault()
     
     if (!email || !/\S+@\S+\.\S+/.test(email)) {
@@ -34,20 +34,21 @@ export default function Register() {
       return
     }
 
-    setStep(2)
-  }
-
-  // Step 3: Complete registration
-  const handleRegister = async (e) => {
-    e.preventDefault()
-    
-    // Validation
     const newErrors = {}
+    if (!formData.name.trim()) {
+      newErrors.name = 'Name is required'
+    }
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match'
     }
     if (formData.password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters'
+    }
+    if (!formData.grade) {
+      newErrors.grade = 'Please select a grade'
+    }
+    if (!formData.institute) {
+      newErrors.institute = 'Please select an institute'
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -57,7 +58,7 @@ export default function Register() {
 
     setLoading(true)
     try {
-      const { confirmPassword, phone, ...registrationData } = formData
+      const { confirmPassword, ...registrationData } = formData
       const userData = {
         ...registrationData,
         email,
@@ -65,15 +66,69 @@ export default function Register() {
       
       const response = await api.post('/auth/register', userData)
       
-      toast.success(response.data.message)
+      toast.success(response.data.message || 'Registration successful. Check your email for the verification code.')
 
-      setAuthSession(response.data.token, response.data.user, {
-        rememberMe: false,
-        redirect: true,
-      })
+      if (response.data.verificationCode) {
+        setDevVerificationCode(response.data.verificationCode)
+        setVerificationCode(String(response.data.verificationCode).split(''))
+        toast.info(`Dev Code: ${response.data.verificationCode}`, { autoClose: false })
+      }
+
+      setStep(2)
     } catch (error) {
       console.error('Registration error:', error)
       toast.error(error.response?.data?.message || 'Registration failed')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Step 2: Verify email code
+  const handleVerifyCode = async (e) => {
+    e.preventDefault()
+
+    const code = verificationCode.join('')
+    if (code.length !== 6) {
+      toast.error('Please enter the complete 6-digit code')
+      return
+    }
+
+    setLoading(true)
+    try {
+      const response = await api.post('/auth/verify-email', { email, code })
+      toast.success(response.data.message || 'Email verified successfully')
+
+      if (response.data.token && response.data.user) {
+        setAuthSession(response.data.token, response.data.user, {
+          rememberMe: false,
+          redirect: true,
+        })
+        return
+      }
+
+      navigate('/login')
+    } catch (error) {
+      console.error('Verification error:', error)
+      toast.error(error.response?.data?.message || 'Verification failed')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleResendCode = async () => {
+    setLoading(true)
+    try {
+      const response = await api.post('/auth/resend-verification', { email })
+      toast.success(response.data.message || 'Verification code sent')
+
+      if (response.data.verificationCode) {
+        setDevVerificationCode(response.data.verificationCode)
+        setVerificationCode(String(response.data.verificationCode).split(''))
+        toast.info(`Dev Code: ${response.data.verificationCode}`, { autoClose: false })
+      }
+    } catch (error) {
+      console.error('Resend code error:', error)
+      toast.error(error.response?.data?.message || 'Failed to resend verification code')
     } finally {
       setLoading(false)
     }
@@ -86,7 +141,6 @@ export default function Register() {
     newCode[index] = value
     setVerificationCode(newCode)
 
-    // Auto-focus next input
     if (value && index < 5) {
       const nextInput = document.getElementById(`code-${index + 1}`)
       if (nextInput) nextInput.focus()
@@ -117,7 +171,6 @@ export default function Register() {
       ...formData,
       [e.target.name]: e.target.value,
     })
-    // Clear error for this field
     if (errors[e.target.name]) {
       setErrors({ ...errors, [e.target.name]: '' })
     }
@@ -129,16 +182,15 @@ export default function Register() {
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-gray-900">Join Our Classes</h2>
           <p className="mt-2 text-gray-600">
-            {step === 1 && 'Enter your email to get started'}
+            {step === 1 && 'Create your account'}
             {step === 2 && 'Verify your email address'}
-            {step === 3 && 'Complete your registration'}
           </p>
         </div>
 
         <Card>
-          {/* Step 1: Email Input */}
+          {/* Step 1: Registration Form */}
           {step === 1 && (
-            <form onSubmit={handleSendCode}>
+            <form onSubmit={handleRegister}>
               <Input
                 label="Email Address"
                 type="email"
@@ -149,60 +201,16 @@ export default function Register() {
                 placeholder="student@example.com"
               />
 
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={loading}
-              >
-                {loading ? 'Continuing...' : 'Continue'}
-              </Button>
-
-              <div className="mt-6 text-center">
-                <p className="text-sm text-gray-600">
-                  Already have an account?{' '}
-                  <Link to="/login" className="text-primary font-medium hover:underline">
-                    Sign in here
-                  </Link>
-                </p>
-              </div>
-            </form>
-          )}
-
-          {/* Step 2: Complete Registration */}
-          {step === 2 && (
-            <form onSubmit={handleRegister}>
-              <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-                <p className="text-sm text-green-700 text-center">
-                  ✓ Email confirmed: {email}
-                </p>
-              </div>
-
               <Input
                 label="Full Name"
                 type="text"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
+                error={errors.name}
                 required
                 placeholder="John Doe"
               />
-
-              <div className="mb-4">
-                <label className="block text-gray-700 font-medium mb-2">
-                  Institute <span className="text-red-500">*</span>
-                </label>
-                <select
-                  name="institute"
-                  value={formData.institute}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                >
-                  <option value="">Select your institute</option>
-                  <option value="Prebhashi">Prebhashi</option>
-                  <option value="Focus">Focus</option>
-                </select>
-              </div>
 
               <div className="mb-4">
                 <label className="block text-gray-700 font-medium mb-2">
@@ -212,18 +220,37 @@ export default function Register() {
                   name="grade"
                   value={formData.grade}
                   onChange={handleChange}
-                  required
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  required
                 >
                   <option value="">Select your grade</option>
-                  <option value="Grade 6">Grade 6</option>
-                  <option value="Grade 7">Grade 7</option>
-                  <option value="Grade 8">Grade 8</option>
-                  <option value="Grade 9">Grade 9</option>
-                  <option value="Grade 10">Grade 10</option>
-                  <option value="Grade 11">Grade 11</option>
+                  <option value="6">Grade 6</option>
+                  <option value="7">Grade 7</option>
+                  <option value="8">Grade 8</option>
+                  <option value="9">Grade 9</option>
+                  <option value="10">Grade 10</option>
+                  <option value="11">Grade 11</option>
                   <option value="A/L">A/L Class</option>
                 </select>
+                {errors.grade && <p className="text-red-500 text-sm mt-1">{errors.grade}</p>}
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-gray-700 font-medium mb-2">
+                  Institute <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="institute"
+                  value={formData.institute}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  required
+                >
+                  <option value="">Select your institute</option>
+                  <option value="Prebhashi Hettipola">Prebhashi Hettipola</option>
+                  <option value="Focus Hadungamuwa">Focus Hadungamuwa</option>
+                </select>
+                {errors.institute && <p className="text-red-500 text-sm mt-1">{errors.institute}</p>}
               </div>
 
               <Input
@@ -253,8 +280,92 @@ export default function Register() {
                 className="w-full"
                 disabled={loading}
               >
-                {loading ? 'Creating account...' : 'Complete Registration'}
+                {loading ? 'Creating account...' : 'Create Account'}
               </Button>
+
+              <div className="mt-6 text-center">
+                <p className="text-sm text-gray-600">
+                  Already have an account?{' '}
+                  <Link to="/login" className="text-primary font-medium hover:underline">
+                    Sign in here
+                  </Link>
+                </p>
+              </div>
+            </form>
+          )}
+
+          {/* Step 2: Verification Code */}
+          {step === 2 && (
+            <form onSubmit={handleVerifyCode}>
+              <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-sm text-green-700 text-center">
+                  Check your email for the 6-digit verification code.
+                </p>
+                <p className="text-sm text-green-700 text-center mt-1">
+                  Email: {email}
+                </p>
+              </div>
+
+              {devVerificationCode && (
+                <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-sm text-blue-700 text-center">
+                    <strong>Development code:</strong> {devVerificationCode}
+                  </p>
+                </div>
+              )}
+
+              <div className="mb-6">
+                <label className="block text-center text-gray-700 font-medium mb-4">
+                  Enter 6-Digit Code
+                </label>
+                <div className="flex gap-2 justify-center" onPaste={handleCodePaste}>
+                  {verificationCode.map((digit, index) => (
+                    <input
+                      key={index}
+                      id={`code-${index}`}
+                      type="text"
+                      maxLength="1"
+                      value={digit}
+                      onChange={(e) => handleCodeInput(index, e.target.value)}
+                      onKeyDown={(e) => handleCodeKeyDown(index, e)}
+                      className="w-12 h-14 text-center text-2xl font-bold border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      autoComplete="off"
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={loading || verificationCode.some(d => !d)}
+              >
+                {loading ? 'Verifying...' : 'Verify Email'}
+              </Button>
+
+              <div className="mt-4 text-center">
+                <button
+                  type="button"
+                  onClick={handleResendCode}
+                  className="text-sm text-blue-600 hover:underline"
+                  disabled={loading}
+                >
+                  Resend Code
+                </button>
+              </div>
+
+              <div className="mt-4 text-center">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setStep(1)
+                    setVerificationCode(['', '', '', '', '', ''])
+                  }}
+                  className="text-sm text-gray-600 hover:underline"
+                >
+                  Change Details
+                </button>
+              </div>
             </form>
           )}
         </Card>

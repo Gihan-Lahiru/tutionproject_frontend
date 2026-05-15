@@ -81,12 +81,17 @@ export default function EmailVerification() {
         code: verificationCode,
       });
 
-      toast.success(response.data.message);
+      toast.success(response.data.message || 'Email verified successfully');
 
-      setAuthSession(response.data.token, response.data.user, {
-        rememberMe: false,
-        redirect: true,
-      });
+      if (response.data.token && response.data.user) {
+        setAuthSession(response.data.token, response.data.user, {
+          rememberMe: false,
+          redirect: true,
+        });
+        return;
+      }
+
+      navigate('/login');
     } catch (error) {
       console.error('Verification error:', error);
       toast.error(error.response?.data?.message || 'Verification failed');
@@ -100,8 +105,13 @@ export default function EmailVerification() {
     
     try {
       const response = await api.post('/auth/resend-verification', { email });
-      toast.success(response.data.message);
+      toast.success(response.data.message || 'Verification code sent');
       setCode(['', '', '', '', '', '']); // Clear input
+      
+      if (response.data.verificationCode) {
+        toast.info(`Dev Code: ${response.data.verificationCode}`, { autoClose: false });
+      }
+      
       const firstInput = document.getElementById('code-0');
       if (firstInput) firstInput.focus();
     } catch (error) {
