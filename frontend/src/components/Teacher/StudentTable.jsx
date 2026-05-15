@@ -36,7 +36,10 @@ export default function StudentTable() {
     try {
       setLoading(true);
       const response = await api.get('/users/students');
-      setStudents(response.data.users || []);
+      const nextStudents = Array.isArray(response.data)
+        ? response.data
+        : (response.data?.users || []);
+      setStudents(nextStudents);
     } catch (error) {
       console.error('Failed to fetch students:', error);
       toast.error('Failed to load students');

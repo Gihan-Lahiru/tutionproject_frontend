@@ -13,6 +13,14 @@ export default function Notes() {
   const [searchQuery, setSearchQuery] = useState("")
   const [notes, setNotes] = useState([])
   const [loading, setLoading] = useState(true)
+  const [classLocations, setClassLocations] = useState({})
+
+  const resolveAssetUrl = (value) => {
+    if (!value) return ''
+    if (value.startsWith('http://') || value.startsWith('https://')) return value
+    if (value.startsWith('/')) return value
+    return `/${value}`
+  }
 
   const parseAppDate = (value) => {
     if (!value) return null
@@ -49,19 +57,64 @@ export default function Notes() {
     fetchNotes()
   }, [])
 
+  useEffect(() => {
+    const fetchClassLocations = async () => {
+      try {
+        const response = await api.get('/classes')
+        const classList = Array.isArray(response.data) ? response.data : (response.data?.classes || [])
+        const nextMap = classList.reduce((acc, classItem) => {
+          if (classItem?.id) acc[classItem.id] = String(classItem.location || '').trim().toLowerCase()
+          return acc
+        }, {})
+        setClassLocations(nextMap)
+      } catch (error) {
+        console.error('Error fetching class locations for notes:', error)
+        setClassLocations({})
+      }
+    }
+
+    fetchClassLocations()
+  }, [])
+
   const fetchNotes = async () => {
     try {
       const response = await api.get('/papers?type=Note')
-      setNotes(response.data.papers || [])
+      const nextNotes = Array.isArray(response.data)
+        ? response.data
+        : (response.data?.papers || [])
+      setNotes(nextNotes)
     } catch (error) {
       console.error('Error fetching notes:', error)
-      toast.error('Failed to load notes')
+      try {
+        const localResponse = await fetch('/storage/notes.json', { cache: 'no-store' })
+        if (!localResponse.ok) throw new Error(`Failed to load local notes: ${localResponse.status}`)
+        const localData = await localResponse.json()
+        const localNotes = Array.isArray(localData?.notes) ? localData.notes : []
+        setNotes(localNotes.map((item) => ({ ...item, __local: true })))
+        if (localNotes.length > 0) {
+          toast.info('Loaded notes from frontend storage')
+        }
+      } catch (localError) {
+        console.error('Error loading local notes:', localError)
+        toast.error('Failed to load notes')
+      }
     } finally {
       setLoading(false)
     }
   }
 
   const handleDownload = async (note) => {
+    if (note.__local && note.fileUrl) {
+      const link = document.createElement('a')
+      link.href = resolveAssetUrl(note.fileUrl)
+      link.download = `${(note.topic || note.title || 'note').trim()}`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      toast.success('Download completed')
+      return
+    }
+
     const downloadToastId = toast.info('Download starts...', { autoClose: false })
 
     try {
@@ -121,7 +174,10 @@ export default function Notes() {
       note.grade === user.grade || 
       note.grade === `Grade ${user.grade}` ||
       note.grade === `grade ${user.grade}`
-    return matchesSearch && matchesGrade
+    const userInstitute = String(user?.institute || '').trim().toLowerCase()
+    const noteClassLocation = String(classLocations[note.classId] || '').trim().toLowerCase()
+    const matchesInstitute = !userInstitute || !note.classId || noteClassLocation === userInstitute
+    return matchesSearch && matchesGrade && matchesInstitute
   })
 
   return (

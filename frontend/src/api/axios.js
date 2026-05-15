@@ -5,25 +5,33 @@ const AUTH_STORAGE_KEY = 'auth_storage'
 const LEGACY_USER_KEY = 'user'
 
 const getStoredToken = () => {
-  const preferredStorage = localStorage.getItem(AUTH_STORAGE_KEY)
+  try {
+    const preferredStorage = localStorage.getItem(AUTH_STORAGE_KEY)
 
-  if (preferredStorage === 'session') {
-    return sessionStorage.getItem(TOKEN_KEY)
+    if (preferredStorage === 'session') {
+      return sessionStorage.getItem(TOKEN_KEY)
+    }
+
+    if (preferredStorage === 'local') {
+      return localStorage.getItem(TOKEN_KEY)
+    }
+
+    return sessionStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY)
+  } catch (e) {
+    return null
   }
-
-  if (preferredStorage === 'local') {
-    return localStorage.getItem(TOKEN_KEY)
-  }
-
-  return sessionStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY)
 }
 
 const clearStoredAuth = () => {
-  localStorage.removeItem(TOKEN_KEY)
-  sessionStorage.removeItem(TOKEN_KEY)
-  localStorage.removeItem(AUTH_STORAGE_KEY)
-  localStorage.removeItem(LEGACY_USER_KEY)
-  sessionStorage.removeItem(LEGACY_USER_KEY)
+  try {
+    localStorage.removeItem(TOKEN_KEY)
+    sessionStorage.removeItem(TOKEN_KEY)
+    localStorage.removeItem(AUTH_STORAGE_KEY)
+    localStorage.removeItem(LEGACY_USER_KEY)
+    sessionStorage.removeItem(LEGACY_USER_KEY)
+  } catch (e) {
+    // ignore storage access errors in restricted browser contexts
+  }
 }
 
 const resolveBaseUrl = () => {
@@ -50,6 +58,11 @@ api.interceptors.request.use(
     const token = getStoredToken()
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
+      if (import.meta.env.DEV) {
+        console.log('[api] attaching Authorization header:', config.headers.Authorization)
+      }
+    } else {
+      if (import.meta.env.DEV) console.log('[api] no token found for request to', config.url)
     }
     return config
   },
@@ -63,10 +76,10 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      clearStoredAuth()
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login'
-      }
+      // Log details for debugging instead of immediately redirecting.
+      console.warn('[api] 401 response:', error.response && error.response.data)
+      // During debugging do NOT clear stored auth here so we can inspect Authorization headers.
+      // NOTE: We intentionally DO NOT redirect here during debugging; remove this change after fixing the root cause.
     }
     return Promise.reject(error)
   }

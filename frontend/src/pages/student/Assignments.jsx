@@ -50,12 +50,34 @@ export default function Assignments() {
 
   const fetchAssignments = async () => {
     try {
-      const response = await api.get('/assignments/my-assignments')
-      const fetchedAssignments = (response.data.assignments || []).map(a => ({
+      const [assignmentsResponse, paperAssignmentsResponse] = await Promise.all([
+        api.get('/assignments/my-assignments').catch(() => ({ data: { assignments: [] } })),
+        api.get('/papers?type=Assignment').catch(() => ({ data: [] })),
+      ])
+
+      const fetchedAssignments = (assignmentsResponse.data.assignments || []).map(a => ({
         ...a,
+        source: 'assignment',
         status: a.submitted_at ? 'submitted' : 'pending'
       }))
-      setAssignments(fetchedAssignments)
+
+      const paperItems = Array.isArray(paperAssignmentsResponse.data)
+        ? paperAssignmentsResponse.data
+        : (paperAssignmentsResponse.data?.papers || [])
+
+      const paperAssignments = paperItems.map((item) => ({
+        id: item.id,
+        title: item.topic || item.title || 'Assignment',
+        description: `Uploaded assignment material (${item.grade || 'All Grades'})`,
+        due_date: item.createdAt || item.created_at || new Date().toISOString(),
+        submitted_at: null,
+        marks: null,
+        attachment_url: item.fileUrl || null,
+        source: 'paper-assignment',
+        status: 'pending',
+      }))
+
+      setAssignments([...paperAssignments, ...fetchedAssignments])
     } catch (error) {
       console.error('Error fetching assignments:', error)
       toast.error('Failed to load assignments')
@@ -94,7 +116,11 @@ export default function Assignments() {
         throw new Error('No attachment available')
       }
 
-      const response = await api.get(`/assignments/${assignment.id}/download`, {
+      const downloadPath = assignment.source === 'paper-assignment'
+        ? `/papers/${assignment.id}/download`
+        : `/assignments/${assignment.id}/download`
+
+      const response = await api.get(downloadPath, {
         responseType: 'blob'
       })
 
@@ -131,7 +157,11 @@ export default function Assignments() {
       console.error('Assignment attachment download error:', error)
       try {
         const fallbackLink = document.createElement('a')
-        fallbackLink.href = assignment?.attachment_url
+        if (assignment.source === 'paper-assignment') {
+          fallbackLink.href = `${api.defaults.baseURL}/papers/${assignment.id}/file`
+        } else {
+          fallbackLink.href = assignment?.attachment_url
+        }
         fallbackLink.target = '_blank'
         fallbackLink.rel = 'noopener noreferrer'
         document.body.appendChild(fallbackLink)

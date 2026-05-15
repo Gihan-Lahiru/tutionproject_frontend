@@ -21,10 +21,22 @@ export default function RecentPapers({ refreshTrigger }) {
   const fetchPapers = async () => {
     try {
       const response = await api.get('/papers');
-      setPapers(response.data.papers.slice(0, 4)); // Show only recent 4
+      const nextPapers = Array.isArray(response.data)
+        ? response.data
+        : (response.data?.papers || []);
+      setPapers(nextPapers.slice(0, 4)); // Show only recent 4
     } catch (error) {
       console.error('Error fetching papers:', error);
-      toast.error('Failed to load papers');
+      try {
+        const localResponse = await fetch('/storage/papers.json', { cache: 'no-store' });
+        if (!localResponse.ok) throw new Error(`Failed to load local papers: ${localResponse.status}`);
+        const localData = await localResponse.json();
+        const localPapers = Array.isArray(localData?.papers) ? localData.papers : [];
+        setPapers(localPapers.map((item) => ({ ...item, __local: true })).slice(0, 4));
+      } catch (localError) {
+        console.error('Error loading local papers:', localError);
+        toast.error('Failed to load papers');
+      }
     } finally {
       setLoading(false);
     }

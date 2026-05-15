@@ -81,9 +81,12 @@ export default function MyClasses() {
   const fetchClasses = async () => {
     try {
       const response = await classesApi.getAll()
-      setClasses(response.data.classes || [])
+      const payload = response.data
+      const classList = Array.isArray(payload) ? payload : (payload?.classes || [])
+      setClasses(classList)
     } catch (error) {
       toast.error('Failed to fetch classes')
+      setClasses([])
     } finally {
       setLoading(false)
     }
@@ -96,7 +99,7 @@ export default function MyClasses() {
   const uniqueClasses = Object.values(
     classes.reduce((acc, classItem) => {
       const grade = normalizeGrade(classItem.grade)
-      const locationKey = String(classItem.location || 'main').trim().toLowerCase()
+      const locationKey = String(classItem.location || classItem.institute || '').trim().toLowerCase() || 'unknown'
       const key = `${grade}::${locationKey}`
 
       if (!acc[key]) {
@@ -114,7 +117,21 @@ export default function MyClasses() {
     }, {})
   )
 
-  const groupedByGrade = uniqueClasses.reduce((acc, classItem) => {
+  const preferredClasses = (() => {
+    const byGrade = uniqueClasses.reduce((acc, classItem) => {
+      const grade = normalizeGrade(classItem.grade) || 'unknown'
+      if (!acc[grade]) acc[grade] = []
+      acc[grade].push(classItem)
+      return acc
+    }, {})
+
+    return Object.values(byGrade).flatMap((gradeClasses) => {
+      const withLocation = gradeClasses.filter((entry) => String(entry.location || entry.institute || '').trim())
+      return withLocation.length >= 2 ? withLocation : gradeClasses
+    })
+  })()
+
+  const groupedByGrade = preferredClasses.reduce((acc, classItem) => {
     const grade = String(classItem.grade || 'Unknown')
     if (!acc[grade]) acc[grade] = []
     acc[grade].push(classItem)
@@ -152,14 +169,22 @@ export default function MyClasses() {
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {groupedByGrade[grade].map((classItem) => (
                   (() => {
-                    const rawTitle = String(classItem.title || '').trim()
+                    const rawTitle = String(classItem.title || classItem.name || classItem.subject || '').trim()
                     const gradePrefix = new RegExp(`^Grade\\s*${escapeRegex(String(grade))}\\s*`, 'i')
                     const cleanedTitle = rawTitle.replace(gradePrefix, '').trim() || 'Science Class'
+                    const instituteName = String(classItem.institute || classItem.location || '').trim() || 'Class Location'
+                    const locationLabel = String(classItem.location || '').trim()
+                    const studentCount =
+                      classItem.student_count ??
+                      classItem.studentCount ??
+                      (Array.isArray(classItem.students) ? classItem.students.length : 0)
 
                     return (
                   <Card key={classItem.id} className="hover:shadow-lg transition">
                     <div className="mb-4">
-                      <h3 className="text-xl font-bold mb-1">{cleanedTitle}</h3>
+                      <h3 className="text-xl font-bold mb-1">{instituteName}</h3>
+                      <p className="text-sm text-gray-600">{cleanedTitle}</p>
+                      <p className="text-xs text-primary mt-1 capitalize">{locationLabel}</p>
                       <div className="flex items-center text-sm text-gray-600 mt-2">
                         <FiClock className="mr-2" />
                         <span>
@@ -170,7 +195,7 @@ export default function MyClasses() {
 
                     <div className="flex items-center text-gray-600 mb-4">
                       <FiUsers className="mr-2" />
-                      <span>{classItem.student_count ?? classItem.studentCount ?? 0} students</span>
+                      <span>{studentCount} students</span>
                     </div>
 
                     <Button className="w-full" size="sm" onClick={() => setSelectedClass(classItem)}>

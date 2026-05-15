@@ -299,7 +299,10 @@ export default function Profile() {
         
       } catch (error) {
         console.error('Error fetching storage data:', error)
-        toast.error('Failed to load storage data')
+        const status = error?.response?.status
+        if (status !== 401) {
+          toast.error('Failed to load dashboard data')
+        }
       } finally {
         setStorageLoading(false)
       }

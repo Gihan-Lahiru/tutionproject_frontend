@@ -19,6 +19,16 @@ export default function TeacherDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const location = useLocation()
 
+  const getProfileImageSrc = (value) => {
+    if (!value) return ''
+    const raw = String(value).trim()
+    if (!raw) return ''
+    if (raw.startsWith('http://') || raw.startsWith('https://') || raw.startsWith('data:')) {
+      return raw
+    }
+    return raw.startsWith('/') ? `http://localhost:5000${raw}` : `http://localhost:5000/${raw}`
+  }
+
   const navItems = [
     { path: '/teacher/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { path: '/teacher/classes', icon: BookOpen, label: 'Classes' },
@@ -44,7 +54,7 @@ export default function TeacherDashboard() {
               <div className="flex flex-col items-center gap-4">
                 {user?.profile_picture ? (
                   <img 
-                    src={user.profile_picture.startsWith('http') ? user.profile_picture : `http://localhost:5000${user.profile_picture}`}
+                    src={getProfileImageSrc(user.profile_picture || user.profilePicture)}
                     alt={user.name}
                     className="w-24 h-24 rounded-full object-cover border-4 border-blue-500 shadow-xl"
                   />
@@ -65,7 +75,7 @@ export default function TeacherDashboard() {
             <div className="p-4 border-b border-gray-200 flex justify-center">
               {user?.profile_picture ? (
                 <img 
-                  src={user.profile_picture.startsWith('http') ? user.profile_picture : `http://localhost:5000${user.profile_picture}`}
+                  src={getProfileImageSrc(user.profile_picture || user.profilePicture)}
                   alt={user.name}
                   className="w-12 h-12 rounded-full object-cover border-2 border-blue-500"
                 />

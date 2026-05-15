@@ -22,6 +22,16 @@ export default function StudentDashboard() {
   const location = useLocation()
   const [paymentBanner, setPaymentBanner] = useState(null)
 
+  const getProfileImageSrc = (value) => {
+    if (!value) return ''
+    const raw = String(value).trim()
+    if (!raw) return ''
+    if (raw.startsWith('http://') || raw.startsWith('https://') || raw.startsWith('data:')) {
+      return raw
+    }
+    return raw.startsWith('/') ? `http://localhost:5000${raw}` : `http://localhost:5000/${raw}`
+  }
+
   useEffect(() => {
     const params = new URLSearchParams(location.search)
     const paymentParam = params.get('payment')
@@ -147,7 +157,7 @@ export default function StudentDashboard() {
             <div className="flex flex-col items-center gap-4">
               {user?.profile_picture ? (
                 <img 
-                  src={user.profile_picture.startsWith('http') ? user.profile_picture : `http://localhost:5000${user.profile_picture}`}
+                  src={getProfileImageSrc(user.profile_picture || user.profilePicture)}
                   alt={user.name}
                   className="w-24 h-24 rounded-full object-cover border-4 border-primary shadow-xl"
                 />
@@ -160,7 +170,11 @@ export default function StudentDashboard() {
               )}
               <div className="text-center">
                 <p className="text-lg font-bold text-gray-900">{user?.name}</p>
-                <p className="text-sm text-gray-600 font-medium">{user?.grade ? `Grade ${user.grade}` : 'Student'}</p>
+                <p className="text-sm text-gray-600 font-medium">
+                  {user?.grade
+                    ? (String(user.grade).toLowerCase().startsWith('grade') ? user.grade : `Grade ${user.grade}`)
+                    : 'Student'}
+                </p>
               </div>
             </div>
           </div>

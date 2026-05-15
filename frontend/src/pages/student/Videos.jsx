@@ -13,6 +13,13 @@ export default function Videos() {
   const [videos, setVideos] = useState([])
   const [loading, setLoading] = useState(true)
 
+  const resolveAssetUrl = (value) => {
+    if (!value) return ''
+    if (value.startsWith('http://') || value.startsWith('https://')) return value
+    if (value.startsWith('/')) return value
+    return `/${value}`
+  }
+
   const parseAppDate = (value) => {
     if (!value) return null
     if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value
@@ -63,7 +70,19 @@ export default function Videos() {
       setVideos(list)
     } catch (error) {
       console.error('Error fetching videos:', error)
-      toast.error('Failed to load videos')
+      try {
+        const localResponse = await fetch('/storage/videos.json', { cache: 'no-store' })
+        if (!localResponse.ok) throw new Error(`Failed to load local videos: ${localResponse.status}`)
+        const localData = await localResponse.json()
+        const localVideos = Array.isArray(localData?.videos) ? localData.videos : []
+        setVideos(localVideos)
+        if (localVideos.length > 0) {
+          toast.info('Loaded videos from frontend storage')
+        }
+      } catch (localError) {
+        console.error('Error loading local videos:', localError)
+        toast.error('Failed to load videos')
+      }
     } finally {
       setLoading(false)
     }
@@ -71,7 +90,7 @@ export default function Videos() {
 
   const handleWatchVideo = (video) => {
     const actionToastId = toast.info('Download starts...', { autoClose: false })
-    const url = video?.url || video?.video_url
+    const url = resolveAssetUrl(video?.url || video?.video_url)
     if (!url) {
       toast.update(actionToastId, {
         render: 'Failed to open video',
@@ -155,7 +174,7 @@ export default function Videos() {
               <div className="relative aspect-video bg-gradient-to-br from-blue-500 to-purple-600">
                 {video.thumbnail_url ? (
                   <img 
-                    src={video.thumbnail_url} 
+                    src={resolveAssetUrl(video.thumbnail_url)} 
                     alt={video.title}
                     className="w-full h-full object-cover"
                   />

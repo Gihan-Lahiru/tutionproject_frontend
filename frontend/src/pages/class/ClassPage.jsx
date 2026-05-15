@@ -81,7 +81,8 @@ export default function ClassPage() {
         api.get(`/papers?classId=${encodeURIComponent(id)}&type=Paper`).catch(() => ({ data: { papers: [] } })),
       ])
 
-      setClassData(classRes?.data?.class || null)
+      const classPayload = classRes?.data
+      setClassData(classPayload?.class || classPayload || null)
       setAnnouncements(announcementsRes?.data?.announcements || [])
       setAssignments(assignmentsRes?.data?.assignments || [])
       setNotes(notesRes?.data?.notes || [])
@@ -91,6 +92,13 @@ export default function ClassPage() {
     } catch (error) {
       console.error('Failed to load class data:', error)
       toast.error('Failed to load class data')
+      setClassData(null)
+      setAnnouncements([])
+      setAssignments([])
+      setNotes([])
+      setVideos([])
+      setStudents([])
+      setPapers([])
     } finally {
       setLoading(false)
     }

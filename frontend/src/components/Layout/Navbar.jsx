@@ -24,8 +24,28 @@ export default function Navbar() {
     return type === 'payment' && msg.includes('payment reminder');
   };
 
+  const normalizeNotifications = (data) => {
+    const items = Array.isArray(data) ? data : (data?.notifications || []);
+
+    return items.map((notification) => ({
+      ...notification,
+      unread: Boolean(notification?.unread ?? Number(notification?.read) === 0),
+      created_at: notification?.created_at || notification?.createdAt || notification?.createdAtDate || notification?.created,
+    }));
+  };
+
   // Check if we're on a dashboard page
   const isDashboard = location.pathname.includes('/student/') || location.pathname.includes('/teacher/');
+
+  const getProfileImageSrc = (value) => {
+    if (!value) return '';
+    const raw = String(value).trim();
+    if (!raw) return '';
+    if (raw.startsWith('http://') || raw.startsWith('https://') || raw.startsWith('data:')) {
+      return raw;
+    }
+    return raw.startsWith('/') ? `http://localhost:5000${raw}` : `http://localhost:5000/${raw}`;
+  };
 
   // Fetch real notifications
   useEffect(() => {
@@ -33,9 +53,9 @@ export default function Navbar() {
       if (user && isDashboard) {
         try {
           const response = await api.get('/notifications/my-notifications');
-          const nextNotifications = response.data.notifications || [];
+          const nextNotifications = normalizeNotifications(response.data);
           setNotifications(nextNotifications);
-          setUnreadCount(response.data.unreadCount || 0);
+          setUnreadCount(nextNotifications.filter((notification) => notification.unread).length);
 
           // First fetch seeds known IDs.
           if (!notificationsInitializedRef.current) {
@@ -249,9 +269,9 @@ export default function Navbar() {
                   }}
                   className="flex items-center gap-3 px-4 py-2 rounded-lg transition-all"
                 >
-                  {user.profile_picture ? (
+                  {(user.profile_picture || user.profilePicture) ? (
                     <img 
-                      src={user.profile_picture.startsWith('http') ? user.profile_picture : `http://localhost:5000${user.profile_picture}`}
+                      src={getProfileImageSrc(user.profile_picture || user.profilePicture)}
                       alt={user.name}
                       className="w-12 h-12 rounded-full object-cover shadow-md border-2 border-gray-200"
                     />
@@ -389,9 +409,9 @@ export default function Navbar() {
                     }}
                     className="flex items-center gap-3 w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-lg"
                   >
-                    {user.profile_picture ? (
+                    {(user.profile_picture || user.profilePicture) ? (
                       <img 
-                        src={user.profile_picture.startsWith('http') ? user.profile_picture : `http://localhost:5000${user.profile_picture}`}
+                        src={getProfileImageSrc(user.profile_picture || user.profilePicture)}
                         alt={user.name}
                         className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-md"
                       />

@@ -1,24 +1,46 @@
-import { useContext } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { AuthContext } from '../../contexts/AuthContext'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/UI/Card'
 import { FiVideo, FiFileText, FiBookOpen, FiClipboard, FiClock, FiCheckCircle, FiMail, FiPhone, FiUser, FiAward } from 'react-icons/fi'
 import Progress from '../../components/UI/Progress'
+import api from '../../api/axios'
 
 export default function StudentOverview() {
   const { user } = useContext(AuthContext)
+  const [stats, setStats] = useState({
+    totalVideos: 0,
+    totalPapers: 0,
+    totalNotes: 0,
+    totalAssignments: 0,
+  })
+  const [activities, setActivities] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  const stats = [
-    { label: "Total Videos", value: "48", icon: FiVideo },
-    { label: "Notes & PDFs", value: "32", icon: FiFileText },
-    { label: "Papers", value: "15", icon: FiBookOpen },
-    { label: "Assignments", value: "8", icon: FiClipboard },
-  ]
+  useEffect(() => {
+    fetchStudentData()
+  }, [])
 
-  const recentActivity = [
-    { title: "Completed: Algebra Basics", time: "2 hours ago", type: "video", status: "completed" },
-    { title: "Uploaded: Math Homework 5", time: "1 day ago", type: "assignment", status: "submitted" },
-    { title: "Downloaded: Science Notes Chapter 3", time: "2 days ago", type: "notes", status: "completed" },
-    { title: "Due Soon: English Essay", time: "Due in 2 days", type: "assignment", status: "pending" },
+  const fetchStudentData = async () => {
+    try {
+      setLoading(true)
+      const [statsRes, activityRes] = await Promise.all([
+        api.get('/stats/student-stats'),
+        api.get('/stats/student-activity'),
+      ])
+      setStats(statsRes.data)
+      setActivities(activityRes.data.activities || [])
+    } catch (error) {
+      console.error('Failed to fetch student data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const statsData = [
+    { label: "Total Videos", value: loading ? "..." : stats.totalVideos, icon: FiVideo },
+    { label: "Notes & PDFs", value: loading ? "..." : stats.totalNotes, icon: FiFileText },
+    { label: "Papers", value: loading ? "..." : stats.totalPapers, icon: FiBookOpen },
+    { label: "Assignments", value: loading ? "..." : stats.totalAssignments, icon: FiClipboard },
   ]
 
   const courseProgress = [
@@ -26,6 +48,22 @@ export default function StudentOverview() {
     { name: "Science", progress: 60 },
     { name: "ICT", progress: 85 },
   ]
+
+  const getActivityIcon = (type) => {
+    switch (type) {
+      case 'video':
+        return FiVideo
+      case 'paper':
+      case 'papers':
+        return FiBookOpen
+      case 'notes':
+        return FiFileText
+      case 'assignment':
+        return FiClipboard
+      default:
+        return FiCheckCircle
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -87,7 +125,7 @@ export default function StudentOverview() {
 
       {/* Stats Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => {
+        {statsData.map((stat) => {
           const Icon = stat.icon
           return (
             <Card key={stat.label}>
@@ -130,25 +168,26 @@ export default function StudentOverview() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {recentActivity.map((activity, index) => (
-                <div key={index} className="flex items-start gap-3">
-                  <div
-                    className={`mt-0.5 ${
-                      activity.status === "pending" ? "text-gray-500" : "text-primary"
-                    }`}
-                  >
-                    {activity.status === "pending" ? (
-                      <FiClock className="h-5 w-5" />
-                    ) : (
-                      <FiCheckCircle className="h-5 w-5" />
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">{activity.title}</p>
-                    <p className="text-xs text-gray-600">{activity.time}</p>
-                  </div>
-                </div>
-              ))}
+              {loading ? (
+                <div className="text-center py-4 text-gray-500">Loading...</div>
+              ) : activities.length === 0 ? (
+                <div className="text-center py-4 text-gray-500">No recent activity</div>
+              ) : (
+                activities.map((activity, index) => {
+                  const ActivityIcon = getActivityIcon(activity.type)
+                  return (
+                    <div key={index} className="flex items-start gap-3">
+                      <div className="mt-0.5 text-primary">
+                        <ActivityIcon className="h-5 w-5" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900">{activity.title}</p>
+                        <p className="text-xs text-gray-600">{activity.status}</p>
+                      </div>
+                    </div>
+                  )
+                })
+              )}
             </div>
           </CardContent>
         </Card>

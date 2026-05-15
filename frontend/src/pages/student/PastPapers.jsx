@@ -13,6 +13,14 @@ export default function PastPapers() {
   const [searchQuery, setSearchQuery] = useState("")
   const [papers, setPapers] = useState([])
   const [loading, setLoading] = useState(true)
+  const [classLocations, setClassLocations] = useState({})
+
+  const resolveAssetUrl = (value) => {
+    if (!value) return ''
+    if (value.startsWith('http://') || value.startsWith('https://')) return value
+    if (value.startsWith('/')) return value
+    return `/${value}`
+  }
 
   const parseAppDate = (value) => {
     if (!value) return null
@@ -49,19 +57,66 @@ export default function PastPapers() {
     fetchPapers()
   }, [])
 
+  useEffect(() => {
+    const fetchClassLocations = async () => {
+      try {
+        const response = await api.get('/classes')
+        const classList = Array.isArray(response.data) ? response.data : (response.data?.classes || [])
+        const nextMap = classList.reduce((acc, classItem) => {
+          if (classItem?.id) acc[classItem.id] = String(classItem.location || '').trim().toLowerCase()
+          return acc
+        }, {})
+        setClassLocations(nextMap)
+      } catch (error) {
+        console.error('Error fetching class locations for papers:', error)
+        setClassLocations({})
+      }
+    }
+
+    fetchClassLocations()
+  }, [])
+
   const fetchPapers = async () => {
     try {
       const response = await api.get('/papers?type=Paper')
-      setPapers(response.data.papers || [])
+      const nextPapers = Array.isArray(response.data)
+        ? response.data
+        : (response.data?.papers || [])
+      setPapers(nextPapers)
     } catch (error) {
       console.error('Error fetching papers:', error)
-      toast.error('Failed to load papers')
+      try {
+        const localResponse = await fetch('/storage/papers.json', { cache: 'no-store' })
+        if (!localResponse.ok) throw new Error(`Failed to load local papers: ${localResponse.status}`)
+        const localData = await localResponse.json()
+        const localPapers = Array.isArray(localData?.papers) ? localData.papers : []
+        setPapers(localPapers.map((item) => ({ ...item, __local: true })))
+        if (localPapers.length > 0) {
+          toast.info('Loaded papers from frontend storage')
+        } else {
+          toast.info('No papers available yet')
+        }
+      } catch (localError) {
+        console.error('Error loading local papers:', localError)
+        toast.error('Failed to load papers')
+      }
     } finally {
       setLoading(false)
     }
   }
 
   const handleDownload = async (paper) => {
+    if (paper.__local && paper.fileUrl) {
+      const link = document.createElement('a')
+      link.href = resolveAssetUrl(paper.fileUrl)
+      link.download = `${(paper.topic || paper.title || 'paper').trim()}`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      toast.success('Download completed')
+      return
+    }
+
     const downloadToastId = toast.info('Download starts...', { autoClose: false })
 
     try {
@@ -160,8 +215,11 @@ export default function PastPapers() {
       paper.grade === user.grade || 
       paper.grade === `Grade ${user.grade}` ||
       paper.grade === `grade ${user.grade}`
+    const userInstitute = String(user?.institute || '').trim().toLowerCase()
+    const paperClassLocation = String(classLocations[paper.classId] || '').trim().toLowerCase()
+    const matchesInstitute = !userInstitute || !paper.classId || paperClassLocation === userInstitute
 
-    return matchesSearch && matchesUserGrade
+    return matchesSearch && matchesUserGrade && matchesInstitute
   })
 
   return (
@@ -211,7 +269,7 @@ export default function PastPapers() {
               <CardContent className="flex items-center gap-4 p-4">
                 {paper.thumbnail_url ? (
                   <img
-                    src={paper.thumbnail_url}
+                    src={resolveAssetUrl(paper.thumbnail_url)}
                     alt={(paper.topic || paper.title || 'Paper preview').trim()}
                     className="h-14 w-14 rounded-lg object-cover flex-shrink-0"
                   />
