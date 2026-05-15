@@ -10,7 +10,7 @@ import { toast } from 'react-toastify'
 export default function Register() {
   const navigate = useNavigate()
   const { setAuthSession } = useContext(AuthContext)
-  const [step, setStep] = useState(1) // 1: Email, 2: Verify Code, 3: Complete Registration
+  const [step, setStep] = useState(1) // 1: Email, 2: Complete Registration
   const [email, setEmail] = useState('')
   const [verificationCode, setVerificationCode] = useState(['', '', '', '', '', ''])
   const [formData, setFormData] = useState({
@@ -34,55 +34,7 @@ export default function Register() {
       return
     }
 
-    setLoading(true)
-    try {
-      const response = await api.post('/auth/send-verification', { email })
-      toast.success(response.data.message)
-      
-      // Show code in development
-      if (response.data.verificationCode) {
-        toast.info(`Code: ${response.data.verificationCode}`, { autoClose: false })
-      }
-      
-      setStep(2)
-    } catch (error) {
-      console.error('Send code error:', error)
-      const apiMessage = error.response?.data?.message || 'Failed to send verification code'
-
-      if (
-        error.response?.status === 500 &&
-        String(apiMessage).toLowerCase().includes('not configured')
-      ) {
-        toast.error('Email service is not configured. Please ask admin to set backend EMAIL_USER and EMAIL_PASSWORD.')
-      } else {
-        toast.error(apiMessage)
-      }
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  // Step 2: Verify the code
-  const handleVerifyCode = async (e) => {
-    e.preventDefault()
-    
-    const code = verificationCode.join('')
-    if (code.length !== 6) {
-      toast.error('Please enter the complete 6-digit code')
-      return
-    }
-
-    setLoading(true)
-    try {
-      const response = await api.post('/auth/verify-code', { email, code })
-      toast.success(response.data.message)
-      setStep(3)
-    } catch (error) {
-      console.error('Verification error:', error)
-      toast.error(error.response?.data?.message || 'Verification failed')
-    } finally {
-      setLoading(false)
-    }
+    setStep(2)
   }
 
   // Step 3: Complete registration
@@ -105,11 +57,11 @@ export default function Register() {
 
     setLoading(true)
     try {
+      const { confirmPassword, phone, ...registrationData } = formData
       const userData = {
-        ...formData,
-        email
+        ...registrationData,
+        email,
       }
-      delete userData.confirmPassword
       
       const response = await api.post('/auth/register', userData)
       
@@ -202,7 +154,7 @@ export default function Register() {
                 className="w-full"
                 disabled={loading}
               >
-                {loading ? 'Sending Code...' : 'Send Verification Code'}
+                {loading ? 'Continuing...' : 'Continue'}
               </Button>
 
               <div className="mt-6 text-center">
@@ -216,68 +168,12 @@ export default function Register() {
             </form>
           )}
 
-          {/* Step 2: Verification Code */}
+          {/* Step 2: Complete Registration */}
           {step === 2 && (
-            <form onSubmit={handleVerifyCode}>
-              <div className="mb-6">
-                <label className="block text-center text-gray-700 font-medium mb-4">
-                  Enter 6-Digit Code sent to<br />
-                  <span className="text-blue-600">{email}</span>
-                </label>
-                <div className="flex gap-2 justify-center" onPaste={handleCodePaste}>
-                  {verificationCode.map((digit, index) => (
-                    <input
-                      key={index}
-                      id={`code-${index}`}
-                      type="text"
-                      maxLength="1"
-                      value={digit}
-                      onChange={(e) => handleCodeInput(index, e.target.value)}
-                      onKeyDown={(e) => handleCodeKeyDown(index, e)}
-                      className="w-12 h-14 text-center text-2xl font-bold border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      autoComplete="off"
-                    />
-                  ))}
-                </div>
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={loading || verificationCode.some(d => !d)}
-              >
-                {loading ? 'Verifying...' : 'Verify Code'}
-              </Button>
-
-              <div className="mt-4 text-center">
-                <button
-                  type="button"
-                  onClick={handleSendCode}
-                  className="text-sm text-blue-600 hover:underline"
-                  disabled={loading}
-                >
-                  Resend Code
-                </button>
-              </div>
-
-              <div className="mt-4 text-center">
-                <button
-                  type="button"
-                  onClick={() => setStep(1)}
-                  className="text-sm text-gray-600 hover:underline"
-                >
-                  Change Email
-                </button>
-              </div>
-            </form>
-          )}
-
-          {/* Step 3: Complete Registration */}
-          {step === 3 && (
             <form onSubmit={handleRegister}>
               <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
                 <p className="text-sm text-green-700 text-center">
-                  ✓ Email verified: {email}
+                  ✓ Email confirmed: {email}
                 </p>
               </div>
 
@@ -289,16 +185,6 @@ export default function Register() {
                 onChange={handleChange}
                 required
                 placeholder="John Doe"
-              />
-
-              <Input
-                label="Contact Number"
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                required
-                placeholder="07XXXXXXXX"
               />
 
               <div className="mb-4">
