@@ -220,7 +220,7 @@ export default function ClassPage() {
       setSaving(true)
       await api.post(`/videos/class/${id}`, {
         title: videoForm.title.trim(),
-        url: videoForm.url.trim(),
+        videoUrl: videoForm.url.trim(),
         description: videoForm.description.trim() || null,
       })
       toast.success('Video added successfully')

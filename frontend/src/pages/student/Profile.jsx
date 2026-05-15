@@ -823,6 +823,13 @@ export default function Profile() {
                   </div>
                 </div>
                 <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-600">Institute</label>
+                  <div className="flex items-center gap-2 h-10 px-3 rounded-md bg-gray-50">
+                    <FiUser className="w-4 h-4 text-gray-600" />
+                    <span className="text-gray-900">{user?.institute || 'Not provided'}</span>
+                  </div>
+                </div>
+                <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-600">Monthly Fee</label>
                   <div className="flex items-center gap-2 h-10 px-3 rounded-md bg-gray-50">
                     <FiDollarSign className="w-4 h-4 text-gray-600" />
@@ -923,6 +930,15 @@ export default function Profile() {
               <FiAward className="w-6 h-6 text-primary mb-2" />
               <p className="text-gray-600 text-xs font-medium">Your Grade</p>
               <p className="text-gray-900 text-xl font-bold mt-1">{formatGradeLabel(user?.grade)}</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex flex-col">
+              <FiUser className="w-6 h-6 text-primary mb-2" />
+              <p className="text-gray-600 text-xs font-medium">Institute</p>
+              <p className="text-gray-900 text-xl font-bold mt-1">{user?.institute || 'Not provided'}</p>
             </div>
           </CardContent>
         </Card>

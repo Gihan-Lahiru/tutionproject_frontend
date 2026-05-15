@@ -12,10 +12,11 @@ export default function Videos() {
   const [searchQuery, setSearchQuery] = useState("")
   const [videos, setVideos] = useState([])
   const [loading, setLoading] = useState(true)
+  const [classLocations, setClassLocations] = useState({})
 
   const resolveAssetUrl = (value) => {
     if (!value) return ''
-    if (value.startsWith('http://') || value.startsWith('https://')) return value
+    if (value.startsWith('http://') || value.startsWith('https://') || value.startsWith('data:')) return value
     if (value.startsWith('/')) return value
     return `/${value}`
   }
@@ -62,6 +63,25 @@ export default function Videos() {
     fetchVideos()
   }, [])
 
+  useEffect(() => {
+    const fetchClassLocations = async () => {
+      try {
+        const response = await api.get('/classes')
+        const classList = Array.isArray(response.data) ? response.data : (response.data?.classes || [])
+        const nextMap = classList.reduce((acc, classItem) => {
+          if (classItem?.id) acc[classItem.id] = String(classItem.location || '').trim().toLowerCase()
+          return acc
+        }, {})
+        setClassLocations(nextMap)
+      } catch (error) {
+        console.error('Error fetching class locations for videos:', error)
+        setClassLocations({})
+      }
+    }
+
+    fetchClassLocations()
+  }, [])
+
   const fetchVideos = async () => {
     try {
       const response = await api.get('/videos')
@@ -90,7 +110,7 @@ export default function Videos() {
 
   const handleWatchVideo = (video) => {
     const actionToastId = toast.info('Download starts...', { autoClose: false })
-    const url = resolveAssetUrl(video?.url || video?.video_url)
+    const url = resolveAssetUrl(video?.videoUrl || video?.url || video?.video_url)
     if (!url) {
       toast.update(actionToastId, {
         render: 'Failed to open video',
@@ -126,7 +146,10 @@ export default function Videos() {
     const userGradeKey = normalizeGradeKey(user?.grade)
     const videoGradeKey = normalizeGradeKey(video?.grade)
     const matchesGrade = !userGradeKey || !videoGradeKey || videoGradeKey === userGradeKey
-    return matchesSearch && matchesGrade
+    const userInstitute = String(user?.institute || '').trim().toLowerCase()
+    const videoClassLocation = String(classLocations[video.classId] || '').trim().toLowerCase()
+    const matchesInstitute = !userInstitute || !video.classId || videoClassLocation === userInstitute
+    return matchesSearch && matchesGrade && matchesInstitute
   })
 
   return (
@@ -172,9 +195,9 @@ export default function Videos() {
           {filteredVideos.map((video) => (
             <Card key={video.id} className="overflow-hidden hover:shadow-lg transition-shadow">
               <div className="relative aspect-video bg-gradient-to-br from-blue-500 to-purple-600">
-                {video.thumbnail_url ? (
+                  {video.thumbnailUrl || video.thumbnail_url ? (
                   <img 
-                    src={resolveAssetUrl(video.thumbnail_url)} 
+                      src={resolveAssetUrl(video.thumbnailUrl || video.thumbnail_url)} 
                     alt={video.title}
                     className="w-full h-full object-cover"
                   />

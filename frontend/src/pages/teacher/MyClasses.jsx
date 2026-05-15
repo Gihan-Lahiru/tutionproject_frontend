@@ -36,6 +36,8 @@ export default function MyClasses() {
           id: selectedClass.id,
           title: selectedClass.title || selectedClass.name || `Class ${selectedClass.id}`,
           grade: selectedClass.grade,
+            location: selectedClass.location || selectedClass.institute || '',
+            institute: selectedClass.institute || selectedClass.location || '',
         },
         quickAction: action,
       },

@@ -6,10 +6,30 @@ import { toast } from 'react-toastify'
 export default function VideoLibrary({ refreshTrigger }) {
   const [videos, setVideos] = useState([])
   const [loading, setLoading] = useState(true)
+  const [classLocations, setClassLocations] = useState({})
 
   useEffect(() => {
     fetchVideos()
   }, [refreshTrigger])
+
+  useEffect(() => {
+    const fetchClassLocations = async () => {
+      try {
+        const response = await api.get('/classes')
+        const classList = Array.isArray(response.data) ? response.data : (response.data?.classes || [])
+        const nextMap = classList.reduce((acc, classItem) => {
+          if (classItem?.id) acc[classItem.id] = String(classItem.location || classItem.institute || '').trim()
+          return acc
+        }, {})
+        setClassLocations(nextMap)
+      } catch (error) {
+        console.error('Error fetching class locations:', error)
+        setClassLocations({})
+      }
+    }
+
+    fetchClassLocations()
+  }, [])
 
   const fetchVideos = async () => {
     try {
@@ -40,6 +60,7 @@ export default function VideoLibrary({ refreshTrigger }) {
   }
 
   const openVideo = (url) => {
+    if (!url) return
     window.open(url, '_blank')
   }
 
@@ -72,11 +93,16 @@ export default function VideoLibrary({ refreshTrigger }) {
                   <p className="text-sm text-gray-600">
                     Grade {video.grade} - {video.subject || 'Science'}
                   </p>
+                  {video.classId && classLocations[video.classId] && (
+                    <p className="text-xs text-primary mt-1 truncate">
+                      Institute: {classLocations[video.classId]}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => openVideo(video.url)}
+                  onClick={() => openVideo(video.videoUrl || video.url)}
                   className="p-2 hover:bg-purple-100 rounded-lg transition-colors"
                   title="Play video"
                 >

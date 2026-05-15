@@ -30,7 +30,10 @@ export default function Videos() {
           <h1 className="text-3xl font-bold text-gray-900">Video Lessons</h1>
           <p className="text-gray-600 mt-1">Upload and manage video lectures for your students.</p>
           {classContext && (
-            <p className="text-sm text-primary mt-2 font-medium">Selected class: {classContext.title}</p>
+            <div className="text-sm text-primary mt-2 font-medium space-y-1">
+              <p>Selected class: {classContext.title}</p>
+              <p className="text-xs text-gray-600">Institute: {classContext.location || classContext.institute || 'Class Location'}</p>
+            </div>
           )}
         </div>
       </div>

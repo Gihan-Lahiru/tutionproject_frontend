@@ -66,6 +66,37 @@ export default function VideoUpload({ onUploadSuccess, classContext = null }) {
     setThumbnailPreview(URL.createObjectURL(file))
   }
 
+  const fileToCompressedDataUrl = (file) => new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      const image = new Image()
+      image.onload = () => {
+        const maxWidth = 640
+        const maxHeight = 360
+        const scale = Math.min(maxWidth / image.width, maxHeight / image.height, 1)
+        const width = Math.max(1, Math.round(image.width * scale))
+        const height = Math.max(1, Math.round(image.height * scale))
+
+        const canvas = document.createElement('canvas')
+        canvas.width = width
+        canvas.height = height
+
+        const context = canvas.getContext('2d')
+        if (!context) {
+          reject(new Error('Failed to process thumbnail image'))
+          return
+        }
+
+        context.drawImage(image, 0, 0, width, height)
+        resolve(canvas.toDataURL('image/jpeg', 0.72))
+      }
+      image.onerror = () => reject(new Error('Failed to read thumbnail image'))
+      image.src = String(reader.result)
+    }
+    reader.onerror = () => reject(new Error('Failed to read thumbnail image'))
+    reader.readAsDataURL(file)
+  })
+
   const removeThumbnail = () => {
     setThumbnail(null)
     if (thumbnailPreview) {
@@ -84,18 +115,25 @@ export default function VideoUpload({ onUploadSuccess, classContext = null }) {
 
     try {
       setUploading(true)
-      const payload = new FormData()
-      payload.append('title', formData.title)
-      payload.append('url', formData.url)
-      payload.append('grade', formData.grade)
-      payload.append('subject', formData.subject)
-      payload.append('description', formData.description)
-      if (thumbnail) payload.append('thumbnail', thumbnail)
-
+      const thumbnailUrl = thumbnail ? await fileToCompressedDataUrl(thumbnail) : ''
       if (classContext?.id) {
-        await api.post(`/videos/class/${classContext.id}`, payload)
+        await api.post(`/videos/class/${classContext.id}`, {
+          title: formData.title,
+          videoUrl: formData.url,
+          grade: formData.grade,
+          subject: formData.subject,
+          description: formData.description,
+          thumbnailUrl,
+        })
       } else {
-        await api.post('/videos', payload)
+        await api.post('/videos', {
+          title: formData.title,
+          videoUrl: formData.url,
+          grade: formData.grade,
+          subject: formData.subject,
+          description: formData.description,
+          thumbnailUrl,
+        })
       }
       
       toast.success('Video uploaded successfully!')
@@ -123,7 +161,8 @@ export default function VideoUpload({ onUploadSuccess, classContext = null }) {
       <p className="text-sm text-gray-600 mb-4">Add a new video lesson (YouTube, Vimeo, or direct link)</p>
       {classContext && (
         <div className="mb-4 rounded-lg bg-blue-50 border border-blue-200 px-3 py-2 text-sm text-blue-800">
-          Upload target class: {classContext.title}
+          <div>Upload target class: <strong>{classContext.title}</strong></div>
+          <div className="text-xs text-blue-700">Institute: {classContext.location || classContext.institute || 'Class Location'}</div>
         </div>
       )}
 

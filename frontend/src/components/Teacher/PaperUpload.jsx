@@ -194,7 +194,8 @@ export default function PaperUpload({ onUploadSuccess, classContext = null, init
       <p className="text-sm text-gray-600 mb-4">Upload question papers, assignments, or notes</p>
       {classContext && (
         <div className="mb-4 rounded-lg bg-blue-50 border border-blue-200 px-3 py-2 text-sm text-blue-800">
-          Upload target class: {classContext.title}
+          <div>Upload target class: <strong>{classContext.title}</strong></div>
+          <div className="text-xs text-blue-700">Institute: {classContext.location || classContext.institute || 'Class Location'}</div>
         </div>
       )}
 
