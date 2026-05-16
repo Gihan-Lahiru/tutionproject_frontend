@@ -182,6 +182,7 @@ export function AuthProvider({ children }) {
     } catch (error) {
       const message = error.response?.data?.message || 'Login failed'
       toast.error(message)
+      error.message = message
       // Throw error so Login component can catch it and check for requiresVerification
       throw error
     }

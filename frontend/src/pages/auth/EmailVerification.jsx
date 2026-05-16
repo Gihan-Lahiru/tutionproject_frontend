@@ -16,8 +16,8 @@ export default function EmailVerification() {
   const [email, setEmail] = useState('');
 
   useEffect(() => {
-    // Get email from navigation state or redirect to register
     const emailFromState = location.state?.email;
+
     if (!emailFromState) {
       toast.error('Please register first');
       navigate('/register');
@@ -104,13 +104,9 @@ export default function EmailVerification() {
     setResending(true);
     
     try {
-      const response = await api.post('/auth/resend-verification', { email });
+      const response = await api.post('/auth/resend-verification-code', { email });
       toast.success(response.data.message || 'Verification code sent');
       setCode(['', '', '', '', '', '']); // Clear input
-      
-      if (response.data.verificationCode) {
-        toast.info(`Dev Code: ${response.data.verificationCode}`, { autoClose: false });
-      }
       
       const firstInput = document.getElementById('code-0');
       if (firstInput) firstInput.focus();
@@ -131,9 +127,9 @@ export default function EmailVerification() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
           </div>
-          <h2 className="text-3xl font-bold text-gray-900">Verify Your Email</h2>
+          <h2 className="text-3xl font-bold text-gray-900">Pending Verification</h2>
           <p className="mt-2 text-gray-600">
-            We've sent a 6-digit code to
+            Your account is almost ready. Enter the 6-digit code sent to
           </p>
           <p className="font-semibold text-blue-600">{email}</p>
         </div>
@@ -186,7 +182,7 @@ export default function EmailVerification() {
 
           <div className="mt-6 p-4 bg-blue-50 rounded-lg">
             <p className="text-sm text-gray-700 text-center">
-              <strong>Note:</strong> The code will expire in 10 minutes.
+              <strong>Note:</strong> Your account will be completed after verification.
             </p>
           </div>
         </Card>

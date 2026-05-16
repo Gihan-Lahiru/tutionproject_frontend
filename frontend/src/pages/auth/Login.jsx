@@ -31,7 +31,10 @@ export default function Login() {
     try {
       await login(formData.email, formData.password, { rememberMe })
     } catch (error) {
-      // Error already handled by AuthContext
+      const message = error.response?.data?.message || 'Login failed'
+      if (message.toLowerCase().includes('verify')) {
+        navigate('/verify-email', { state: { email: formData.email }, replace: true })
+      }
     } finally {
       setLoading(false)
     }

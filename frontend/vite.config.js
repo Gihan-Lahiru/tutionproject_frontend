@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: 'localhost',
-    port: 3002,
+    port: 3003,
     strictPort: false,
     headers: {
       'Cache-Control': 'no-store',
