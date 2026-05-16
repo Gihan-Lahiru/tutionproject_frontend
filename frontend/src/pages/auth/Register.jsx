@@ -9,6 +9,7 @@ import { toast } from 'react-toastify'
 export default function Register() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
+  const [submitted, setSubmitted] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     password: '',
@@ -64,14 +65,8 @@ export default function Register() {
       await api.post('/auth/register', userData)
 
       toast.dismiss(pendingToastId)
-      toast.info('Registration pending. Check your email and enter the verification code to continue.')
-
-      navigate('/verify-email', {
-        state: {
-          email,
-        },
-        replace: true,
-      })
+      setSubmitted(true)
+      toast.info('Registration submitted. Please wait until sir confirms your account.')
     } catch (error) {
       toast.dismiss(pendingToastId)
       console.error('Registration error:', error)
@@ -96,10 +91,37 @@ export default function Register() {
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-gray-900">Join Our Classes</h2>
-          <p className="mt-2 text-gray-600">Create your account</p>
+          <p className="mt-2 text-gray-600">
+            {submitted ? 'Waiting for approval' : 'Create your account'}
+          </p>
         </div>
 
         <Card>
+          {submitted ? (
+            <div className="py-4 text-center space-y-4">
+              <div className="mx-auto w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center">
+                <svg className="w-8 h-8 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M4.93 19h14.14a2 2 0 001.73-3L14.73 5a2 2 0 00-3.46 0L3.2 16a2 2 0 001.73 3z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900">Request submitted</h3>
+                <p className="mt-2 text-gray-600">
+                  Please wait until sir confirms your account.
+                </p>
+                <p className="mt-2 text-sm text-gray-500">
+                  Once approved, you can sign in.
+                </p>
+              </div>
+              <Button
+                type="button"
+                className="w-full"
+                onClick={() => navigate('/login', { replace: true })}
+              >
+                Go to Login
+              </Button>
+            </div>
+          ) : (
           <form onSubmit={handleRegister}>
             <Input
               label="Email Address"
@@ -202,6 +224,7 @@ export default function Register() {
               </p>
             </div>
           </form>
+          )}
         </Card>
       </div>
     </div>

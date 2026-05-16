@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { AuthContext } from '../../contexts/AuthContext'
 import Input from '../../components/UI/Input'
 import Button from '../../components/UI/Button'
@@ -7,7 +7,6 @@ import Card from '../../components/UI/Card'
 import { toast } from 'react-toastify'
 
 export default function Login() {
-  const navigate = useNavigate()
   const { login } = useContext(AuthContext)
   const [formData, setFormData] = useState({
     email: '',
@@ -33,7 +32,7 @@ export default function Login() {
     } catch (error) {
       const message = error.response?.data?.message || 'Login failed'
       if (message.toLowerCase().includes('verify')) {
-        navigate('/verify-email', { state: { email: formData.email }, replace: true })
+        toast.error('Please wait until sir confirms your account.')
       }
     } finally {
       setLoading(false)

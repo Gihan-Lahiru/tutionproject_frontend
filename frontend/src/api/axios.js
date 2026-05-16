@@ -56,13 +56,16 @@ if (import.meta.env.DEV) {
 api.interceptors.request.use(
   (config) => {
     const token = getStoredToken()
+    const isPublicAuthRoute = String(config.url || '').startsWith('/auth/')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
       if (import.meta.env.DEV) {
         console.log('[api] attaching Authorization header:', config.headers.Authorization)
       }
     } else {
-      if (import.meta.env.DEV) console.log('[api] no token found for request to', config.url)
+      if (import.meta.env.DEV && !isPublicAuthRoute) {
+        console.log('[api] no token found for request to', config.url)
+      }
     }
     return config
   },

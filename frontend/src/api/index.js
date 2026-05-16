@@ -57,4 +57,6 @@ export const usersApi = {
   getProfile: () => api.get('/users/profile'),
   updateProfile: (data) => api.put('/users/profile', data),
   getStudentsByClass: (classId) => api.get(`/classes/${classId}/students`),
+  getPendingRegistrations: () => api.get('/users/students?status=pending'),
+  approveRegistration: (id) => api.post(`/users/students/${id}/approve`),
 }

@@ -105,7 +105,7 @@ export default function EmailVerification() {
     
     try {
       const response = await api.post('/auth/resend-verification-code', { email });
-      toast.success(response.data.message || 'Verification code sent');
+      toast.info(response.data.message || 'Verification request sent. Check your inbox or spam folder.');
       setCode(['', '', '', '', '', '']); // Clear input
       
       const firstInput = document.getElementById('code-0');
@@ -178,6 +178,9 @@ export default function EmailVerification() {
             >
               {resending ? 'Sending...' : 'Resend Code'}
             </button>
+            <p className="text-xs text-gray-500 mt-2">
+              Check your inbox and spam folder. If it still does not arrive, resend after a minute.
+            </p>
           </div>
 
           <div className="mt-6 p-4 bg-blue-50 rounded-lg">
