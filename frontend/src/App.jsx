@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
+import { AuthModalProvider } from './contexts/AuthModalContext'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
@@ -11,8 +12,6 @@ import Features from './pages/Features'
 import Classes from './pages/Classes'
 import Results from './pages/Results'
 import Contact from './pages/Contact'
-import Login from './pages/auth/Login'
-import Register from './pages/auth/Register'
 import EmailVerification from './pages/auth/EmailVerification'
 import ForgotPassword from './pages/auth/ForgotPassword'
 import ResetPassword from './pages/auth/ResetPassword'
@@ -39,24 +38,23 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <ScrollToTop />
-        <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          draggable={false}
-          closeOnClick
-          pauseOnHover
-        />
-        <Routes>
-          {/* Public Routes */}
+        <AuthModalProvider>
+          <ScrollToTop />
+          <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            draggable={false}
+            closeOnClick
+            pauseOnHover
+          />
+          <Routes>
+            {/* Public Routes */}
           <Route path="/" element={<Landing />} />
           <Route path="/about" element={<About />} />
           <Route path="/features" element={<Features />} />
           <Route path="/classes" element={<Classes />} />
           <Route path="/results" element={<Results />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
           <Route path="/verify-email" element={<EmailVerification />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
@@ -98,6 +96,7 @@ function App() {
           {/* Catch all */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        </AuthModalProvider>
       </AuthProvider>
     </Router>
   )

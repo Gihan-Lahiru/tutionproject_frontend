@@ -174,10 +174,6 @@ export function AuthProvider({ children }) {
       const activeUser = hydratedUser || normalizeUser(user)
       setUser(activeUser)
 
-      if (activeUser?.role === 'student' && activeUser?.approvalStatus === 'pending') {
-        toast.info('Your account is currently waiting for approval.')
-      }
-
       const destination = (activeUser?.role === 'teacher' || activeUser?.role === 'admin') ? '/teacher/dashboard' : '/student/dashboard'
       console.log('[Auth] redirecting to', destination)
       navigate(destination, { replace: true })
@@ -195,7 +191,6 @@ export function AuthProvider({ children }) {
   const register = async (userData) => {
     try {
       const response = await api.post('/auth/register', userData)
-      navigate('/login')
       return { success: true }
     } catch (error) {
       const message = error.response?.data?.message || 'Registration failed'

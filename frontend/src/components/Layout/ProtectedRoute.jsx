@@ -1,6 +1,7 @@
-import { useContext } from 'react'
+import { useContext, useEffect } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { AuthContext } from '../../contexts/AuthContext'
+import { toast } from 'react-toastify'
 
 export default function ProtectedRoute({ children, allowedRoles = [] }) {
   const { user, loading } = useContext(AuthContext)
@@ -15,18 +16,24 @@ export default function ProtectedRoute({ children, allowedRoles = [] }) {
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />
+    // Dispatch an event to show the login modal by triggering the event listener in AuthModalContext
+    window.dispatchEvent(new Event('auth:unauthorized'));
+    return <Navigate to="/" replace />
   }
 
   if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
     return <Navigate to="/" replace />
   }
 
-  // Prevent pending students from accessing individual class pages or other non-dashboard protected routes
+  // Prevent pending students from accessing protected routes
   if (user.role === 'student' && user.approvalStatus === 'pending') {
-    if (!location.pathname.startsWith('/student')) {
-      return <Navigate to="/student/dashboard" replace />
-    }
+    // We cannot call toast directly in render, so we'll dispatch the event to auth which clears out and we can just use a timeout or useEffect pattern.
+    // Instead of complex hooks, just scheduling it macrotask works fine for React router Redirects
+    setTimeout(() => {
+      window.dispatchEvent(new Event('auth:unauthorized'));
+      toast.info('Your account is pending approval.');
+    }, 0);
+    return <Navigate to="/" replace />
   }
 
   return children

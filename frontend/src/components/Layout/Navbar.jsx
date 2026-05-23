@@ -2,6 +2,7 @@ import { useState, useContext, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FiMenu, FiX, FiUser, FiBell } from 'react-icons/fi';
 import { AuthContext } from '../../contexts/AuthContext';
+import { useAuthModal } from '../../contexts/AuthModalContext';
 import api from '../../api/axios';
 import { toast } from 'react-toastify';
 
@@ -15,6 +16,7 @@ export default function Navbar() {
   const notificationsInitializedRef = useRef(false);
   const announcedNotificationIdsRef = useRef(new Set());
   const { user } = useContext(AuthContext);
+  const { openLogin, openRegister } = useAuthModal();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -34,8 +36,8 @@ export default function Navbar() {
     }));
   };
 
-  // Check if we're on a dashboard page
-  const isDashboard = location.pathname.includes('/student/') || location.pathname.includes('/teacher/');
+  // Check if we're on a dashboard page (include root paths like '/student' and '/teacher')
+  const isDashboard = location.pathname.startsWith('/student') || location.pathname.startsWith('/teacher');
 
   const getProfileImageSrc = (value) => {
     if (!value) return '';
@@ -115,9 +117,17 @@ export default function Navbar() {
   useEffect(() => {
     if (!user || user.role !== 'student') return;
     if (!location.pathname.startsWith('/student')) return;
+    // Only announce notifications relevant to the current section (papers/notes/videos)
+    const pageType = (() => {
+      const p = location.pathname.toLowerCase();
+      if (p.includes('/papers')) return 'paper';
+      if (p.includes('/notes')) return 'note';
+      if (p.includes('/videos')) return 'video';
+      return null;
+    })();
 
     const unreadToAnnounce = notifications.filter(
-      (n) => n.unread && !announcedNotificationIdsRef.current.has(n.id)
+      (n) => n.unread && !announcedNotificationIdsRef.current.has(n.id) && (pageType === null || String(n.type || '').toLowerCase() === pageType)
     );
 
     unreadToAnnounce.slice(0, 3).forEach((n) => {
@@ -142,9 +152,16 @@ export default function Navbar() {
   useEffect(() => {
     if (!user || (user.role !== 'teacher' && user.role !== 'admin')) return;
     if (!location.pathname.startsWith('/teacher')) return;
+    const pageType = (() => {
+      const p = location.pathname.toLowerCase();
+      if (p.includes('/papers')) return 'paper';
+      if (p.includes('/notes')) return 'note';
+      if (p.includes('/videos')) return 'video';
+      return null;
+    })();
 
     const unreadToAnnounce = notifications.filter(
-      (n) => n.unread && !announcedNotificationIdsRef.current.has(n.id)
+      (n) => n.unread && !announcedNotificationIdsRef.current.has(n.id) && (pageType === null || String(n.type || '').toLowerCase() === pageType)
     );
 
     unreadToAnnounce.slice(0, 3).forEach((n) => {
@@ -185,6 +202,8 @@ export default function Navbar() {
       }
     }
   };
+
+  const [filterType, setFilterType] = useState('all');
 
   // Helper function to format time ago
   const getTimeAgo = (dateString) => {
@@ -307,38 +326,73 @@ export default function Navbar() {
                     {showNotifications && (
                       <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
                         <div className="p-4 border-b border-gray-200">
-                          <h3 className="font-semibold text-gray-900">Notifications</h3>
-                          {unreadCount > 0 && (
-                            <p className="text-xs text-gray-500 mt-1">{unreadCount} unread</p>
-                          )}
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h3 className="font-semibold text-gray-900">Notifications</h3>
+                              {unreadCount > 0 && (
+                                <p className="text-xs text-gray-500 mt-1">{unreadCount} unread</p>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => setFilterType('all')}
+                                className={`text-xs px-2 py-1 rounded ${filterType === 'all' ? 'bg-gray-200' : 'bg-transparent'}`}
+                              >
+                                All
+                              </button>
+                              <button
+                                onClick={() => setFilterType('paper')}
+                                className={`text-xs px-2 py-1 rounded ${filterType === 'paper' ? 'bg-gray-200' : 'bg-transparent'}`}
+                              >
+                                Papers
+                              </button>
+                              <button
+                                onClick={() => setFilterType('note')}
+                                className={`text-xs px-2 py-1 rounded ${filterType === 'note' ? 'bg-gray-200' : 'bg-transparent'}`}
+                              >
+                                Notes
+                              </button>
+                              <button
+                                onClick={() => setFilterType('video')}
+                                className={`text-xs px-2 py-1 rounded ${filterType === 'video' ? 'bg-gray-200' : 'bg-transparent'}`}
+                              >
+                                Videos
+                              </button>
+                            </div>
+                          </div>
                         </div>
                         <div className="max-h-96 overflow-y-auto">
-                          {notifications.length > 0 ? (
-                            notifications.map((notification) => (
-                              <div
-                                key={notification.id}
-                                className={`p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors ${
-                                  isPaymentReminderNotification(notification)
-                                    ? 'bg-red-50'
-                                    : notification.unread
-                                      ? 'bg-blue-50'
-                                      : ''
-                                }`}
-                              >
-                                <p className={`text-sm ${isPaymentReminderNotification(notification) ? 'text-red-700 font-medium' : 'text-gray-900'}`}>
-                                  {notification.message}
-                                </p>
-                                <p className="text-xs text-gray-500 mt-1">
-                                  {getTimeAgo(notification.created_at)}
-                                </p>
+                          {(() => {
+                            const list = filterType === 'all' ? notifications : notifications.filter(n => String(n.type || '').toLowerCase() === filterType);
+                            if (list.length > 0) {
+                              return list.map((notification) => (
+                                <div
+                                  key={notification.id}
+                                  className={`p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors ${
+                                    isPaymentReminderNotification(notification)
+                                      ? 'bg-red-50'
+                                      : notification.unread
+                                        ? 'bg-blue-50'
+                                        : ''
+                                  }`}
+                                >
+                                  <p className={`text-sm ${isPaymentReminderNotification(notification) ? 'text-red-700 font-medium' : 'text-gray-900'}`}>
+                                    {notification.message}
+                                  </p>
+                                  <p className="text-xs text-gray-500 mt-1">
+                                    {getTimeAgo(notification.created_at)}
+                                  </p>
+                                </div>
+                              ));
+                            }
+
+                            return (
+                              <div className="p-8 text-center text-gray-500">
+                                <FiBell className="w-12 h-12 mx-auto mb-2 opacity-20" />
+                                <p className="text-sm">No new notifications</p>
                               </div>
-                            ))
-                          ) : (
-                            <div className="p-8 text-center text-gray-500">
-                              <FiBell className="w-12 h-12 mx-auto mb-2 opacity-20" />
-                              <p className="text-sm">No new notifications</p>
-                            </div>
-                          )}
+                            );
+                          })()}
                         </div>
                         {notifications.length > 0 && (
                           <div className="p-3 border-t border-gray-200 text-center">
@@ -357,18 +411,18 @@ export default function Navbar() {
               </>
             ) : (
               <>
-                <Link
-                  to="/login"
+                <button
+                  onClick={openLogin}
                   className="px-6 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
                 >
                   Login
-                </Link>
-                <Link
-                  to="/register"
+                </button>
+                <button
+                  onClick={openRegister}
                   className="px-6 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-cyan-500 rounded-lg hover:shadow-lg transition-all"
                 >
                   Get Started
-                </Link>
+                </button>
               </>
             )}
           </div>
@@ -429,18 +483,24 @@ export default function Navbar() {
                   </button>
                 ) : (
                   <>
-                    <Link
-                      to="/login"
+                    <button
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        openLogin();
+                      }}
                       className="w-full px-6 py-3 text-center text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                     >
                       Login
-                    </Link>
-                    <Link
-                      to="/register"
+                    </button>
+                    <button
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        openRegister();
+                      }}
                       className="w-full px-6 py-3 text-center text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-cyan-500 rounded-lg hover:shadow-lg transition-all"
                     >
                       Get Started
-                    </Link>
+                    </button>
                   </>
                 )}
               </div>

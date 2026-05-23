@@ -43,7 +43,8 @@ export default function ResetPassword() {
         newPassword,
       })
       toast.success('Password reset successful. Please login.')
-      navigate('/login')
+      window.dispatchEvent(new Event('auth:unauthorized'))
+      navigate('/')
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to reset password')
     } finally {
@@ -110,9 +111,9 @@ export default function ResetPassword() {
             <Link to="/forgot-password" className="mr-3 text-sm text-primary hover:underline">
               Request new code
             </Link>
-            <Link to="/login" className="text-sm text-primary hover:underline">
-              Back to Login
-            </Link>
+            <button onClick={() => { window.dispatchEvent(new Event('auth:unauthorized')); navigate('/'); }} className="text-sm text-primary hover:underline">
+              Back to login
+            </button>
           </div>
         </Card>
       </div>

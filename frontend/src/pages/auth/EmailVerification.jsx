@@ -91,7 +91,8 @@ export default function EmailVerification() {
         return;
       }
 
-      navigate('/login');
+      window.dispatchEvent(new Event('auth:unauthorized'))
+      navigate('/');
     } catch (error) {
       console.error('Verification error:', error);
       toast.error(error.response?.data?.message || 'Verification failed');

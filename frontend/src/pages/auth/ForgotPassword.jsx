@@ -69,9 +69,9 @@ export default function ForgotPassword() {
           </form>
 
           <div className="mt-6 text-center">
-            <Link to="/login" className="text-sm text-primary hover:underline">
-              Back to Login
-            </Link>
+            <button onClick={() => { window.dispatchEvent(new Event('auth:unauthorized')); navigate('/'); }} className="text-sm text-primary hover:underline">
+              Back to login
+            </button>
           </div>
         </Card>
       </div>
