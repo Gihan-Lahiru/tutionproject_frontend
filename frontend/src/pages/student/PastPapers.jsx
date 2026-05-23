@@ -143,6 +143,22 @@ export default function PastPapers() {
           .split(';')[0]
           .trim()
           .toLowerCase()
+
+        // Detect HTML/JSON error pages (authentication or server errors returned as HTML)
+        if (contentType.startsWith('text/') || contentType === 'application/json') {
+          try {
+            const decoder = new TextDecoder('utf-8')
+            const text = decoder.decode(response.data)
+            console.error('Download failed - server returned text/html or json:', text)
+            toast.error('Download failed: server returned an error page. Please ensure you are logged in and try again.')
+            return
+          } catch (err) {
+            console.error('Failed to decode error response for download', err)
+            toast.error('Download failed: received unexpected response from server')
+            return
+          }
+        }
+
         const blob = new Blob([response.data], { type: contentType || 'application/octet-stream' })
         const url = window.URL.createObjectURL(blob)
         const link = document.createElement('a')

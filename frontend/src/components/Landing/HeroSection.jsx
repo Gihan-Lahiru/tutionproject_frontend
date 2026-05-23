@@ -66,7 +66,7 @@ const HeroSection = ({ heroRef, heroInView }) => {
 
             {/* Subheadline */}
             <p className="text-2xl md:text-3xl lg:text-4xl text-orange-400 max-w-2xl mx-auto lg:mx-0 mt-8 mb-10 font-bold" style={{ fontFamily: "'Gemunu Libre', sans-serif" }}>
-              නින්දෙදී දකින සිහන නුදුරේම සැබෑ වන්නට<br/>මං මාවත් සොයා සැරි සරන වර්තමානයක...
+              නින්දෙදී දකින සිහින නුදුරේම සැබෑ වන්නට<br/>මං මාවත් සොයා සැරි සරන වර්තමානයක...
             </p>
             
             {/* CTA Buttons */}

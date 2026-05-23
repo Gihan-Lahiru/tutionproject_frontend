@@ -286,38 +286,40 @@ export default function PaperUpload({ onUploadSuccess, classContext = null, init
         <p className="text-xs text-gray-500 mt-1">Recommended: 400x300px, Max 5MB</p>
       </div>
 
-      {/* Drag and Drop Area */}
-      <div
-        className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-          dragActive ? "border-primary bg-gray-50" : "border-gray-300 bg-gray-50"
-        }`}
-        onDragEnter={handleDrag}
-        onDragLeave={handleDrag}
-        onDragOver={handleDrag}
-        onDrop={handleDrop}
-      >
-        <input
-          type="file"
-          id="file-upload"
-          multiple
-          accept=".pdf,.doc,.docx,.ppt,.pptx"
-          onChange={handleChange}
-          className="hidden"
-        />
-        
-        <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-        <p className="text-gray-700 font-medium mb-2">Drag and drop your files here</p>
-        <p className="text-gray-500 text-sm mb-4">or</p>
-        <label
-          htmlFor="file-upload"
-          className="inline-block bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-lg cursor-pointer transition-colors"
+      {/* Drag and Drop Area - hide once files are selected (show selected file UI instead) */}
+      {selectedFiles.length === 0 && (
+        <div
+          className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+            dragActive ? "border-primary bg-gray-50" : "border-gray-300 bg-gray-50"
+          }`}
+          onDragEnter={handleDrag}
+          onDragLeave={handleDrag}
+          onDragOver={handleDrag}
+          onDrop={handleDrop}
         >
-          Browse Files
-        </label>
-        <p className="text-xs text-gray-500 mt-3">
-          Accepted formats: .pdf, .doc, .docx, .ppt, .pptx
-        </p>
-      </div>
+          <input
+            type="file"
+            id="file-upload"
+            multiple
+            accept=".pdf,.doc,.docx,.ppt,.pptx"
+            onChange={handleChange}
+            className="hidden"
+          />
+          
+          <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <p className="text-gray-700 font-medium mb-2">Drag and drop your files here</p>
+          <p className="text-gray-500 text-sm mb-4">or</p>
+          <label
+            htmlFor="file-upload"
+            className="inline-block bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-lg cursor-pointer transition-colors"
+          >
+            Browse Files
+          </label>
+          <p className="text-xs text-gray-500 mt-3">
+            Accepted formats: .pdf, .doc, .docx, .ppt, .pptx
+          </p>
+        </div>
+      )}
 
       {/* Selected Files */}
       {selectedFiles.length > 0 && (

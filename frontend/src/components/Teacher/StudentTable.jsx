@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, Eye, Edit, Trash2, Mail, Phone, CheckCircle2 } from "lucide-react";
+import { Search, Eye, Edit, Trash2, CheckCircle2, XCircle } from "lucide-react";
 import api from "../../api/axios";
 import { usersApi } from "../../api";
 import { toast } from "react-toastify";
@@ -18,6 +18,9 @@ export default function StudentTable() {
   const [saving, setSaving] = useState(false);
   const [deletingStudent, setDeletingStudent] = useState(null);
   const [approvingStudentIds, setApprovingStudentIds] = useState(new Set());
+  const [rejectingStudentIds, setRejectingStudentIds] = useState(new Set());
+  const [rejectModal, setRejectModal] = useState(null); // student object
+  const [rejectReason, setRejectReason] = useState('');
 
   useEffect(() => {
     fetchStudents();
@@ -51,17 +54,26 @@ export default function StudentTable() {
     }
   };
 
-  const filteredStudents = students.filter(
-    (student) =>
-      student.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      student.grade?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      student.email?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const statusSortOrder = (student) => {
+    const approval = String(student.approvalStatus || student.approval_status || '').toLowerCase();
+    if (approval === 'approved' && String(student.status || 'active').toLowerCase() === 'active') return 0; // active first
+    if (approval === 'pending' || approval === 'waiting' || (approval !== 'approved' && approval !== 'rejected' && approval !== '')) return 1; // pending second
+    return 2; // rejected / inactive last
+  };
+
+  const filteredStudents = students
+    .filter(
+      (student) =>
+        student.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        student.grade?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        student.email?.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .sort((a, b) => statusSortOrder(a) - statusSortOrder(b));
 
   const isPendingApproval = (student) => {
-    const status = String(student.status || '').toLowerCase();
-    const emailVerified = student.emailVerified ?? student.email_verified;
-    return status === 'pending' || status === 'waiting' || emailVerified === false;
+    const approvalStatus = String(student.approvalStatus || student.approval_status || '').toLowerCase();
+    // A student is pending if approvalStatus is 'pending' or not yet set to 'approved'
+    return approvalStatus === 'pending' || approvalStatus === 'waiting' || (approvalStatus !== 'approved' && approvalStatus !== 'rejected' && approvalStatus !== '');
   }
 
   const pendingStudents = filteredStudents.filter(isPendingApproval);
@@ -228,6 +240,28 @@ export default function StudentTable() {
     }
   }
 
+  const handleRejectStudent = async () => {
+    const student = rejectModal;
+    if (!student?.id) return;
+    try {
+      setRejectingStudentIds((prev) => new Set(prev).add(student.id));
+      await usersApi.rejectRegistration(student.id, rejectReason.trim() || undefined);
+      toast.success(`${student.name || 'Student'} rejected`);
+      setRejectModal(null);
+      setRejectReason('');
+      fetchStudents();
+    } catch (error) {
+      console.error('Reject student failed:', error);
+      toast.error(error?.response?.data?.message || 'Failed to reject registration');
+    } finally {
+      setRejectingStudentIds((prev) => {
+        const next = new Set(prev);
+        next.delete(student.id);
+        return next;
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="bg-white rounded-xl shadow-md p-12 text-center">
@@ -295,9 +329,18 @@ export default function StudentTable() {
                   <button
                     type="button"
                     onClick={() => setViewStudent(student)}
-                    className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
                   >
                     Details
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setRejectModal(student); setRejectReason(''); }}
+                    disabled={rejectingStudentIds.has(student.id)}
+                    className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-100 disabled:opacity-60"
+                  >
+                    <XCircle className="h-4 w-4" />
+                    Reject
                   </button>
                   <button
                     type="button"
@@ -368,8 +411,8 @@ export default function StudentTable() {
                     {student.phone || 'N/A'}
                   </td>
                   <td className="py-4 px-6">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isPendingApproval(student) ? 'bg-amber-100 text-amber-800' : String(student.status || 'active').toLowerCase() === 'inactive' ? 'bg-red-100 text-red-700' : 'bg-primary/10 text-primary'}`}>
-                      {isPendingApproval(student) ? 'Pending' : String(student.status || 'active').toLowerCase() === 'inactive' ? 'Inactive' : 'Active'}
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isPendingApproval(student) ? 'bg-amber-100 text-amber-800' : String(student.approvalStatus || student.approval_status || 'approved').toLowerCase() === 'rejected' ? 'bg-red-100 text-red-700' : String(student.status || 'active').toLowerCase() === 'inactive' ? 'bg-red-100 text-red-700' : 'bg-primary/10 text-primary'}`}>
+                      {isPendingApproval(student) ? 'Pending' : String(student.approvalStatus || student.approval_status || '').toLowerCase() === 'rejected' ? 'Rejected' : String(student.status || 'active').toLowerCase() === 'inactive' ? 'Inactive' : 'Active'}
                     </span>
                   </td>
                   <td className="py-4 px-6">
@@ -422,7 +465,7 @@ export default function StudentTable() {
             <div><span className="font-semibold">Phone:</span> {viewStudent.phone || 'N/A'}</div>
             <div><span className="font-semibold">Grade:</span> {formatGrade(viewStudent.grade)}</div>
             <div><span className="font-semibold">Institute:</span> {viewStudent.institute || 'N/A'}</div>
-            <div><span className="font-semibold">Status:</span> {isPendingApproval(viewStudent) ? 'Pending approval' : String(viewStudent.status || 'active').toLowerCase() === 'inactive' ? 'Inactive' : 'Active'}</div>
+            <div><span className="font-semibold">Status:</span> {isPendingApproval(viewStudent) ? 'Pending approval' : String(viewStudent.approvalStatus || viewStudent.approval_status || '').toLowerCase() === 'rejected' ? 'Rejected' : String(viewStudent.status || 'active').toLowerCase() === 'inactive' ? 'Inactive' : 'Active'}</div>
             {isPendingApproval(viewStudent) && (
               <div className="pt-2">
                 <button
@@ -533,6 +576,46 @@ export default function StudentTable() {
                 disabled={saving}
               >
                 {saving ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* Reject Registration Modal */}
+      <Modal isOpen={!!rejectModal} onClose={() => { setRejectModal(null); setRejectReason(''); }} title="Reject Registration">
+        {rejectModal && (
+          <div className="space-y-4">
+            <p className="text-gray-700">
+              Reject registration for <span className="font-semibold">{rejectModal.name}</span>?
+            </p>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Reason <span className="text-gray-400 font-normal">(optional)</span></label>
+              <textarea
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                placeholder="e.g. Incomplete details, wrong grade..."
+                rows={3}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-none focus:ring-2 focus:ring-red-400 focus:border-transparent"
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => { setRejectModal(null); setRejectReason(''); }}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium"
+                disabled={rejectingStudentIds.has(rejectModal.id)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleRejectStudent}
+                disabled={rejectingStudentIds.has(rejectModal.id)}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-60"
+              >
+                <XCircle className="h-4 w-4" />
+                {rejectingStudentIds.has(rejectModal.id) ? 'Rejecting...' : 'Reject Registration'}
               </button>
             </div>
           </div>

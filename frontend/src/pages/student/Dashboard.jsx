@@ -117,6 +117,31 @@ export default function StudentDashboard() {
     { path: '/student/payments', icon: FiDollarSign, label: 'Payments' },
   ]
 
+  if (user?.approvalStatus === 'pending') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <Navbar />
+        <div className="flex-1 flex items-center justify-center p-4 pt-20">
+          <div className="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden p-8 text-center border border-gray-100">
+             <div className="mx-auto w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mb-6 shadow-inner">
+                <FiClock className="w-10 h-10 text-amber-600" />
+             </div>
+             <h2 className="text-2xl font-bold text-gray-900 mb-2">Waiting for Approval</h2>
+             <p className="text-gray-600 mb-8 leading-relaxed">
+               Your registration has been submitted and is currently under review. Please wait until sir confirms your account to access the classes and dashboard.
+             </p>
+             <button
+               onClick={logout}
+               className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-200 hover:-translate-y-0.5"
+             >
+               Log Out
+             </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navigation Bar */}

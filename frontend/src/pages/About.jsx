@@ -221,8 +221,14 @@ const About = () => {
                   <h3 className="text-4xl md:text-5xl font-bold text-gray-900 mb-5">
                     Maleesha Wickramasinghe
                   </h3>
-                  <p className="text-gray-700 leading-relaxed text-base mb-4" style={{ fontFamily: "'Noto Sans Sinhala', 'Gemunu Libre', sans-serif" }}>
-                    නින්දෙදී දකින සිහන නුදුරේම සැබෑ වන්නට  මං මාවත් සොයා සැරි සරන වර්තමානයක ...
+                  <p
+                    className="text-gray-700 leading-relaxed text-base mb-4 text-2xl font-semibold italic"
+                    style={{
+                      fontFamily: "'Noto Sans Sinhala', 'Gemunu Libre', sans-serif",
+                      animation: 'fadeInUp 0.9s ease both',
+                    }}
+                  >
+                    නින්දෙදී දකින සිහින නුදුරේම සැබෑ වන්නට  මං මාවත් සොයා සැරි සරන වර්තමානයක ...
                   </p>
                   <p className="text-gray-700 leading-relaxed text-base" style={{ fontFamily: "'Noto Sans Sinhala', 'Gemunu Libre', sans-serif" }}>
                     ඔහු තම ඉගැන්වීම් ක්‍රමවේදයෙන් සිසුන්ගේ අධ්‍යාපන මට්ටම ඉහළ නැංවීමට සමත් වී ඇති අතර විභාග සඳහා විශිෂ්ට ප්‍රතිඵල ලබා ගැනීමට සහාය වන පරිදි විෂය නිර්දේශය සකස් කර ඇත.

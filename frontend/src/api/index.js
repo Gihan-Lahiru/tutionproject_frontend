@@ -59,4 +59,5 @@ export const usersApi = {
   getStudentsByClass: (classId) => api.get(`/classes/${classId}/students`),
   getPendingRegistrations: () => api.get('/users/students?status=pending'),
   approveRegistration: (id) => api.post(`/users/students/${id}/approve`),
+  rejectRegistration: (id, reason) => api.post(`/users/students/${id}/reject`, { reason }),
 }

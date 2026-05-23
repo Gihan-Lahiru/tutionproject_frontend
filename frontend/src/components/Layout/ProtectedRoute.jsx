@@ -1,9 +1,10 @@
 import { useContext } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router-dom'
 import { AuthContext } from '../../contexts/AuthContext'
 
 export default function ProtectedRoute({ children, allowedRoles = [] }) {
   const { user, loading } = useContext(AuthContext)
+  const location = useLocation()
 
   if (loading) {
     return (
@@ -19,6 +20,13 @@ export default function ProtectedRoute({ children, allowedRoles = [] }) {
 
   if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
     return <Navigate to="/" replace />
+  }
+
+  // Prevent pending students from accessing individual class pages or other non-dashboard protected routes
+  if (user.role === 'student' && user.approvalStatus === 'pending') {
+    if (!location.pathname.startsWith('/student')) {
+      return <Navigate to="/student/dashboard" replace />
+    }
   }
 
   return children

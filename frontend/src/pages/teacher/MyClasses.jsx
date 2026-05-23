@@ -120,7 +120,19 @@ export default function MyClasses() {
   )
 
   const preferredClasses = (() => {
-    const byGrade = uniqueClasses.reduce((acc, classItem) => {
+    const hiddenGrades = new Set(['1'])
+    const visibleClasses = uniqueClasses.filter((classItem) => {
+      const grade = normalizeGrade(classItem.grade)
+      const hasRealLocation = String(classItem.location || classItem.institute || '').trim()
+
+      if (grade === '6' && !hasRealLocation) {
+        return false
+      }
+
+      return !hiddenGrades.has(grade)
+    })
+
+    const byGrade = visibleClasses.reduce((acc, classItem) => {
       const grade = normalizeGrade(classItem.grade) || 'unknown'
       if (!acc[grade]) acc[grade] = []
       acc[grade].push(classItem)
@@ -148,6 +160,18 @@ export default function MyClasses() {
     return a.localeCompare(b)
   })
 
+  const normalizeGradeLabel = (grade) => {
+    const normalized = String(grade || '').trim()
+    if (!normalized) return ''
+    return normalized.replace(/^grade\s*/i, '').trim()
+  }
+
+  const formatGradeLabel = (grade) => {
+    const normalized = normalizeGradeLabel(grade)
+    if (!normalized || normalized === '1') return ''
+    return `Grade ${normalized}`
+  }
+
   if (loading) {
     return <div className="text-center py-8">Loading...</div>
   }
@@ -167,13 +191,16 @@ export default function MyClasses() {
         <div className="space-y-8">
           {sortedGrades.map((grade) => (
             <div key={grade}>
-              <h2 className="text-xl font-semibold mb-4">Grade {grade}</h2>
+              {formatGradeLabel(grade) && (
+                <h2 className="text-xl font-semibold mb-4">{formatGradeLabel(grade)}</h2>
+              )}
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {groupedByGrade[grade].map((classItem) => (
                   (() => {
                     const rawTitle = String(classItem.title || classItem.name || classItem.subject || '').trim()
-                    const gradePrefix = new RegExp(`^Grade\\s*${escapeRegex(String(grade))}\\s*`, 'i')
-                    const cleanedTitle = rawTitle.replace(gradePrefix, '').trim() || 'Science Class'
+                    const normalizedGrade = normalizeGradeLabel(grade)
+                    const gradePattern = new RegExp(`(?:^|\\s)Grade\\s*${escapeRegex(normalizedGrade)}(?:\\s|$)`, 'ig')
+                    const cleanedTitle = rawTitle.replace(gradePattern, ' ').replace(/\s+/g, ' ').trim() || 'Science Class'
                     const instituteName = String(classItem.institute || classItem.location || '').trim() || 'Class Location'
                     const locationLabel = String(classItem.location || '').trim()
                     const studentCount =

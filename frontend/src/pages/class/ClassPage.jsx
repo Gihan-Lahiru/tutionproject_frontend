@@ -543,13 +543,31 @@ function AssignmentsTab({ assignments, isTeacher }) {
 function NotesTab({ notes }) {
   if (!notes.length) return <EmptyState message="No notes uploaded yet" />
 
+  const getFileUrl = (note) => note.fileUrl || note.file_url || note.file || ''
+
+  const getFileType = (note) => note.fileType || note.file_type || 'Document'
+
+  const handleDownload = (note) => {
+    const url = getFileUrl(note)
+    if (!url) {
+      // eslint-disable-next-line no-console
+      console.warn('No file URL available for note', note)
+      return
+    }
+
+    // Open in new tab to let browser handle download/view
+    window.open(url, '_blank', 'noopener')
+  }
+
   return (
     <div className="grid md:grid-cols-2 gap-4">
       {notes.map((note) => (
         <Card key={note.id}>
           <h3 className="font-bold mb-2">{note.title}</h3>
-          <p className="text-sm text-gray-600 mb-3">{note.file_type || 'Document'}</p>
-          <Button size="sm" variant="outline">Download</Button>
+          <p className="text-sm text-gray-600 mb-3">{getFileType(note)}</p>
+          <Button size="sm" variant="outline" onClick={() => handleDownload(note)}>
+            Download
+          </Button>
         </Card>
       ))}
     </div>
