@@ -245,7 +245,10 @@ export default function MyClasses() {
           <div className="bg-white rounded-xl w-full h-full shadow-2xl overflow-hidden flex flex-col">
             <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-gray-200">
               <div>
-                <h2 className="text-lg sm:text-xl font-bold text-gray-900">{selectedClass.title || selectedClass.name}</h2>
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900">
+                  {selectedClass.title || selectedClass.name}
+                  {selectedClass.location && <span className="text-primary ml-2 font-medium">({selectedClass.location})</span>}
+                </h2>
                 <p className="text-sm text-gray-600">Class Management Popup</p>
               </div>
               <button

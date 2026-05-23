@@ -12,6 +12,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
   const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
+    phone: '',
     password: '',
     confirmPassword: '',
     role: 'student',
@@ -27,6 +28,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
       setSubmitted(false);
       setFormData({
         name: '',
+        phone: '',
         password: '',
         confirmPassword: '',
         role: 'student',
@@ -49,6 +51,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
 
     const newErrors = {};
     if (!formData.name.trim()) newErrors.name = 'Name is required';
+    if (!formData.phone.trim()) newErrors.phone = 'Phone Number is required';
     if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
     if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
     if (!formData.grade) newErrors.grade = 'Please select a grade';
@@ -145,7 +148,10 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
             ) : (
             <form onSubmit={handleRegister} className="space-y-4">
               <Input label="Email Address" type="email" name="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="student@example.com" className="bg-gray-50/50" />
-              <Input label="Full Name" type="text" name="name" value={formData.name} onChange={handleChange} error={errors.name} required placeholder="John Doe" className="bg-gray-50/50" />
+              <div className="grid grid-cols-2 gap-4">
+                <Input label="Full Name" type="text" name="name" value={formData.name} onChange={handleChange} error={errors.name} required placeholder="John Doe" className="bg-gray-50/50" />
+                <Input label="Phone Number" type="text" name="phone" value={formData.phone} onChange={handleChange} error={errors.phone} required placeholder="07xxxxxxxxx" className="bg-gray-50/50" />
+              </div>
               
               <div className="grid grid-cols-2 gap-3">
                 <div>
