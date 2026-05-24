@@ -543,20 +543,42 @@ function AssignmentsTab({ assignments, isTeacher }) {
 function NotesTab({ notes }) {
   if (!notes.length) return <EmptyState message="No notes uploaded yet" />
 
-  const getFileUrl = (note) => note.fileUrl || note.file_url || note.file || ''
-
   const getFileType = (note) => note.fileType || note.file_type || 'Document'
 
-  const handleDownload = (note) => {
-    const url = getFileUrl(note)
-    if (!url) {
-      // eslint-disable-next-line no-console
-      console.warn('No file URL available for note', note)
-      return
-    }
+  const handleDownload = async (note) => {
+    const downloadToastId = toast.info('Download starts...', { autoClose: false })
+    try {
+      const response = await api.get(`/notes/${note.id}/download`, {
+        responseType: 'blob'
+      })
 
-    // Open in new tab to let browser handle download/view
-    window.open(url, '_blank', 'noopener')
+      const blob = new Blob([response.data], {
+        type: response.headers['content-type'] || 'application/pdf'
+      })
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      const filename = response.headers['content-disposition']?.match(/filename="?([^"]+)"?/)?.[1] || `Note_${note.title}.pdf`
+      link.download = filename
+      
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+
+      toast.update(downloadToastId, {
+        render: 'Download completed',
+        type: 'success',
+        autoClose: 3000
+      })
+    } catch (error) {
+      console.error('Note download error:', error)
+      toast.update(downloadToastId, {
+        render: 'Failed to download note',
+        type: 'error',
+        autoClose: 3000
+      })
+    }
   }
 
   return (
