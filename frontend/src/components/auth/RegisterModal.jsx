@@ -97,7 +97,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
         <div className="hidden lg:flex lg:w-1/2 relative bg-primary items-center justify-center overflow-hidden">
           <div className="absolute inset-0 z-0">
             <img 
-              src={authBg} 
+              src={'/graduation-high-school-university-concept.jpg'} 
               alt="EduTeach Background" 
               className="w-full h-full object-cover opacity-90 mix-blend-overlay"
             />
@@ -120,7 +120,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
         {/* Right side - Form */}
         <div className="w-full lg:w-1/2 flex flex-col justify-center p-8 sm:p-12 relative overflow-y-auto">
           <div className="absolute inset-0 lg:hidden z-0">
-             <img src={authBg} alt="" className="w-full h-full object-cover opacity-10" />
+             <img src={'/graduation-high-school-university-concept.jpg'} alt="" className="w-full h-full object-cover opacity-10" />
              <div className="absolute inset-0 bg-white/90 backdrop-blur-sm"></div>
           </div>
 

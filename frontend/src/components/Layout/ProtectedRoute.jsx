@@ -2,6 +2,7 @@ import { useContext, useEffect } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { AuthContext } from '../../contexts/AuthContext'
 import { toast } from 'react-toastify'
+import PaymentOverdue from '../Student/PaymentOverdue'
 
 export default function ProtectedRoute({ children, allowedRoles = [] }) {
   const { user, loading } = useContext(AuthContext)
@@ -34,6 +35,11 @@ export default function ProtectedRoute({ children, allowedRoles = [] }) {
       toast.info('Your account is pending approval.');
     }, 0);
     return <Navigate to="/" replace />
+  }
+
+  // Handle Payment Block for Students
+  if (user.role === 'student' && user.dashboardAccess === false) {
+    return <PaymentOverdue user={user} />
   }
 
   return children

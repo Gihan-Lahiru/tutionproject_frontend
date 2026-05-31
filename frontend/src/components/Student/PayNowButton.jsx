@@ -7,41 +7,11 @@ export default function PayNowButton({ amount, month, year, onSuccess }) {
   const fileInputRef = useRef(null)
   const currentPaymentIdRef = useRef(null)
 
-  const createManualPayment = async () => {
-    const payload = { amount, month, year, gateway: 'manual' }
-    const res = await api.post('/payments/init', payload)
-    return res.data?.payment_id
-  }
-
-  const uploadReceipt = async (paymentId, file) => {
-    const form = new FormData()
-    form.append('receipt', file)
-
-    const res = await api.post(`/payments/${encodeURIComponent(paymentId)}/receipt`, form, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    })
-    return res.data
-  }
-
   const handleClick = async () => {
-    try {
-      setLoading(true)
-
-      // Create manual payment record
-      const paymentId = await createManualPayment()
-      if (!paymentId) throw new Error('Failed to create payment')
-      currentPaymentIdRef.current = paymentId
-
-      // Trigger file selector
-      if (fileInputRef.current) {
-        fileInputRef.current.value = null
-        fileInputRef.current.click()
-      }
-      setLoading(false)
-    } catch (err) {
-      console.error(err)
-      toast.error(err.response?.data?.message || err.message || 'Failed to start payment')
-      setLoading(false)
+    // Trigger file selector simply
+    if (fileInputRef.current) {
+      fileInputRef.current.value = null
+      fileInputRef.current.click()
     }
   }
 
@@ -62,18 +32,24 @@ export default function PayNowButton({ amount, month, year, onSuccess }) {
 
     try {
       setLoading(true)
-      const paymentId = currentPaymentIdRef.current
-      if (!paymentId) throw new Error('No payment record found')
-
-      const data = await uploadReceipt(paymentId, file)
-      toast.success(data?.message || 'Receipt uploaded. Awaiting approval.')
-      if (onSuccess) onSuccess({ paymentId, status: 'processing' })
+      
+      const form = new FormData()
+      form.append('receipt', file)
+      if (amount) form.append('amount', amount)
+      if (month) form.append('month', month)
+      if (year) form.append('year', year)
+      
+      const res = await api.post('/payments/upload-receipt', form, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      
+      toast.success(res.data?.message || 'Receipt uploaded. Awaiting approval.')
+      if (onSuccess) onSuccess({ paymentId: res.data?.id, status: 'processing' })
     } catch (err) {
       console.error(err)
       toast.error(err.response?.data?.message || err.message || 'Failed to upload receipt')
     } finally {
       setLoading(false)
-      currentPaymentIdRef.current = null
     }
   }
 

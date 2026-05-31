@@ -90,6 +90,13 @@ export default function Videos() {
       setVideos(list)
     } catch (error) {
       console.error('Error fetching videos:', error)
+
+      if (error.response?.status === 403) {
+        toast.error(error.response?.data?.message || 'Access restricted. Please clear your dues.')
+        setLoading(false)
+        return
+      }
+
       try {
         const localResponse = await fetch('/storage/videos.json', { cache: 'no-store' })
         if (!localResponse.ok) throw new Error(`Failed to load local videos: ${localResponse.status}`)

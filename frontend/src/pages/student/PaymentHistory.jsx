@@ -11,7 +11,7 @@ import QRCode from 'qrcode'
 import html2canvas from 'html2canvas'
 
 export default function PaymentHistory() {
-  const { user } = useContext(AuthContext)
+  const { user, fetchCurrentUser } = useContext(AuthContext)
   const [refreshKey, setRefreshKey] = useState(0)
   const [payments, setPayments] = useState([])
   const [loadingPayments, setLoadingPayments] = useState(true)
@@ -102,7 +102,7 @@ export default function PaymentHistory() {
       try {
         setLoadingPayments(true)
         const res = await api.get('/payments/my-payments')
-        setPayments(res.data.payments || [])
+        setPayments(Array.isArray(res.data) ? res.data : (res.data.payments || []))
       } catch (e) {
         console.error('Failed to fetch payments:', e)
         setPayments([])
@@ -268,6 +268,7 @@ export default function PaymentHistory() {
 
     if (status === 'processing') {
       toast.info('Payment receipt uploaded. Waiting for teacher approval...')
+      await fetchCurrentUser()
     }
   }
 
@@ -304,13 +305,14 @@ export default function PaymentHistory() {
       const formData = new FormData()
       formData.append('receipt', receiptFile)
 
-      const res = await api.post(`/payments/${receiptUploadPaymentId}/receipt`, formData, {
+      const res = await api.post(`/payments/upload-receipt`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
 
       toast.success('Receipt uploaded successfully!')
       setReceiptFile(null)
       setReceiptUploadPaymentId(null)
+      await fetchCurrentUser()
       setRefreshKey((prev) => prev + 1)
     } catch (error) {
       toast.error(error?.response?.data?.message || 'Failed to upload receipt')
@@ -411,61 +413,55 @@ export default function PaymentHistory() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FiCalendar className="h-5 w-5 text-purple-600" />
-              Payment Due
+              Payment Status
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div>
-                <p className="text-4xl font-bold text-gray-900">
-                  {new Date(currentDueDateISO).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                </p>
-                <p className="text-sm text-gray-600 mt-1">{currentMonthName} {currentYear} Fee Due Date</p>
-              </div>
-              {isPaidForCurrentMonth ? (
-                <Badge variant="success" className="flex items-center gap-1 text-sm py-2 justify-center">
-                  <FiCheckCircle className="h-4 w-4" />
-                  <span>Paid for {currentMonthName} {currentYear}</span>
-                </Badge>
-              ) : isPendingWithoutReceiptForCurrentMonth ? (
-                <Button
-                  onClick={() => setReceiptUploadPaymentId(currentMonthPendingPayment.id)}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2"
-                >
-                  <FiUpload className="h-4 w-4" />
-                  Upload Receipt to Pay
-                </Button>
-              ) : isProcessingForCurrentMonth ? (
-                <Badge variant="warning" className="flex items-center gap-1 text-sm py-2 justify-center">
-                  <FiCalendar className="h-4 w-4" />
-                  <span>Receipt submitted - Awaiting approval</span>
-                </Badge>
-              ) : currentMonthPendingPayment && String(currentMonthPendingPayment.approval_status || '').toLowerCase() === 'rejected' ? (
-                <div className="space-y-2">
-                  <Badge variant="error" className="flex items-center gap-1 text-sm py-2 justify-center w-full">
-                    <FiXCircle className="h-4 w-4" />
-                    <span>Receipt Rejected - Please Retry</span>
-                  </Badge>
-                  {currentMonthPendingPayment.approval_notes && (
-                    <p className="text-xs text-red-600 bg-red-50 p-2 rounded">
-                      Reason: {currentMonthPendingPayment.approval_notes}
-                    </p>
-                  )}
-                  <Button
-                    onClick={() => setReceiptUploadPaymentId(currentMonthPendingPayment.id)}
-                    className="w-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center gap-2"
-                  >
-                    <FiUpload className="h-4 w-4" />
-                    Upload New Receipt
-                  </Button>
+              {user?.paymentStatus === 'pending_verification' ? (
+                <div>
+                  <p className="text-4xl font-bold text-gray-900 text-yellow-600">Pending Approval</p>
+                  <p className="text-sm text-gray-600 mt-1">Receipt uploaded. Waiting for teacher approval.</p>
+                </div>
+              ) : user?.paymentStatus === 'rejected' ? (
+                <div className="space-y-4">
+                  <div>
+                     <p className="text-4xl font-bold text-gray-900 text-red-600">Rejected</p>
+                     <p className="text-sm text-gray-600 mt-1">Last uploaded receipt was declined.</p>
+                  </div>
+                  <div className="w-full">
+                      <PayNowButton
+                           amount={monthlyFee}
+                           month={currentMonthName}
+                           year={currentYear}
+                           onSuccess={handlePaymentSuccess}
+                      />
+                  </div>
                 </div>
               ) : (
-                <PayNowButton 
-                  amount={monthlyFee}
-                  month={currentMonthName}
-                  year={currentYear}
-                  onSuccess={handlePaymentSuccess}
-                />
+                <>
+                  <div>
+                    <p className="text-4xl font-bold text-gray-900">
+                      {new Date(currentDueDateISO).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                    </p>
+                    <p className="text-sm text-gray-600 mt-1">{currentMonthName} {currentYear} Fee Due Date</p>
+                  </div>
+                  {isPaidForCurrentMonth ? (
+                    <Badge variant="success" className="flex items-center gap-1 text-sm py-2 justify-center">
+                      <FiCheckCircle className="h-4 w-4" />
+                      <span>Paid for {currentMonthName} {currentYear}</span>
+                    </Badge>
+                  ) : (
+                    <div className="w-full">
+                      <PayNowButton
+                           amount={monthlyFee}
+                           month={currentMonthName}
+                           year={currentYear}
+                           onSuccess={handlePaymentSuccess}
+                      />
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </CardContent>

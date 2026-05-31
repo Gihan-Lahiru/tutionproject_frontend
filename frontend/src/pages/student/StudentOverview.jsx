@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react'
 import { AuthContext } from '../../contexts/AuthContext'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/UI/Card'
-import { FiVideo, FiFileText, FiBookOpen, FiClipboard, FiClock, FiCheckCircle, FiMail, FiPhone, FiUser, FiAward } from 'react-icons/fi'
+import { FiVideo, FiFileText, FiBookOpen, FiClipboard, FiClock, FiCheckCircle, FiMail, FiPhone, FiUser, FiAward, FiAlertCircle, FiAlertTriangle } from 'react-icons/fi'
 import Progress from '../../components/UI/Progress'
 import api from '../../api/axios'
 
@@ -68,10 +68,56 @@ export default function StudentOverview() {
   return (
     <div className="space-y-6">
       {/* Welcome Header */}
-      <div>
-        <h2 className="text-3xl font-bold text-gray-900">Welcome back, {user?.name}! 👋</h2>
-        <p className="text-gray-600 mt-1">Here's what's happening with your classes today.</p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-3xl font-bold text-gray-900">Welcome back, {user?.name}! 👋</h2>
+          <p className="text-gray-600 mt-1">Here's what's happening with your classes today.</p>
+        </div>
+        {user?.paymentStatus && (
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-gray-600">Payment Status:</span>
+            <span className={`px-3 py-1 text-sm font-semibold rounded-full ${
+              user.paymentStatus === 'paid' ? 'bg-green-100 text-green-800' :
+              user.paymentStatus === 'pending_verification' ? 'bg-yellow-100 text-yellow-800' :
+              user.paymentStatus === 'rejected' ? 'bg-orange-100 text-orange-800' :
+              'bg-red-100 text-red-800'
+            }`}>
+              {user.paymentStatus === 'paid' ? 'Paid' :
+               user.paymentStatus === 'pending_verification' ? 'Pending Verification' :
+               user.paymentStatus === 'rejected' ? 'Rejected' : 'Unpaid'}
+            </span>
+          </div>
+        )}
       </div>
+
+      {user?.role === 'student' && user?.paymentStatus !== 'paid' && user?.createdAt && (() => {
+        const msPerDay = 1000 * 60 * 60 * 24;
+        const daysSinceRegistration = (Date.now() - new Date(user.createdAt).getTime()) / msPerDay;
+        const daysLeft = Math.ceil(14 - daysSinceRegistration);
+        
+        let banner = null;
+        if (user.paymentStatus === 'pending_verification') {
+          banner = { type: 'warning', message: 'Your payment receipt is under review. Please wait for admin approval.' };
+        } else if (user.paymentStatus === 'rejected') {
+          banner = { type: 'error', message: 'Your payment receipt was rejected. Please review and upload a valid receipt.' };
+        } else if (daysLeft > 0 && daysLeft <= 3) {
+          banner = { type: 'warning', message: `Your payment expires in ${daysLeft} day${daysLeft === 1 ? '' : 's'}. Please complete payment to avoid dashboard restriction.` };
+        } else if (daysLeft === 0) {
+          banner = { type: 'error', message: 'Your payment is due today! Please complete payment to avoid immediate dashboard restriction.' };
+        }
+
+        if (banner) {
+          return (
+            <div className={`p-4 rounded-lg flex items-start gap-3 ${banner.type === 'error' ? 'bg-red-50 text-red-800 border border-red-200' : 'bg-yellow-50 text-yellow-800 border border-yellow-200'}`}>
+              <div className="mt-0.5">
+                {banner.type === 'error' ? <FiAlertCircle className="w-5 h-5" /> : <FiAlertTriangle className="w-5 h-5" />}
+              </div>
+              <p className="font-medium text-sm">{banner.message}</p>
+            </div>
+          );
+        }
+        return null;
+      })()}
 
       {/* Student Info Card */}
       <Card>

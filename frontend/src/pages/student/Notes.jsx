@@ -85,6 +85,13 @@ export default function Notes() {
       setNotes(nextNotes)
     } catch (error) {
       console.error('Error fetching notes:', error)
+
+      if (error.response?.status === 403) {
+        toast.error(error.response?.data?.message || 'Access restricted. Please clear your dues.')
+        setLoading(false)
+        return
+      }
+
       try {
         const localResponse = await fetch('/storage/notes.json', { cache: 'no-store' })
         if (!localResponse.ok) throw new Error(`Failed to load local notes: ${localResponse.status}`)

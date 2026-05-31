@@ -19,14 +19,14 @@ export default function FeeTable() {
       try {
         setLoading(true);
         const [paymentsRes, studentsRes, receiptsRes] = await Promise.all([
-          api.get('/payments/all'),
-          api.get('/users/students'),
+          api.get('/payments').catch(() => ({ data: { payments: [] } })),
+          api.get('/users/students').catch(() => ({ data: { users: [] } })),
           api.get('/payments/receipts/pending').catch(() => ({ data: { payments: [] } })),
         ]);
 
-        const rows = paymentsRes.data.payments || [];
-        const studentRows = studentsRes.data.users || [];
-        const receipts = receiptsRes.data.payments || [];
+        const rows = paymentsRes.data.payments || (Array.isArray(paymentsRes.data) ? paymentsRes.data : []);
+        const studentRows = studentsRes.data.users || (Array.isArray(studentsRes.data) ? studentsRes.data : []);
+        const receipts = receiptsRes.data.payments || (Array.isArray(receiptsRes.data) ? receiptsRes.data : []);
         
         setStudents(studentRows);
         setPendingReceipts(receipts);
@@ -208,7 +208,7 @@ export default function FeeTable() {
   const handleApproveReceipt = async (receiptId) => {
     try {
       setApprovingIds((prev) => new Set(prev).add(receiptId));
-      await api.post(`/payments/${receiptId}/receipt/approve`, {
+      await api.put(`/payments/${receiptId}/approve`, {
         notes: approvalNotes,
       });
       toast.success('Payment receipt approved and completed!');
@@ -229,7 +229,7 @@ export default function FeeTable() {
   const handleRejectReceipt = async (receiptId) => {
     try {
       setRejectingIds((prev) => new Set(prev).add(receiptId));
-      await api.post(`/payments/${receiptId}/receipt/reject`, {
+      await api.put(`/payments/${receiptId}/reject`, {
         notes: approvalNotes,
       });
       toast.success('Payment receipt rejected. Student has been notified.');
@@ -286,32 +286,30 @@ export default function FeeTable() {
               >
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <p className="font-semibold text-gray-900">{receipt.payer_name || 'Student'}</p>
+                  <p className="font-semibold text-gray-900">{receipt.user?.name || receipt.payer_name || 'Student'}</p>
                     <span className="text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded">
-                      {receipt.grade || '-'}
+                      {receipt.user?.grade || receipt.grade || '-'}
                     </span>
                   </div>
                   <p className="text-sm text-gray-600">
-                    {receipt.month} {receipt.year} • Rs. {Number(receipt.amount || 0).toLocaleString()}
+                    {receipt.month || 'Custom'} {receipt.year || ''} • Rs. {Number(receipt.amount || 0).toLocaleString()}
                   </p>
-                  <p className="text-xs text-gray-500">Email: {receipt.payer_email || '-'}</p>
+                  <p className="text-xs text-gray-500">Email: {receipt.user?.email || receipt.payer_email || '-'}</p>
                 </div>
 
                 <div className="flex gap-2">
                   <a
-                    href={receipt.receipt_url}
+                  /*  href={receipt.receiptUrl || receipt.receipt_url}*/
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    className="px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setSelectedReceiptId(receipt.id);
+                    }}
                   >
-                    View Receipt
+                    Review Receipt
                   </a>
-                  <button
-                    onClick={() => setSelectedReceiptId(receipt.id)}
-                    className="px-3 py-2 text-sm bg-gray-200 text-gray-900 rounded-lg hover:bg-gray-300 transition-colors"
-                  >
-                    Review
-                  </button>
                 </div>
               </div>
             ))}
@@ -338,8 +336,11 @@ export default function FeeTable() {
 
             {selectedReceiptId && (
               <>
-                {pendingReceipts.find((r) => r.id === selectedReceiptId)?.receipt_url && (() => {
-                  const receiptUrl = pendingReceipts.find((r) => r.id === selectedReceiptId)?.receipt_url;
+                {(() => {
+                  const receiptObj = pendingReceipts.find((r) => r.id === selectedReceiptId);
+                  const receiptUrl = (receiptObj?.receiptUrl || receiptObj?.receipt_url) ? `http://localhost:5000${receiptObj.receiptUrl || receiptObj.receipt_url}` : null;
+                  if (!receiptUrl) return null;
+                  
                   const isPdf = receiptUrl?.toLowerCase().includes('.pdf') || receiptUrl?.toLowerCase().includes('/pdf') || receiptUrl?.toLowerCase().includes('pdf');
                   const isImage = receiptUrl?.toLowerCase().match(/\.(jpg|jpeg|png|gif|webp)$/i);
                   

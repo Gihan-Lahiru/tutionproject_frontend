@@ -4,25 +4,27 @@ import FeeTable from '../../components/Teacher/FeeTable'
 import api from '../../api/axios'
 
 export default function Payments() {
-  const [pendingReceiptsCount, setPendingReceiptsCount] = useState(0)
+  const [pendingReceipts, setPendingReceipts] = useState([])
 
   useEffect(() => {
-    const fetchPendingCount = async () => {
+    const fetchPendingReceipts = async () => {
       try {
         const response = await api.get('/payments/receipts/pending')
-        const count = (response.data.payments || []).length
-        setPendingReceiptsCount(count)
+        const receipts = response.data.payments || []
+        setPendingReceipts(receipts)
       } catch (error) {
         console.error('Error fetching pending receipts:', error)
       }
     }
 
-    fetchPendingCount()
+    fetchPendingReceipts()
     
     // Refresh every 10 seconds to show updated count
-    const interval = setInterval(fetchPendingCount, 10000)
+    const interval = setInterval(fetchPendingReceipts, 10000)
     return () => clearInterval(interval)
   }, [])
+
+  const pendingReceiptsCount = pendingReceipts.length;
 
   return (
     <div className="space-y-6">
@@ -39,7 +41,11 @@ export default function Payments() {
               {pendingReceiptsCount} Receipt{pendingReceiptsCount > 1 ? 's' : ''} Pending Review
             </p>
             <p className="text-sm text-blue-700">
-              Student{pendingReceiptsCount > 1 ? 's have' : ' has'} submitted payment receipt{pendingReceiptsCount > 1 ? 's' : ''} awaiting your approval
+              <span className="font-semibold">
+                {pendingReceipts.slice(0, 3).map(r => r.user?.name || r.payer_name || 'Student').join(', ')}
+                {pendingReceipts.length > 3 ? ` and ${pendingReceipts.length - 3} others` : ''}
+              </span>
+              {pendingReceiptsCount > 1 ? ' have' : ' has'} submitted payment receipt{pendingReceiptsCount > 1 ? 's' : ''} awaiting your approval. Scroll down to review.
             </p>
           </div>
         </div>

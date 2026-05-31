@@ -13,10 +13,16 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Prevent aggressive browser autofill on page load
+  const [emailReadOnly, setEmailReadOnly] = useState(true);
+  const [passwordReadOnly, setPasswordReadOnly] = useState(true);
+
   useEffect(() => {
     if (isOpen) {
       setFormData({ email: '', password: '' });
       setRememberMe(false);
+      setEmailReadOnly(true);
+      setPasswordReadOnly(true);
     }
   }, [isOpen]);
 
@@ -96,6 +102,8 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
+                onFocus={() => setEmailReadOnly(false)}
+                readOnly={emailReadOnly}
                 required
                 placeholder="student@example.com"
                 className="bg-gray-50/50"
@@ -107,6 +115,8 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
+                onFocus={() => setPasswordReadOnly(false)}
+                readOnly={passwordReadOnly}
                 required
                 placeholder="Enter your password"
                 className="bg-gray-50/50"

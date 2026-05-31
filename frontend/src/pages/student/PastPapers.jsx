@@ -85,6 +85,14 @@ export default function PastPapers() {
       setPapers(nextPapers)
     } catch (error) {
       console.error('Error fetching papers:', error)
+      
+      // If access is explicitly forbidden (e.g. payment overdue), do NOT load local fallback papers
+      if (error.response?.status === 403) {
+        toast.error(error.response?.data?.message || 'Access restricted. Please clear your dues.')
+        setLoading(false)
+        return
+      }
+
       try {
         const localResponse = await fetch('/storage/papers.json', { cache: 'no-store' })
         if (!localResponse.ok) throw new Error(`Failed to load local papers: ${localResponse.status}`)
@@ -149,13 +157,22 @@ export default function PastPapers() {
           try {
             const decoder = new TextDecoder('utf-8')
             const text = decoder.decode(response.data)
+            
+            let errorMessage = 'Download failed: server returned an error page. Please ensure you are logged in and try again.'
+            try {
+               const jsonError = JSON.parse(text)
+               if (jsonError.message) {
+                 errorMessage = `Download failed: ${jsonError.message}`
+               }
+            } catch (e) {}
+
             console.error('Download failed - server returned text/html or json:', text)
-            toast.error('Download failed: server returned an error page. Please ensure you are logged in and try again.')
-            return
+            toast.error(errorMessage)
+            return false // indicate failure
           } catch (err) {
             console.error('Failed to decode error response for download', err)
             toast.error('Download failed: received unexpected response from server')
-            return
+            return false // indicate failure
           }
         }
 
@@ -191,14 +208,41 @@ export default function PastPapers() {
         const response = await api.get(`/papers/${paper.id}/download`, {
           responseType: 'arraybuffer'
         })
-        downloadFromResponse(response)
+        const success = downloadFromResponse(response)
+        if (success === false) {
+           toast.dismiss(downloadToastId)
+           return
+        }
       } catch (watermarkError) {
         // Non-PDF files cannot be watermarked; fallback to direct file download.
         console.warn('Watermark download failed, using direct file:', watermarkError)
+        
+        let errorData = null
+        if (watermarkError.response && watermarkError.response.data) {
+           try {
+             const decodedError = new TextDecoder('utf-8').decode(watermarkError.response.data)
+             errorData = JSON.parse(decodedError)
+           } catch(e) {}
+        }
+        
+        if (watermarkError.response?.status === 403) {
+           toast.update(downloadToastId, {
+             render: errorData?.message || 'Access denied: Payment may be overdue',
+             type: 'error',
+             autoClose: 4000,
+             closeOnClick: true
+           })
+           return
+        }
+
         const fallbackResponse = await api.get(`/papers/${paper.id}/file`, {
           responseType: 'arraybuffer'
         })
-        downloadFromResponse(fallbackResponse)
+        const success = downloadFromResponse(fallbackResponse)
+        if (success === false) {
+           toast.dismiss(downloadToastId)
+           return
+        }
       }
 
       toast.update(downloadToastId, {

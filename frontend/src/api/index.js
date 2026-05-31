@@ -48,7 +48,6 @@ export const videosApi = {
 // Payments API
 export const paymentsApi = {
   getUserPayments: (userId) => api.get(`/users/${userId}/payments`),
-  initPayment: (data) => api.post('/payments/init', data),
   verifyPayment: (data) => api.post('/payments/verify', data),
 }
 

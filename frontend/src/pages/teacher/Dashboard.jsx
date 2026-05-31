@@ -3,7 +3,7 @@ import { Routes, Route, Link, useLocation } from 'react-router-dom'
 import { AuthContext } from '../../contexts/AuthContext'
 import { 
   LayoutDashboard, BookOpen, Users, DollarSign, Settings as SettingsIcon,
-  Menu, X, LogOut, GraduationCap, ChevronLeft, ChevronRight, Video, FileText
+  Menu, X, LogOut, GraduationCap, ChevronLeft, ChevronRight, Video, FileText, MessageSquare
 } from 'lucide-react'
 
 // Sub-pages
@@ -13,6 +13,7 @@ import Students from './Students'
 import Payments from './Payments'
 import Settings from './Settings'
 import Videos from './Videos'
+import Messages from './Messages'
 
 export default function TeacherDashboard() {
   const { user, logout } = useContext(AuthContext)
@@ -36,6 +37,7 @@ export default function TeacherDashboard() {
     { path: '/teacher/papers', icon: FileText, label: 'Papers' },
     { path: '/teacher/videos', icon: Video, label: 'Videos' },
     { path: '/teacher/payments', icon: DollarSign, label: 'Fees' },
+    { path: '/teacher/messages', icon: MessageSquare, label: 'Messages' },
     { path: '/teacher/settings', icon: SettingsIcon, label: 'Settings' },
   ]
 
@@ -151,6 +153,7 @@ export default function TeacherDashboard() {
               <Route path="students" element={<Students />} />
               <Route path="payments" element={<Payments />} />
               <Route path="settings" element={<Settings />} />
+              <Route path="messages" element={<Messages />} />
             </Routes>
           </div>
         </main>
