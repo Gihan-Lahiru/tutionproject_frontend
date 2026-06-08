@@ -13,6 +13,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build project
+        run: npm run build
+
+      - name: Check dist folder
+        run: ls -la dist
+
       - name: Deploy via SSH
         uses: appleboy/scp-action@v0.1.7
         with:
