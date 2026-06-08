@@ -1,0 +1,552 @@
+/* Colorful gradient overlay for achievement card hover */
+.achievement-card-gradient {
+  background: linear-gradient(135deg, #f59e42 0%, #f97316 40%, #3b82f6 100%);
+  opacity: 0.92;
+  transition: opacity 0.3s;
+}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Sinhala Font */
+@font-face {
+  font-family: 'UN-Gurulugomi';
+  src: url('/fonts/UN-Gurulugomi.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Achievement card hover content fade-in */
+.achievement-card-content {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.achievement-card:hover .achievement-card-content,
+.achievement-card:focus .achievement-card-content,
+.group:hover .achievement-card-content {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Rotating animation for round.png */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 15s linear infinite;
+}
+
+/* Ensure smooth scrolling doesn't interfere with parallax */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Ken Burns Animation - Slow Zoom and Pan */
+@keyframes ken-burns {
+  0% {
+    transform: scale(1.1) translate(0, 0);
+  }
+  50% {
+    transform: scale(1.2) translate(-2%, -2%);
+  }
+  100% {
+    transform: scale(1.1) translate(0, 0);
+  }
+}
+
+.animate-ken-burns {
+  animation: ken-burns 60s ease-in-out infinite;
+}
+
+/* Letter-by-letter color fill animation */
+@keyframes letter-fill {
+  0% {
+    color: transparent;
+  }
+  40% {
+    color: #ffffff;
+  }
+  100% {
+    color: #ffffff;
+  }
+}
+
+/* Gradient color animation for headings */
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient-text {
+  background: linear-gradient(90deg, #dc2626, #f97316, #eab308, #3b82f6, #8b5cf6, #dc2626);
+  background-size: 400% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradient-shift 4s ease infinite;
+}
+
+/* Progress bar fill animation */
+@keyframes progress-fill {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+.animate-progress-bar {
+  animation: progress-fill 2s ease-out forwards;
+}
+
+@keyframes letter-fill-orange {
+  0% {
+    color: transparent;
+  }
+  100% {
+    color: #fb923c;
+  }
+}
+
+@keyframes letter-fill-red {
+  0% {
+    color: transparent;
+    -webkit-text-stroke: 3px #ff4500;
+  }
+  20% {
+    color: #ff4500;
+    -webkit-text-stroke: 3px #ff4500;
+  }
+  30% {
+    color: #ff4500;
+    -webkit-text-stroke: 2px #ff9a66;
+  }
+  40% {
+    color: #ff4500;
+    -webkit-text-stroke: 1px #ffffff;
+  }
+  100% {
+    color: #ff4500;
+    -webkit-text-stroke: 1px #ffffff;
+  }
+}
+
+.animate-letter-fill {
+  animation: letter-fill 10s ease-in-out infinite;
+}
+
+.animate-letter-fill-orange {
+  animation: letter-fill-orange 10s ease-in-out infinite;
+}
+
+.animate-letter-fill-red {
+  animation: letter-fill-red 10s ease-in-out infinite;
+}
+
+/* Gradient color animation */
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Fill up animation for text */
+@keyframes fillUp {
+  0% {
+    background-position: 0% 100%;
+  }
+  50% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 0% 100%;
+  }
+}
+
+/* Hollow to color animation */
+@keyframes hollowToColor {
+  0% {
+    color: #2563eb;
+  }
+  16.66% {
+    color: #9333ea;
+  }
+  33.33% {
+    color: #ec4899;
+  }
+  50% {
+    color: #f97316;
+  }
+  66.66% {
+    color: #06b6d4;
+  }
+  83.33% {
+    color: #10b981;
+  }
+  100% {
+    color: #2563eb;
+  }
+}
+
+.hollow-to-color {
+  animation: hollowToColor 5s ease-in-out infinite;
+}
+
+/* 360 degree rotation - horizontal flip (left to right) */
+@keyframes rotate360 {
+  0% {
+    transform: rotateY(0deg);
+  }
+  100% {
+    transform: rotateY(360deg);
+  }
+}
+
+.group:hover .rotate-360 {
+  animation: rotate360 0.7s ease-in-out forwards;
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 6s ease infinite;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Gradient animation */
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient 3s ease infinite;
+}
+
+/* Marquee scrolling banner */
+.marquee-section {
+  width: 100%;
+  overflow: hidden;
+  background: white;
+  padding: 1rem 0;
+}
+
+.marquee-container {
+  width: 100%;
+  overflow: hidden;
+}
+
+.marquee {
+  display: flex;
+  animation: scrollLeft 10s linear infinite;
+  white-space: nowrap;
+  will-change: transform;
+}
+
+.marquee .text {
+  color: #1e3a8a;
+  font-size: 6rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0 1rem;
+  flex-shrink: 0;
+  transition: color 0.3s ease, transform 0.3s ease;
+  cursor: pointer;
+}
+
+.marquee .text-color-1:hover { color: #f97316; }
+.marquee .text-color-2:hover { color: #fbbf24; }
+.marquee .text-color-3:hover { color: #059669; }
+.marquee .text-color-4:hover { color: #dc2626; }
+.marquee .text-color-5:hover { color: #7c3aed; transform: scale(1.1); }
+
+@keyframes scrollLeft {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Hide unexpected scrolling text overlays in Results section */
+.scrolling-text-container,
+.scrolling-text,
+#results .scrolling-text-container,
+#results .scrolling-text {
+  display: none !important;
+}
+
+/* Subject ticker (LTR) */
+@keyframes subject-ticker-ltr {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+/* Scrolling banners for Features page */
+.marquee-row {
+  width: 100%;
+  overflow: hidden;
+}
+
+.marquee-content {
+  display: flex;
+  white-space: nowrap;
+  will-change: transform;
+}
+
+.marquee-ltr {
+  animation: scroll-ltr 30s linear infinite;
+}
+
+.marquee-rtl {
+  animation: scroll-rtl 30s linear infinite;
+}
+
+.marquee-text {
+  font-size: 2rem;
+  font-weight: 700;
+  padding: 0.75rem 1.5rem;
+  display: inline-block;
+  transition: all 0.3s ease;
+  border: 3px solid currentColor;
+  border-radius: 12px;
+  margin: 0 0.5rem;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.marquee-text:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  filter: brightness(1.2);
+}
+
+@keyframes scroll-ltr {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes scroll-rtl {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes scrollLeft {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.subject-ticker {
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  position: relative;
+  z-index: 1;
+}
+
+.subject-ticker--bar {
+  background: linear-gradient(90deg, #2563eb 0%, #06b6d4 100%); /* blue-600 to cyan-500 */
+  color: #ffffff;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08) inset;
+}
+
+.subject-ticker-track {
+  display: inline-flex;
+  gap: 2.5rem; /* space between repeats */
+  padding: 0.85rem 1rem;
+  min-width: 300%;
+  animation: subject-ticker-ltr 24s linear infinite;
+}
+
+.subject-ticker-item {
+  color: inherit;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  font-size: 1.125rem; /* text-lg */
+}
+
+/* Fade in up animation for stats cards */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* Typing animation - letter by letter with color change */
+.typing-text-letter-animation {
+  display: inline-block;
+  position: relative;
+  font-weight: 900;
+  overflow: hidden;
+  color: #9ca3af;
+}
+
+.typing-text-letter-animation::before {
+  content: 'Proven Track Record of Success';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  background: linear-gradient(90deg, #22d3ee, #06b6d4, #3b82f6, #8b5cf6, #ec4899, #f59e0b, #10b981);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: typing 4s steps(33) 1s infinite, gradient-shimmer 2s linear infinite;
+  border-right: 3px solid #22d3ee;
+  padding-right: 5px;
+}
+
+/* On small screens, render a single text layer to avoid duplicated heading */
+@media (max-width: 640px) {
+  .typing-text-letter-animation {
+    color: #ffffff;
+  }
+
+  .typing-text-letter-animation::before {
+    content: none;
+    animation: none;
+    border-right: 0;
+    padding-right: 0;
+  }
+}
+
+/* Typing animation for hero subtitle - color changes as it types */
+.typing-text-hero {
+  display: inline;
+  position: relative;
+}
+
+.typing-text-hero span {
+  color: inherit;
+}
+
+@keyframes gradient-shimmer {
+  0% {
+    background-position: 0% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+@keyframes gradient-flow {
+  0% {
+    background-position: 0% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+@keyframes typing {
+  0%, 10% {
+    width: 0;
+  }
+  70%, 100% {
+    width: 100%;
+  }
+}
+
+@keyframes blink-cursor {
+  0%, 50% {
+    border-color: #22d3ee;
+  }
+  51%, 100% {
+    border-color: transparent;
+  }
+}
