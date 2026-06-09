@@ -1,10 +1,13 @@
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { FiArrowRight, FiPhone } from 'react-icons/fi'
 import { useEffect, useRef } from 'react'
 import TypingText from './TypingText'
+import { useAuthModal } from '../../contexts/AuthModalContext'
 
 const HeroSection = ({ heroRef, heroInView }) => {
   const parallaxBgRef = useRef(null);
+  const { openRegister } = useAuthModal();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -43,8 +46,19 @@ const HeroSection = ({ heroRef, heroInView }) => {
           {/* Left Content */}
           <div className="text-center lg:text-left lg:pt-12">
             {/* Teacher Name with Animation */}
-            <div className="py-4 mb-2" style={{ overflow: 'visible' }}>
-              <h1 className="font-bold tracking-wide bg-gradient-to-r from-blue-500 via-white to-orange-500 bg-clip-text text-transparent" style={{ fontFamily: "'UN-Gurulugomi', sans-serif", fontSize: 'clamp(2.5rem, 8vw, 6rem)', lineHeight: '1.5', overflow: 'visible', display: 'block', paddingTop: '0.5rem', paddingBottom: '0.5rem', whiteSpace: 'nowrap' }}>
+            <div className="py-2 mb-2" style={{ overflow: 'visible' }}>
+              <h1
+                className="font-bold tracking-wide bg-gradient-to-r from-blue-500 via-white to-orange-500 bg-clip-text text-transparent break-words"
+                style={{
+                  fontFamily: "'UN-Gurulugomi', sans-serif",
+                  fontSize: 'clamp(1.6rem, 5.5vw, 5.5rem)',
+                  lineHeight: '1.4',
+                  overflowWrap: 'break-word',
+                  wordBreak: 'break-word',
+                  paddingTop: '0.25rem',
+                  paddingBottom: '0.25rem',
+                }}
+              >
                 <TypingText 
                   text="මලීෂ වික්‍රමසිංහ"
                   speed={80} 
@@ -65,26 +79,29 @@ const HeroSection = ({ heroRef, heroInView }) => {
             </h2>
 
             {/* Subheadline */}
-            <p className="text-2xl md:text-3xl lg:text-4xl text-orange-400 max-w-2xl mx-auto lg:mx-0 mt-8 mb-10 font-bold" style={{ fontFamily: "'Gemunu Libre', sans-serif" }}>
+            <p
+              className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl text-orange-400 max-w-2xl mx-auto lg:mx-0 mt-6 mb-8 font-bold leading-relaxed"
+              style={{ fontFamily: "'Gemunu Libre', sans-serif" }}
+            >
               නින්දෙදී දකින සිහින නුදුරේම සැබෑ වන්නට<br/>මං මාවත් සොයා සැරි සරන වර්තමානයක...
             </p>
             
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-8">
-              <Link
-                to="/register"
+              <button
+                onClick={openRegister}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 hover:shadow-xl transition-all"
               >
                 Join Now
                 <FiArrowRight className="w-5 h-5" />
-              </Link>
-              <Link
-                to="/contact"
+              </button>
+              <button
+                onClick={() => navigate('/contact')}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-medium text-white border-2 border-white rounded-xl hover:bg-white hover:text-blue-600 transition-all"
               >
                 <FiPhone className="w-5 h-5" />
                 Contact Sir
-              </Link>
+              </button>
             </div>
           </div>
 
