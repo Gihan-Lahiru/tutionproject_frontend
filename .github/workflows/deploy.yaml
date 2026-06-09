@@ -22,6 +22,10 @@ jobs:
       - name: Check dist folder
         run: ls -la dist
 
+      - name: Verify SSH Connection
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_HOST }} "echo 'SSH connection successful!'"
+
       - name: Deploy via SSH
         uses: appleboy/scp-action@v0.1.7
         with:

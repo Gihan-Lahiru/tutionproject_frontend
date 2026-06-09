@@ -36,8 +36,7 @@ const clearStoredAuth = () => {
 
 const resolveBaseUrl = () => {
   // In dev, always use Vite proxy to avoid mismatched/stale env values
-  if (import.meta.env.DEV) return '/api'
-  return import.meta.env.VITE_API_URL || '/api'
+  return import.meta.env.VITE_API_URL;
 }
 
 const api = axios.create({
