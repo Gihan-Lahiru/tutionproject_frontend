@@ -90,7 +90,7 @@ const About = () => {
     <div className="min-h-screen bg-gray-50 overflow-x-hidden">
       <style>{waveAnimation}</style>
       <Navbar />
-      
+
       {/* Hero Section */}
       <section ref={heroRef} className="relative min-h-[85vh] flex items-center pt-20 overflow-hidden bg-gray-900">
         {/* Background Image with Animation */}
@@ -99,7 +99,7 @@ const About = () => {
         </div>
         {/* Dark overlay for text readability */}
         <div className="absolute inset-0 bg-black/40"></div>
-        
+
         <div className="max-w-7xl mx-auto px-4 py-20 relative z-10">
           <div className="text-center max-w-4xl mx-auto">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-white text-sm font-medium mb-6 backdrop-blur-sm">
@@ -186,7 +186,7 @@ const About = () => {
                 <div className="relative w-full max-w-[420px]" style={{ aspectRatio: '7/10' }}>
                   {/* Teacher Image */}
                   <img src="/sirnew.png" alt="Mr. Maleesha Wickramasinghe" className="w-full h-full object-cover rounded-2xl shadow-2xl" style={{ objectPosition: 'center 15%' }} />
-                  
+
                   {/* Overlay gradient at bottom */}
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-purple-900/90 via-purple-900/70 to-transparent rounded-b-2xl p-6">
                     {/* Social Media Icons */}
@@ -258,73 +258,73 @@ const About = () => {
       {/* Teaching Experience Section */}
       <section className="pt-8 pb-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4">
-            <div className="grid md:grid-cols-2 gap-8">
-              {/* Left - The Guiding Star */}
-              <div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-6">The Guiding Star</h3>
-                <p className="text-gray-700 leading-relaxed mb-6" style={{ fontFamily: "'Noto Sans Sinhala', 'Gemunu Libre', sans-serif" }}>
-                  මලීෂා වික්‍රමසිංහ මහතා 6-11 විද්‍යා ගුරුවරයෙක් සහ උසස් පෙළ රසායන විද්‍යා ගුරුවරයෙකි. 2020  වර්ෂයේ සිට 2025 දක්වා  O/L , A/L විශිෂ්ට ප්‍රතිඵල සිසුන්ට ලබා දෙන ලදී. 
-                </p>
-                <p className="text-gray-700 leading-relaxed mb-6" style={{ fontFamily: "'Noto Sans Sinhala', 'Gemunu Libre', sans-serif" }}>
-                  ඔහුගේ විශිෂ්ට ඉගැන්වීම් ක්‍රමවේදය සහ අධ්‍යාපන ප්‍රවේශය හේතුවෙන් සිසුන් විශාල සංඛ්‍යාවකට විශිෂ්ට ප්‍රතිඵල ලබා ගැනීමට හැකි වී ඇත.
-                </p>
-                <p className="text-gray-700 leading-relaxed" style={{ fontFamily: "'Noto Sans Sinhala', 'Gemunu Libre', sans-serif" }}>
-                  විභාග පාඨමාලා ආවරණය කරමින්, MCQ සාකච්ඡා සහ ව්‍යාපෘති පාඨමාලා ඇතුළත් පන්ති පවත්වයි. පාඨමාලාව සම්පූර්ණයෙන්ම, කෙටි සටහන්, MCQ සාකච්ඡා සහ පුද්ගලික පරීක්ෂණ ඇතුළත් වේ.
-                </p>
-              </div>
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Left - The Guiding Star */}
+            <div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-6">The Guiding Star</h3>
+              <p className="text-gray-700 leading-relaxed mb-6" style={{ fontFamily: "'Noto Sans Sinhala', 'Gemunu Libre', sans-serif" }}>
+                මලීෂා වික්‍රමසිංහ 6-11 විද්‍යා ගුරුවරයෙක් සහ උසස් පෙළ රසායන විද්‍යා ගුරුවරයෙකි. 2020  වර්ෂයේ සිට 2025 දක්වා  O/L , A/L විශිෂ්ට ප්‍රතිඵල සිසුන්ට ලබා දෙන ලදී.
+              </p>
+              <p className="text-gray-700 leading-relaxed mb-6" style={{ fontFamily: "'Noto Sans Sinhala', 'Gemunu Libre', sans-serif" }}>
+                ඔහුගේ විශිෂ්ට ඉගැන්වීම් ක්‍රමවේදය සහ අධ්‍යාපන ප්‍රවේශය හේතුවෙන් සිසුන් විශාල සංඛ්‍යාවකට විශිෂ්ට ප්‍රතිඵල ලබා ගැනීමට හැකි වී ඇත.
+              </p>
+              <p className="text-gray-700 leading-relaxed" style={{ fontFamily: "'Noto Sans Sinhala', 'Gemunu Libre', sans-serif" }}>
+                විභාග පාඨමාලා ආවරණය කරමින්, MCQ සාකච්ඡා සහ ව්‍යාපෘති පාඨමාලා ඇතුළත් පන්ති පවත්වයි. පාඨමාලාව සම්පූර්ණයෙන්ම, කෙටි සටහන්, MCQ සාකච්ඡා සහ පුද්ගලික පරීක්ෂණ ඇතුළත් වේ.
+              </p>
+            </div>
 
-              {/* Right - Skilled Experience */}
-              <div ref={skillsRef}>
-                <h3 className="text-2xl font-bold text-gray-900 mb-6">Skilled Experience</h3>
-                
-                <div key={skillsAnimationKey} className="space-y-6">
-                  {/* Teaching experience */}
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-gray-700 font-semibold">Teaching experience</span>
-                      <span className="text-gray-900 font-bold">100%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-3">
-                      <div className="bg-gradient-to-r from-yellow-400 to-orange-500 h-3 rounded-full animate-progress-bar" style={{ width: '0%' }}></div>
-                    </div>
+            {/* Right - Skilled Experience */}
+            <div ref={skillsRef}>
+              <h3 className="text-2xl font-bold text-gray-900 mb-6">Skilled Experience</h3>
+
+              <div key={skillsAnimationKey} className="space-y-6">
+                {/* Teaching experience */}
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-gray-700 font-semibold">Teaching experience</span>
+                    <span className="text-gray-900 font-bold">100%</span>
                   </div>
-
-                  {/* Student Mentoring */}
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-gray-700 font-semibold">Student Mentoring & Motivation</span>
-                      <span className="text-gray-900 font-bold">100%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-3">
-                      <div className="bg-gradient-to-r from-yellow-400 to-orange-500 h-3 rounded-full animate-progress-bar" style={{ width: '0%', animationDelay: '0.2s' }}></div>
-                    </div>
+                  <div className="w-full bg-gray-200 rounded-full h-3">
+                    <div className="bg-gradient-to-r from-yellow-400 to-orange-500 h-3 rounded-full animate-progress-bar" style={{ width: '0%' }}></div>
                   </div>
+                </div>
 
-                  {/* Exam Strategy Coaching */}
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-gray-700 font-semibold">Exam Strategy Coaching</span>
-                      <span className="text-gray-900 font-bold">100%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-3">
-                      <div className="bg-gradient-to-r from-yellow-400 to-orange-500 h-3 rounded-full animate-progress-bar" style={{ width: '0%', animationDelay: '0.4s' }}></div>
-                    </div>
+                {/* Student Mentoring */}
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-gray-700 font-semibold">Student Mentoring & Motivation</span>
+                    <span className="text-gray-900 font-bold">100%</span>
                   </div>
+                  <div className="w-full bg-gray-200 rounded-full h-3">
+                    <div className="bg-gradient-to-r from-yellow-400 to-orange-500 h-3 rounded-full animate-progress-bar" style={{ width: '0%', animationDelay: '0.2s' }}></div>
+                  </div>
+                </div>
 
-                  {/* Problem Solving Skills */}
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-gray-700 font-semibold">Problem Solving Skills</span>
-                      <span className="text-gray-900 font-bold">100%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-3">
-                      <div className="bg-gradient-to-r from-yellow-400 to-orange-500 h-3 rounded-full animate-progress-bar" style={{ width: '0%', animationDelay: '0.6s' }}></div>
-                    </div>
+                {/* Exam Strategy Coaching */}
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-gray-700 font-semibold">Exam Strategy Coaching</span>
+                    <span className="text-gray-900 font-bold">100%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-3">
+                    <div className="bg-gradient-to-r from-yellow-400 to-orange-500 h-3 rounded-full animate-progress-bar" style={{ width: '0%', animationDelay: '0.4s' }}></div>
+                  </div>
+                </div>
+
+                {/* Problem Solving Skills */}
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-gray-700 font-semibold">Problem Solving Skills</span>
+                    <span className="text-gray-900 font-bold">100%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-3">
+                    <div className="bg-gradient-to-r from-yellow-400 to-orange-500 h-3 rounded-full animate-progress-bar" style={{ width: '0%', animationDelay: '0.6s' }}></div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+        </div>
       </section>
 
       {/* Achievements Section */}
@@ -406,7 +406,7 @@ const About = () => {
       <section id="approach" className="relative pt-8 pb-20 bg-white overflow-hidden" style={{ backgroundImage: "url('/3696093.jpg')", backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
         <div className="absolute inset-0 bg-white/50"></div>
         {/* Animated Wave Overlay - reveals background as it moves */}
-        <div 
+        <div
           className="absolute inset-0"
           style={{
             background: 'linear-gradient(to right, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 45%, rgba(255,255,255,0) 55%, rgba(255,255,255,0.5) 100%)',
@@ -423,8 +423,8 @@ const About = () => {
                 Our Teaching Approach
               </h2>
               <p className="text-black mb-8 leading-relaxed text-lg font-semibold" style={{ textShadow: '1px 1px 4px rgba(255,255,255,0.9)' }}>
-                We believe every student has the potential to succeed when guided correctly. 
-                Our methodology combines traditional teaching excellence with modern 
+                We believe every student has the potential to succeed when guided correctly.
+                Our methodology combines traditional teaching excellence with modern
                 exam-focused strategies.
               </p>
 
@@ -488,7 +488,7 @@ const About = () => {
 
       {/* FAQ Section */}
       <FAQSection />
-      
+
       <Footer />
     </div>
   );
@@ -534,11 +534,11 @@ const FAQSection = () => {
 
   return (
     <section className="relative pt-12 pb-12 md:pt-16 md:pb-16 overflow-hidden">
-      <div 
-        className="absolute inset-0" 
-        style={{ 
-          backgroundImage: "url('/faq.jpg')", 
-          backgroundSize: 'cover', 
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage: "url('/faq.jpg')",
+          backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundAttachment: 'fixed',
           animation: 'zoomInOut 20s ease-in-out infinite'
@@ -560,25 +560,22 @@ const FAQSection = () => {
           {faqs.map((faq, index) => (
             <div
               key={index}
-              className={`border rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md ${
-                expandedIndex === index 
-                  ? 'bg-gradient-to-br from-purple-100 to-pink-100 border-purple-400' 
+              className={`border rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md ${expandedIndex === index
+                  ? 'bg-gradient-to-br from-purple-100 to-pink-100 border-purple-400'
                   : 'bg-gradient-to-br from-blue-200 via-cyan-200 to-teal-200 border-blue-500'
-              }`}
+                }`}
             >
               <button
                 onClick={() => setExpandedIndex(expandedIndex === index ? null : index)}
-                className={`w-full text-left px-6 py-5 flex items-center justify-between gap-4 transition-colors ${
-                  expandedIndex === index ? 'bg-purple-200/50' : 'hover:bg-blue-300/40'
-                }`}
+                className={`w-full text-left px-6 py-5 flex items-center justify-between gap-4 transition-colors ${expandedIndex === index ? 'bg-purple-200/50' : 'hover:bg-blue-300/40'
+                  }`}
               >
                 <span className={`font-semibold ${expandedIndex === index ? 'text-purple-900' : 'text-blue-900'}`}>
                   {faq.question}
                 </span>
                 <FiChevronDown
-                  className={`w-5 h-5 flex-shrink-0 transition-transform duration-300 ${
-                    expandedIndex === index ? 'rotate-180 text-purple-700' : 'text-blue-800'
-                  }`}
+                  className={`w-5 h-5 flex-shrink-0 transition-transform duration-300 ${expandedIndex === index ? 'rotate-180 text-purple-700' : 'text-blue-800'
+                    }`}
                 />
               </button>
               {expandedIndex === index && (
