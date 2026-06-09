@@ -87,17 +87,23 @@ const HeroSection = ({ heroRef, heroInView }) => {
             </p>
             
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-8">
+            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-8 relative z-50">
               <button
-                onClick={openRegister}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 hover:shadow-xl transition-all"
+                onClick={() => {
+                  console.log("Join Now clicked");
+                  openRegister();
+                }}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 hover:shadow-xl transition-all cursor-pointer"
               >
                 Join Now
                 <FiArrowRight className="w-5 h-5" />
               </button>
               <button
-                onClick={() => navigate('/contact')}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-medium text-white border-2 border-white rounded-xl hover:bg-white hover:text-blue-600 transition-all"
+                onClick={() => {
+                  console.log("Contact Sir clicked");
+                  navigate('/contact');
+                }}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-medium text-white border-2 border-white rounded-xl hover:bg-white hover:text-blue-600 transition-all cursor-pointer"
               >
                 <FiPhone className="w-5 h-5" />
                 Contact Sir

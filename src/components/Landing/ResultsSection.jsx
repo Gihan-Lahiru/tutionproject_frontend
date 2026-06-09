@@ -155,7 +155,7 @@ const ResultsSection = () => {
               {
                 name: 'Deshani Fernando',
                 year: 'A/L Year: 2023',
-                text: 'මන් A/L 3rd shy එකටත් attempt එකක් දුන්නේ හොදටම බයවෙලා. පස්සේ සර්ගේ වීඩියෝ, zoom sessions, revision notes ඒවාට මුල් තැන දීලා confidence එක build up කරගත්තා. physics විතරක් නෙමේ, ජීවිතේ ගොඩ යන්නත් motivation එක ලැබුණේ සර්ගෙන්. මම ඉහළින් ම විභාගය pass උනා. සර්ට ගොඩාක් ස්තූතියි ..',
+                text: 'මන් A/L 3rd shy එකටත් attempt එකක් දුන්නේ හොදටම බයවෙලා. පස්සේ සර්ගේ වීඩියෝ, zoom sessions, revision notes ඒවාට මුල් තැන දීලා confidence එක build up කරගත්තා. chemistry විතරක් නෙමේ, ජීවිතේ ගොඩ යන්නත් motivation එක ලැබුණේ සර්ගෙන්. මම ඉහළින් ම විභාගය pass උනා. සර්ට ගොඩාක් ස්තූතියි ..',
                 image: null
               },
               {
