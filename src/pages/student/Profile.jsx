@@ -410,7 +410,6 @@ export default function Profile() {
               <div className="mb-2">
                 <h2 className="text-lg font-bold text-gray-900">{user?.name}</h2>
                 <div className="flex flex-wrap items-center gap-2 mt-1 text-xs text-gray-500 font-semibold uppercase tracking-wider">
-                  <span className="flex items-center gap-1"><FiUser className="w-3.5 h-3.5" /> ID: {user?.id?.slice(0, 10)}</span>
                   <span className="px-2 py-0.5 rounded-full text-xs font-semibold" style={{ background: 'rgba(59,130,246,0.1)', color: '#3b82f6' }}>{formatGradeLabel(user?.grade)}</span>
                 </div>
               </div>
