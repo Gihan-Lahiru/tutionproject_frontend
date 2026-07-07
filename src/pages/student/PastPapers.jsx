@@ -204,7 +204,7 @@ export default function PastPapers() {
                     {formatDateTime(paper.createdAt || paper.uploaded_at || paper.created_at)}
                   </span>
                 </div>
-                {paper.topic && (
+                {paper.topic && paper.topic.trim().toLowerCase() !== paper.title?.trim().toLowerCase() && (
                   <span className="inline-block text-xxs font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-md mt-1 w-fit">
                     {paper.topic}
                   </span>

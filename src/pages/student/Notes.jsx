@@ -206,7 +206,7 @@ export default function Notes() {
                     {formatDateTime(note.createdAt || note.uploaded_at || note.created_at)}
                   </span>
                 </div>
-                {note.topic && (
+                {note.topic && note.topic.trim().toLowerCase() !== note.title?.trim().toLowerCase() && (
                   <span className="inline-block text-xxs font-bold text-purple-600 bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md mt-1 w-fit">
                     {note.topic}
                   </span>
