@@ -216,7 +216,7 @@ export default function Videos() {
 
                 <div className="p-5">
                   <span className="text-xxs font-bold px-2 py-0.5 rounded-full text-slate-400 bg-slate-100 inline-block mb-2">
-                    {formatDateTime(video.created_at || video.uploaded_at)}
+                    {formatDateTime(video.createdAt || video.created_at || video.uploaded_at)}
                   </span>
                   <h3 className="font-bold text-slate-800 leading-snug line-clamp-2">{video.title}</h3>
                   {video.description && (

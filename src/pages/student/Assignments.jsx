@@ -218,7 +218,7 @@ export default function Assignments() {
                     {assignment.status === 'submitted' ? 'Submitted' : 'Pending'}
                   </span>
                   <span className="text-xxs font-bold px-2 py-0.5 rounded-full text-slate-400 bg-slate-100">
-                    Due: {formatDateTime(assignment.due_date)}
+                    Due: {formatDateTime(assignment.dueDate || assignment.due_date)}
                   </span>
                 </div>
                 <h3 className="font-bold text-slate-800 leading-snug line-clamp-2">{assignment.title}</h3>

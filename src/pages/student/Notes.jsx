@@ -179,42 +179,52 @@ export default function Notes() {
           {filteredNotes.map((note) => (
             <div
               key={note.id}
-              className="bg-white rounded-2xl p-5 flex flex-col justify-between transition-all duration-300 hover:-translate-y-0.5"
+              className="bg-white rounded-2xl overflow-hidden flex flex-col justify-between transition-all duration-300 hover:-translate-y-0.5"
               style={{ border: '1.5px solid rgba(226,232,240,0.8)', boxShadow: '0 4px 18px rgba(0,0,0,0.03)' }}
               onMouseEnter={e => e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.07)'}
               onMouseLeave={e => e.currentTarget.style.boxShadow = '0 4px 18px rgba(0,0,0,0.03)'}
             >
-              <div>
-                <div className="flex items-start justify-between gap-3 mb-3">
-                  <div className="w-11 h-11 bg-purple-500/10 border border-purple-500/15 rounded-xl flex items-center justify-center shrink-0">
-                    <FiFileText className="h-5.5 w-5.5 text-purple-600" />
-                  </div>
-                  <span className="text-xxs font-bold px-2 py-0.5 rounded-full uppercase tracking-wider text-slate-400 bg-slate-100/80">
-                    {formatDateTime(note.uploaded_at || note.created_at)}
+              {/* Thumbnail */}
+              {note.thumbnailUrl || note.thumbnail_url ? (
+                <div className="w-full h-36 overflow-hidden bg-slate-100">
+                  <img
+                    src={note.thumbnailUrl || note.thumbnail_url}
+                    alt={note.title}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="w-full h-36 flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#f3e8ff,#e0e7ff)' }}>
+                  <FiFileText className="h-12 w-12 text-purple-300" />
+                </div>
+              )}
+
+              <div className="p-5 flex flex-col flex-1">
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <h3 className="font-bold text-slate-800 leading-snug line-clamp-2">{note.title}</h3>
+                  <span className="text-xxs font-bold px-2 py-0.5 rounded-full uppercase tracking-wider text-slate-400 bg-slate-100/80 shrink-0">
+                    {formatDateTime(note.createdAt || note.uploaded_at || note.created_at)}
                   </span>
                 </div>
-                <h3 className="font-bold text-slate-800 leading-snug line-clamp-2">{note.title}</h3>
                 {note.topic && (
-                  <span className="inline-block text-xxs font-bold text-blue-600 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-md mt-2">
+                  <span className="inline-block text-xxs font-bold text-purple-600 bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md mt-1 w-fit">
                     {note.topic}
                   </span>
                 )}
-              </div>
-              
-              <div className="border-t border-slate-100/60 my-4" />
 
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-xs text-slate-400 font-semibold">{note.downloads || 0} downloads</span>
-                <button
-                  onClick={() => handleDownload(note)}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white transition-all shadow-sm"
-                  style={{ background: 'linear-gradient(135deg,#3b82f6,#6366f1)' }}
-                  onMouseEnter={e => e.currentTarget.style.opacity = '0.9'}
-                  onMouseLeave={e => e.currentTarget.style.opacity = '1'}
-                >
-                  <FiDownload className="h-3.5 w-3.5" />
-                  Download
-                </button>
+                <div className="border-t border-slate-100/60 my-3 mt-auto pt-3 flex items-center justify-between gap-3">
+                  <span className="text-xs text-slate-400 font-semibold">{note.downloads || 0} downloads</span>
+                  <button
+                    onClick={() => handleDownload(note)}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white transition-all shadow-sm"
+                    style={{ background: 'linear-gradient(135deg,#3b82f6,#6366f1)' }}
+                    onMouseEnter={e => e.currentTarget.style.opacity = '0.9'}
+                    onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+                  >
+                    <FiDownload className="h-3.5 w-3.5" />
+                    Download
+                  </button>
+                </div>
               </div>
             </div>
           ))}
