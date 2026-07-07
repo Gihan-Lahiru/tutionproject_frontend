@@ -382,10 +382,8 @@ export default function Profile() {
 
       {/* Card Wrapper */}
       <div className="rounded-2xl overflow-hidden bg-white" style={{ border: '1.5px solid rgba(226,232,240,0.8)', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
-        <div className="h-28" style={{ background: 'linear-gradient(90deg,#3b82f6,#6366f1)' }} />
-
         {/* Profile Card Header */}
-        <div className="px-6 pb-6 -mt-10">
+        <div className="p-6">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
             <div className="flex items-end gap-4 flex-wrap sm:flex-nowrap">
               <div className="relative shrink-0">
