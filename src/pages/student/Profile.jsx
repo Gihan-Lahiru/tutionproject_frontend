@@ -7,6 +7,7 @@ import Button from '../../components/UI/Button'
 import Progress from '../../components/UI/Progress'
 import { FiUser, FiMail, FiPhone, FiAward, FiDollarSign, FiClock, FiCheckCircle, FiBookOpen, FiFileText, FiVideo, FiClipboard, FiCamera, FiEdit, FiX, FiSave, FiLock, FiLogOut } from 'react-icons/fi'
 import api from '../../api/axios'
+import Cropper from 'react-easy-crop'
 
 const createImage = (url) =>
   new Promise((resolve, reject) => {
