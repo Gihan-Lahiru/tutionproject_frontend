@@ -173,7 +173,7 @@ export default function PastPapers() {
           </p>
         </div>
       ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
           {filteredPapers.map((paper) => (
             <div
               key={paper.id}
@@ -184,15 +184,15 @@ export default function PastPapers() {
             >
               {/* Thumbnail */}
               {paper.thumbnail_url ? (
-                <div className="w-full h-36 overflow-hidden bg-slate-100">
+                <div className="w-full aspect-[1/1.414] overflow-hidden bg-slate-100">
                   <img
                     src={paper.thumbnail_url}
                     alt={paper.title}
-                    className="w-full h-full object-contain"
+                    className="w-full h-full object-cover"
                   />
                 </div>
               ) : (
-                <div className="w-full h-36 flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#eff6ff,#eef2ff)' }}>
+                <div className="w-full aspect-[1/1.414] flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#eff6ff,#eef2ff)' }}>
                   <FiFileText className="h-12 w-12 text-blue-300" />
                 </div>
               )}

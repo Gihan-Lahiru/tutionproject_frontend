@@ -175,7 +175,7 @@ export default function Notes() {
           </p>
         </div>
       ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
           {filteredNotes.map((note) => (
             <div
               key={note.id}
@@ -186,15 +186,15 @@ export default function Notes() {
             >
               {/* Thumbnail */}
               {note.thumbnailUrl || note.thumbnail_url ? (
-                <div className="w-full h-36 overflow-hidden bg-slate-100">
+                <div className="w-full aspect-[1/1.414] overflow-hidden bg-slate-100">
                   <img
                     src={note.thumbnailUrl || note.thumbnail_url}
                     alt={note.title}
-                    className="w-full h-full object-contain"
+                    className="w-full h-full object-cover"
                   />
                 </div>
               ) : (
-                <div className="w-full h-36 flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#f3e8ff,#e0e7ff)' }}>
+                <div className="w-full aspect-[1/1.414] flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#f3e8ff,#e0e7ff)' }}>
                   <FiFileText className="h-12 w-12 text-purple-300" />
                 </div>
               )}
