@@ -10,7 +10,9 @@ const createImage = (url) =>
     const image = new Image()
     image.addEventListener('load', () => resolve(image))
     image.addEventListener('error', (err) => reject(err))
-    image.setAttribute('crossOrigin', 'anonymous')
+    if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
+      image.setAttribute('crossOrigin', 'anonymous')
+    }
     image.src = url
   })
 
@@ -177,7 +179,8 @@ export default function Settings() {
     const s = String(v).trim()
     if (!s) return ''
     if (s.startsWith('http') || s.startsWith('data:')) return s
-    return s.startsWith('/') ? `http://localhost:5000${s}` : `http://localhost:5000/${s}`
+    const backendOrigin = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api\/?$/, '')
+    return s.startsWith('/') ? `${backendOrigin}${s}` : `${backendOrigin}/${s}`
   }
 
   return (
