@@ -109,7 +109,7 @@ export default function Profile() {
         
         const userGradeKey = normalizeGrade(user?.grade)
         const allVideos = Array.isArray(videosRes.data) ? videosRes.data : (videosRes.data?.videos || [])
-        const allPapers = papersRes.data.papers || []
+        const allPapers = Array.isArray(papersRes.data) ? papersRes.data : (papersRes.data?.papers || [])
 
         const videoMatchesGrade = (v) => !userGradeKey || normalizeGrade(v?.grade) === userGradeKey
         const paperMatchesGrade = (p) => !userGradeKey || normalizeGrade(p?.grade) === userGradeKey
