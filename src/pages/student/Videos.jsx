@@ -196,7 +196,7 @@ export default function Videos() {
                     <img 
                       src={resolveAssetUrl(video.thumbnailUrl || video.thumbnail_url)} 
                       alt={video.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
                     />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center">

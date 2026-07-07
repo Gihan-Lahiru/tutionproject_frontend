@@ -190,7 +190,7 @@ export default function Notes() {
                   <img
                     src={note.thumbnailUrl || note.thumbnail_url}
                     alt={note.title}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                   />
                 </div>
               ) : (

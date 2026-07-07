@@ -188,7 +188,7 @@ export default function PastPapers() {
                   <img
                     src={paper.thumbnail_url}
                     alt={paper.title}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                   />
                 </div>
               ) : (
