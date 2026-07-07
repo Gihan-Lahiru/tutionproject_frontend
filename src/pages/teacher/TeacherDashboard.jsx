@@ -1,7 +1,8 @@
-import { useState, useContext, useEffect } from 'react'
+import { useState, useContext, useEffect, useRef } from 'react'
 import { Routes, Route, Link, useLocation } from 'react-router-dom'
 import { AuthContext } from '../../contexts/AuthContext'
 import api from '../../api/axios'
+import { toast } from 'react-toastify'
 import {
   LayoutDashboard, BookOpen, FileText, Users, Video, DollarSign,
   Settings as SettingsIcon, LogOut, GraduationCap, ChevronLeft,
@@ -22,6 +23,8 @@ export default function TeacherDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [desktopCollapsed, setDesktopCollapsed] = useState(false)
   const [pendingReceiptsCount, setPendingReceiptsCount] = useState(0)
+  const [pendingStudentsCount, setPendingStudentsCount] = useState(0)
+  const notifiedAboutStudents = useRef(false)
   const location = useLocation()
 
   useEffect(() => {
@@ -29,24 +32,44 @@ export default function TeacherDashboard() {
   }, [location.pathname])
 
   useEffect(() => {
-    const fetchPendingCount = async () => {
+    const fetchPendingData = async () => {
       try {
-        const response = await api.get('/payments/receipts/pending')
-        const count = (response.data.payments || []).length
-        setPendingReceiptsCount(count)
+        const [receiptsRes, studentsRes] = await Promise.all([
+          api.get('/payments/receipts/pending').catch(() => ({ data: { payments: [] } })),
+          api.get('/users/students').catch(() => ({ data: { users: [] } }))
+        ])
+        
+        const rCount = (receiptsRes.data.payments || []).length
+        setPendingReceiptsCount(rCount)
+
+        const allStudents = Array.isArray(studentsRes.data) ? studentsRes.data : (studentsRes.data?.users || [])
+        const pCount = allStudents.filter(s => {
+          const status = String(s.approvalStatus || s.approval_status || '').toLowerCase()
+          return status === 'pending' || status === 'waiting' || (status !== 'approved' && status !== 'rejected' && status !== '')
+        }).length
+
+        setPendingStudentsCount(pCount)
+
+        if (pCount > 0 && !notifiedAboutStudents.current) {
+          toast.info(`You have ${pCount} pending student registration${pCount > 1 ? 's' : ''} to review.`, {
+            autoClose: 6000,
+            icon: '👋'
+          })
+          notifiedAboutStudents.current = true
+        }
       } catch (error) {
-        console.error('Error fetching pending receipts:', error)
+        console.error('Error fetching pending data:', error)
       }
     }
-    fetchPendingCount()
-    const interval = setInterval(fetchPendingCount, 10000)
+    fetchPendingData()
+    const interval = setInterval(fetchPendingData, 15000)
     return () => clearInterval(interval)
   }, [])
 
   const navItems = [
     { path: '/teacher/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { path: '/teacher/classes',   icon: BookOpen,        label: 'Classes' },
-    { path: '/teacher/students',  icon: Users,           label: 'Students' },
+    { path: '/teacher/students',  icon: Users,           label: 'Students', badge: pendingStudentsCount > 0 ? pendingStudentsCount : null },
     { path: '/teacher/papers',    icon: FileText,        label: 'Papers' },
     { path: '/teacher/videos',    icon: Video,           label: 'Videos' },
     { path: '/teacher/fees',      icon: DollarSign,      label: 'Fees', badge: pendingReceiptsCount > 0 ? pendingReceiptsCount : null },
