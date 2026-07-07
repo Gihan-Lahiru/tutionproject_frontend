@@ -12,10 +12,10 @@ const HeroSection = ({ heroRef, heroInView }) => {
   useEffect(() => {
     const handleScroll = () => {
       if (!parallaxBgRef.current) return;
-      
+
       const scrolled = window.pageYOffset;
       const offset = scrolled * 0.5;
-      
+
       parallaxBgRef.current.style.transform = `translateY(${offset}px)`;
     };
 
@@ -24,23 +24,23 @@ const HeroSection = ({ heroRef, heroInView }) => {
   }, []);
 
   return (
-    <section 
-      id="home" 
-      ref={heroRef} 
+    <section
+      id="home"
+      ref={heroRef}
       className="relative min-h-screen flex items-center pt-20 overflow-hidden"
     >
       {/* Parallax Background */}
-      <div 
+      <div
         ref={parallaxBgRef}
         className="absolute inset-0 w-full h-[120%] -top-[10%] bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: 'url(/3635048.jpg)'
         }}
       ></div>
-      
+
       {/* Dark Overlay */}
       <div className="absolute inset-0 bg-black/50"></div>
-      
+
       <div className="max-w-7xl mx-auto px-4 py-4 md:py-8 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-start">
           {/* Left Content */}
@@ -48,20 +48,19 @@ const HeroSection = ({ heroRef, heroInView }) => {
             {/* Teacher Name with Animation */}
             <div className="py-2 mb-2" style={{ overflow: 'visible' }}>
               <h1
-                className="font-bold tracking-wide bg-gradient-to-r from-blue-500 via-white to-orange-500 bg-clip-text text-transparent break-words"
+                className="font-bold tracking-wide bg-gradient-to-r from-blue-500 via-white to-orange-500 bg-clip-text text-transparent"
                 style={{
                   fontFamily: "'UN-Gurulugomi', sans-serif",
-                  fontSize: 'clamp(1.6rem, 5.5vw, 5.5rem)',
+                  fontSize: 'clamp(1.2rem, 4.2vw, 4.2rem)',
                   lineHeight: '1.4',
-                  overflowWrap: 'break-word',
-                  wordBreak: 'break-word',
+                  whiteSpace: 'nowrap',
                   paddingTop: '0.25rem',
                   paddingBottom: '0.25rem',
                 }}
               >
-                <TypingText 
-                  text="මලීෂ වික්‍රමසිංහ"
-                  speed={80} 
+                <TypingText
+                  text="Maleesha Wickramasinghe"
+                  speed={80}
                   highlightWords={[]}
                   start={heroInView}
                 />
@@ -70,9 +69,9 @@ const HeroSection = ({ heroRef, heroInView }) => {
 
             {/* Headline with Typing Animation */}
             <h2 className="text-2xl md:text-3xl lg:text-4xl font-semibold text-white leading-tight mb-8" style={{ maxWidth: '700px' }}>
-              <TypingText 
-                text="Expert guidance for Grades 6–11 Science and A/L Chemistry, ensuring deep concept clarity and outstanding results." 
-                speed={80} 
+              <TypingText
+                text="Expert guidance for Grades 6–11 Science and A/L Chemistry, ensuring deep concept clarity and outstanding results."
+                speed={80}
                 highlightWords={['concept clarity', 'outstanding results']}
                 start={heroInView}
               />
@@ -83,9 +82,9 @@ const HeroSection = ({ heroRef, heroInView }) => {
               className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl text-orange-400 max-w-2xl mx-auto lg:mx-0 mt-6 mb-8 font-bold leading-relaxed"
               style={{ fontFamily: "'Gemunu Libre', sans-serif" }}
             >
-              නින්දෙදී දකින සිහින නුදුරේම සැබෑ වන්නට<br/>මං මාවත් සොයා සැරි සරන වර්තමානයක...
+              නින්දෙදී දකින සිහින නුදුරේම සැබෑ වන්නට<br />මං මාවත් සොයා සැරි සරන වර්තමානයක...
             </p>
-            
+
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-8 relative z-50">
               <button
@@ -113,11 +112,11 @@ const HeroSection = ({ heroRef, heroInView }) => {
 
           {/* Right Image */}
           <div className="hidden lg:flex items-start justify-center lg:-mt-8">
-            <img 
-              src="/sirnew.png" 
-              alt="Mr. Maleesha Wickramasinghe" 
+            <img
+              src="/sirnew.png"
+              alt="Mr. Maleesha Wickramasinghe"
               className="w-full max-w-xl transform hover:scale-105 transition-transform duration-500"
-              style={{ 
+              style={{
                 mixBlendMode: 'darken',
                 filter: 'contrast(1.1) brightness(1.05)',
                 backgroundColor: 'transparent'

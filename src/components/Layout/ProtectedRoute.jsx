@@ -37,10 +37,7 @@ export default function ProtectedRoute({ children, allowedRoles = [] }) {
     return <Navigate to="/" replace />
   }
 
-  // Handle Payment Block for Students
-  if (user.role === 'student' && user.dashboardAccess === false) {
-    return <PaymentOverdue user={user} />
-  }
+  // Students with payment overdue can still access dashboard (banner shown inside)
 
   return children
 }

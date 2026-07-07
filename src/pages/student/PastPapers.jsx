@@ -1,9 +1,5 @@
 import { useState, useEffect, useContext } from 'react'
-import { Card, CardContent } from '../../components/UI/Card'
-import Input from '../../components/UI/Input'
-import Button from '../../components/UI/Button'
-import Badge from '../../components/UI/Badge'
-import { FiDownload, FiFileText, FiCheckSquare, FiSearch } from 'react-icons/fi'
+import { FiDownload, FiFileText, FiCheckSquare, FiSearch, FiBookOpen } from 'react-icons/fi'
 import { AuthContext } from '../../contexts/AuthContext'
 import api from '../../api/axios'
 import { toast } from 'react-toastify'
@@ -15,27 +11,17 @@ export default function PastPapers() {
   const [loading, setLoading] = useState(true)
   const [classLocations, setClassLocations] = useState({})
 
-  const resolveAssetUrl = (value) => {
-    if (!value) return ''
-    if (value.startsWith('http://') || value.startsWith('https://')) return value
-    if (value.startsWith('/')) return value
-    return `/${value}`
-  }
-
   const parseAppDate = (value) => {
     if (!value) return null
     if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value
-
     const raw = String(value).trim()
     if (!raw) return null
-
     const sqliteMatch = raw.match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2}))?)?$/)
     if (sqliteMatch) {
       const [, y, m, d, hh = '00', mm = '00', ss = '00'] = sqliteMatch
       const parsed = new Date(Number(y), Number(m) - 1, Number(d), Number(hh), Number(mm), Number(ss))
       return Number.isNaN(parsed.getTime()) ? null : parsed
     }
-
     const parsed = new Date(raw)
     return Number.isNaN(parsed.getTime()) ? null : parsed
   }
@@ -46,10 +32,7 @@ export default function PastPapers() {
     return parsed.toLocaleString('en-US', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true,
+      day: 'numeric'
     })
   }
 
@@ -72,40 +55,19 @@ export default function PastPapers() {
         setClassLocations({})
       }
     }
-
     fetchClassLocations()
   }, [])
 
   const fetchPapers = async () => {
     try {
       const response = await api.get('/papers?type=Paper')
-      const nextPapers = Array.isArray(response.data)
-        ? response.data
-        : (response.data?.papers || [])
+      const nextPapers = Array.isArray(response.data) ? response.data : (response.data?.papers || [])
       setPapers(nextPapers)
     } catch (error) {
       console.error('Error fetching papers:', error)
-      
-      // If access is explicitly forbidden (e.g. payment overdue), do NOT load local fallback papers
       if (error.response?.status === 403) {
         toast.error(error.response?.data?.message || 'Access restricted. Please clear your dues.')
-        setLoading(false)
-        return
-      }
-
-      try {
-        const localResponse = await fetch('/storage/papers.json', { cache: 'no-store' })
-        if (!localResponse.ok) throw new Error(`Failed to load local papers: ${localResponse.status}`)
-        const localData = await localResponse.json()
-        const localPapers = Array.isArray(localData?.papers) ? localData.papers : []
-        setPapers(localPapers.map((item) => ({ ...item, __local: true })))
-        if (localPapers.length > 0) {
-          toast.info('Loaded papers from frontend storage')
-        } else {
-          toast.info('No papers available yet')
-        }
-      } catch (localError) {
-        console.error('Error loading local papers:', localError)
+      } else {
         toast.error('Failed to load papers')
       }
     } finally {
@@ -114,136 +76,27 @@ export default function PastPapers() {
   }
 
   const handleDownload = async (paper) => {
-    if (paper.__local && paper.fileUrl) {
-      const link = document.createElement('a')
-      link.href = resolveAssetUrl(paper.fileUrl)
-      link.download = `${(paper.topic || paper.title || 'paper').trim()}`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      toast.success('Download completed')
-      return
-    }
-
     const downloadToastId = toast.info('Download starts...', { autoClose: false })
-
     try {
-      // Update download count in background so watermark download can start immediately.
       api.post(`/papers/${paper.id}/download`).catch((err) => {
         console.error('Download count update error:', err)
       })
-
-      const extensionByMime = {
-        'application/pdf': 'pdf',
-        'application/msword': 'doc',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
-        'application/vnd.ms-excel': 'xls',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
-        'application/vnd.ms-powerpoint': 'ppt',
-        'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'pptx',
-        'text/plain': 'txt',
-        'image/png': 'png',
-        'image/jpeg': 'jpg',
+      const response = await api.get(`/papers/${paper.id}/download`, { responseType: 'blob' })
+      const blob = new Blob([response.data], { type: response.headers['content-type'] || 'application/octet-stream' })
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      let filename = `${(paper.topic || paper.title || 'paper').trim()}.pdf`
+      const contentDisposition = response.headers['content-disposition']
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="?(.+?)"?$/)
+        if (filenameMatch) filename = filenameMatch[1]
       }
-
-      const downloadFromResponse = (response) => {
-        const contentType = (response.headers['content-type'] || 'application/octet-stream')
-          .split(';')[0]
-          .trim()
-          .toLowerCase()
-
-        // Detect HTML/JSON error pages (authentication or server errors returned as HTML)
-        if (contentType.startsWith('text/') || contentType === 'application/json') {
-          try {
-            const decoder = new TextDecoder('utf-8')
-            const text = decoder.decode(response.data)
-            
-            let errorMessage = 'Download failed: server returned an error page. Please ensure you are logged in and try again.'
-            try {
-               const jsonError = JSON.parse(text)
-               if (jsonError.message) {
-                 errorMessage = `Download failed: ${jsonError.message}`
-               }
-            } catch (e) {}
-
-            console.error('Download failed - server returned text/html or json:', text)
-            toast.error(errorMessage)
-            return false // indicate failure
-          } catch (err) {
-            console.error('Failed to decode error response for download', err)
-            toast.error('Download failed: received unexpected response from server')
-            return false // indicate failure
-          }
-        }
-
-        const blob = new Blob([response.data], { type: contentType || 'application/octet-stream' })
-        const url = window.URL.createObjectURL(blob)
-        const link = document.createElement('a')
-        link.href = url
-
-        let filename = (paper.topic || paper.title || 'paper').trim()
-        const contentDisposition = response.headers['content-disposition']
-        if (contentDisposition) {
-          const filenameMatch = contentDisposition.match(/filename="?(.+?)"?$/)
-          if (filenameMatch) {
-            filename = filenameMatch[1]
-          }
-        } else {
-          const hasExt = /\.[a-z0-9]{2,6}$/i.test(filename)
-          if (!hasExt) {
-            const guessedExt = extensionByMime[contentType]
-            if (guessedExt) filename = `${filename}.${guessedExt}`
-          }
-        }
-
-        link.download = filename
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-        // Delay revoking the object URL to avoid race conditions in some browsers
-        setTimeout(() => window.URL.revokeObjectURL(url), 5000)
-      }
-
-      try {
-        const response = await api.get(`/papers/${paper.id}/download`, {
-          responseType: 'arraybuffer'
-        })
-        const success = downloadFromResponse(response)
-        if (success === false) {
-           toast.dismiss(downloadToastId)
-           return
-        }
-      } catch (watermarkError) {
-        // Non-PDF files cannot be watermarked; fallback to direct file download.
-        console.warn('Watermark download failed, using direct file:', watermarkError)
-        
-        let errorData = null
-        if (watermarkError.response && watermarkError.response.data) {
-           try {
-             const decodedError = new TextDecoder('utf-8').decode(watermarkError.response.data)
-             errorData = JSON.parse(decodedError)
-           } catch(e) {}
-        }
-        
-        if (watermarkError.response?.status === 403) {
-           toast.update(downloadToastId, {
-             render: errorData?.message || 'Access denied: Payment may be overdue',
-             type: 'error',
-             autoClose: 4000,
-             closeOnClick: true
-           })
-           return
-        }
-
-        const fallbackResponse = await api.get(`/papers/${paper.id}/file`, {
-          responseType: 'arraybuffer'
-        })
-        const success = downloadFromResponse(fallbackResponse)
-        if (success === false) {
-           toast.dismiss(downloadToastId)
-           return
-        }
-      }
+      link.download = filename
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
 
       toast.update(downloadToastId, {
         render: 'Download completed',
@@ -251,8 +104,6 @@ export default function PastPapers() {
         autoClose: 3000,
         closeOnClick: true
       })
-      
-      // Refresh list in background (non-blocking)
       fetchPapers()
     } catch (error) {
       console.error('Download error:', error)
@@ -266,101 +117,114 @@ export default function PastPapers() {
   }
 
   const filteredPapers = papers.filter((paper) => {
-    const matchesSearch =
-      (paper.title && paper.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (paper.topic && paper.topic.toLowerCase().includes(searchQuery.toLowerCase()))
-
-    // Handle both "10" and "Grade 10" formats
-    const matchesUserGrade = !user?.grade || 
-      paper.grade === user.grade || 
-      paper.grade === `Grade ${user.grade}` ||
-      paper.grade === `grade ${user.grade}`
+    const matchesSearch = paper.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          (paper.topic && paper.topic.toLowerCase().includes(searchQuery.toLowerCase()))
+    const matchesGrade = !user?.grade || 
+      String(paper.grade).replace(/\D/g, '') === String(user.grade).replace(/\D/g, '')
     const userInstitute = String(user?.institute || '').trim().toLowerCase()
-    const paperClassLocation = String(classLocations[paper.classId] || '').trim().toLowerCase()
-    const matchesInstitute = !userInstitute || !paper.classId || paperClassLocation === userInstitute
-
-    return matchesSearch && matchesUserGrade && matchesInstitute
+    const noteClassLocation = String(classLocations[paper.classId] || '').trim().toLowerCase()
+    const matchesInstitute = !userInstitute || !paper.classId || noteClassLocation === userInstitute
+    return matchesSearch && matchesGrade && matchesInstitute
   })
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold text-gray-900">Papers</h2>
-        <p className="text-gray-600 mt-1">Access exam papers and answer sheets</p>
+      {/* Page Header */}
+      <div className="rounded-2xl p-6 sm:p-8" style={{ background: 'linear-gradient(135deg,#0f172a 0%,#0f2240 60%,#1e293b 100%)', boxShadow: '0 8px 32px rgba(15,23,42,0.2)' }}>
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg,#3b82f6,#6366f1)', boxShadow: '0 4px 12px rgba(59,130,246,0.4)' }}>
+            <FiBookOpen className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">Past Papers</h1>
+            <p className="text-sm mt-0.5" style={{ color: '#94a3b8' }}>Download mock exams, past papers, and monthly assessments</p>
+          </div>
+        </div>
       </div>
 
       {/* Filters */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="relative">
-            <FiSearch className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-            <Input
-              placeholder="Search papers..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-        </CardContent>
-      </Card>
+      <div className="bg-white rounded-2xl p-4 flex items-center" style={{ border: '1.5px solid rgba(226,232,240,0.8)' }}>
+        <div className="relative w-full">
+          <FiSearch className="absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Search papers by topic or year..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-11 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-blue-400 focus:bg-white transition-all"
+          />
+        </div>
+      </div>
 
       {/* Papers List */}
       {loading ? (
         <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="text-gray-600 mt-4">Loading papers...</p>
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="text-slate-500 text-sm mt-3 font-semibold">Loading papers...</p>
         </div>
       ) : filteredPapers.length === 0 ? (
-        <Card>
-          <CardContent className="text-center py-12">
-            <FiFileText className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No papers found</h3>
-            <p className="text-gray-600">
-              {searchQuery
-                ? 'Try adjusting your search'
-                : 'No papers available yet'}
-            </p>
-          </CardContent>
-        </Card>
+        <div className="rounded-2xl bg-white text-center py-16 px-4" style={{ border: '1.5px solid rgba(226,232,240,0.8)' }}>
+          <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <FiBookOpen className="h-7 w-7 text-slate-400" />
+          </div>
+          <h3 className="text-lg font-bold text-slate-800 mb-1">No Papers Found</h3>
+          <p className="text-sm text-slate-500 max-w-sm mx-auto">
+            {searchQuery ? 'Adjust your search query and try again.' : 'Exam papers will appear here once uploaded.'}
+          </p>
+        </div>
       ) : (
-        <div className="space-y-3">
+        <div className="grid sm:grid-cols-2 gap-4">
           {filteredPapers.map((paper) => (
-            <Card key={paper.id} className="hover:shadow-lg transition-shadow">
-              <CardContent className="flex items-center gap-4 p-4">
-                {paper.thumbnail_url ? (
+            <div
+              key={paper.id}
+              className="bg-white rounded-2xl overflow-hidden flex flex-col justify-between transition-all duration-300 hover:-translate-y-0.5"
+              style={{ border: '1.5px solid rgba(226,232,240,0.8)', boxShadow: '0 4px 18px rgba(0,0,0,0.03)' }}
+              onMouseEnter={e => e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.07)'}
+              onMouseLeave={e => e.currentTarget.style.boxShadow = '0 4px 18px rgba(0,0,0,0.03)'}
+            >
+              {/* Thumbnail */}
+              {paper.thumbnail_url ? (
+                <div className="w-full h-36 overflow-hidden bg-slate-100">
                   <img
-                    src={resolveAssetUrl(paper.thumbnail_url)}
-                    alt={(paper.topic || paper.title || 'Paper preview').trim()}
-                    className="h-14 w-14 rounded-lg object-cover flex-shrink-0"
+                    src={paper.thumbnail_url}
+                    alt={paper.title}
+                    className="w-full h-full object-cover"
                   />
-                ) : (
-                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100 text-blue-600 flex-shrink-0">
-                    <FiFileText className="h-6 w-6" />
-                  </div>
+                </div>
+              ) : (
+                <div className="w-full h-36 flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#eff6ff,#eef2ff)' }}>
+                  <FiFileText className="h-12 w-12 text-blue-300" />
+                </div>
+              )}
+
+              <div className="p-5 flex flex-col flex-1">
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <h3 className="font-bold text-slate-800 leading-snug line-clamp-2">{paper.title}</h3>
+                  <span className="text-xxs font-bold px-2 py-0.5 rounded-full uppercase tracking-wider text-slate-400 bg-slate-100/80 shrink-0">
+                    {formatDateTime(paper.createdAt || paper.uploaded_at || paper.created_at)}
+                  </span>
+                </div>
+                {paper.topic && (
+                  <span className="inline-block text-xxs font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-md mt-1 w-fit">
+                    {paper.topic}
+                  </span>
                 )}
 
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-gray-900 truncate">{(paper.topic || paper.title || 'Untitled Paper').trim()}</h3>
-                  <div className="flex items-center gap-3 mt-1 text-sm text-gray-600 flex-wrap">
-                    {paper.topic && <Badge variant="secondary">{paper.topic}</Badge>}
-                    {paper.thumbnail_url && (
-                      <Badge variant="success" className="flex items-center gap-1">
-                        <FiCheckSquare className="h-3 w-3" />
-                        <span>Preview</span>
-                      </Badge>
-                    )}
-                    <span>{paper.downloads || 0} downloads</span>
-                    <span className="hidden md:inline">•</span>
-                    <span className="hidden md:inline">{formatDateTime(paper.uploaded_at || paper.created_at)}</span>
-                  </div>
+                <div className="border-t border-slate-100/60 my-3 mt-auto pt-3 flex items-center justify-between gap-3">
+                  <span className="text-xs text-slate-400 font-semibold">{paper.downloads || 0} downloads</span>
+                  <button
+                    onClick={() => handleDownload(paper)}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white transition-all shadow-sm"
+                    style={{ background: 'linear-gradient(135deg,#3b82f6,#6366f1)' }}
+                    onMouseEnter={e => e.currentTarget.style.opacity = '0.9'}
+                    onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+                  >
+                    <FiDownload className="h-3.5 w-3.5" />
+                    Download
+                  </button>
                 </div>
-
-                <Button className="flex-shrink-0" onClick={() => handleDownload(paper)}>
-                  <FiDownload className="h-4 w-4 mr-2" />
-                  Download
-                </Button>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           ))}
         </div>
       )}

@@ -116,7 +116,7 @@ const About = () => {
                     {words1.map((word, wordIndex) => (
                       <span key={`w1-${wordIndex}`} className="inline-block mr-2">
                         {word.split('').map((char, charIndex) => {
-                          const delay = letterIndex * 0.15;
+                          const delay = letterIndex * 0.04;
                           letterIndex++;
                           return (
                             <span
@@ -137,7 +137,7 @@ const About = () => {
                     {words2.map((word, wordIndex) => (
                       <span key={`w2-${wordIndex}`} className="inline-block mr-2">
                         {word.split('').map((char, charIndex) => {
-                          const delay = letterIndex * 0.15;
+                          const delay = letterIndex * 0.04;
                           letterIndex++;
                           return (
                             <span

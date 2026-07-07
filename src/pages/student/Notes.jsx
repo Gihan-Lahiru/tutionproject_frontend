@@ -1,8 +1,6 @@
 import { useState, useEffect, useContext } from 'react'
 import { Card, CardContent } from '../../components/UI/Card'
 import Input from '../../components/UI/Input'
-import Button from '../../components/UI/Button'
-import Badge from '../../components/UI/Badge'
 import { FiSearch, FiDownload, FiFileText } from 'react-icons/fi'
 import { AuthContext } from '../../contexts/AuthContext'
 import api from '../../api/axios'
@@ -15,27 +13,17 @@ export default function Notes() {
   const [loading, setLoading] = useState(true)
   const [classLocations, setClassLocations] = useState({})
 
-  const resolveAssetUrl = (value) => {
-    if (!value) return ''
-    if (value.startsWith('http://') || value.startsWith('https://')) return value
-    if (value.startsWith('/')) return value
-    return `/${value}`
-  }
-
   const parseAppDate = (value) => {
     if (!value) return null
     if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value
-
     const raw = String(value).trim()
     if (!raw) return null
-
     const sqliteMatch = raw.match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2}))?)?$/)
     if (sqliteMatch) {
       const [, y, m, d, hh = '00', mm = '00', ss = '00'] = sqliteMatch
       const parsed = new Date(Number(y), Number(m) - 1, Number(d), Number(hh), Number(mm), Number(ss))
       return Number.isNaN(parsed.getTime()) ? null : parsed
     }
-
     const parsed = new Date(raw)
     return Number.isNaN(parsed.getTime()) ? null : parsed
   }
@@ -46,10 +34,7 @@ export default function Notes() {
     return parsed.toLocaleString('en-US', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true,
+      day: 'numeric'
     })
   }
 
@@ -72,37 +57,19 @@ export default function Notes() {
         setClassLocations({})
       }
     }
-
     fetchClassLocations()
   }, [])
 
   const fetchNotes = async () => {
     try {
       const response = await api.get('/papers?type=Note')
-      const nextNotes = Array.isArray(response.data)
-        ? response.data
-        : (response.data?.papers || [])
+      const nextNotes = Array.isArray(response.data) ? response.data : (response.data?.papers || [])
       setNotes(nextNotes)
     } catch (error) {
       console.error('Error fetching notes:', error)
-
       if (error.response?.status === 403) {
         toast.error(error.response?.data?.message || 'Access restricted. Please clear your dues.')
-        setLoading(false)
-        return
-      }
-
-      try {
-        const localResponse = await fetch('/storage/notes.json', { cache: 'no-store' })
-        if (!localResponse.ok) throw new Error(`Failed to load local notes: ${localResponse.status}`)
-        const localData = await localResponse.json()
-        const localNotes = Array.isArray(localData?.notes) ? localData.notes : []
-        setNotes(localNotes.map((item) => ({ ...item, __local: true })))
-        if (localNotes.length > 0) {
-          toast.info('Loaded notes from frontend storage')
-        }
-      } catch (localError) {
-        console.error('Error loading local notes:', localError)
+      } else {
         toast.error('Failed to load notes')
       }
     } finally {
@@ -111,30 +78,12 @@ export default function Notes() {
   }
 
   const handleDownload = async (note) => {
-    if (note.__local && note.fileUrl) {
-      const link = document.createElement('a')
-      link.href = resolveAssetUrl(note.fileUrl)
-      link.download = `${(note.topic || note.title || 'note').trim()}`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      toast.success('Download completed')
-      return
-    }
-
     const downloadToastId = toast.info('Download starts...', { autoClose: false })
-
     try {
-      // Update download count in background so watermark download can start immediately.
       api.post(`/papers/${note.id}/download`).catch((err) => {
         console.error('Download count update error:', err)
       })
-
-      const response = await api.get(`/papers/${note.id}/download`, {
-        responseType: 'blob'
-      })
-      
-      // Create download link
+      const response = await api.get(`/papers/${note.id}/download`, { responseType: 'blob' })
       const blob = new Blob([response.data], { type: response.headers['content-type'] || 'application/octet-stream' })
       const url = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
@@ -143,9 +92,7 @@ export default function Notes() {
       const contentDisposition = response.headers['content-disposition']
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(/filename="?(.+?)"?$/)
-        if (filenameMatch) {
-          filename = filenameMatch[1]
-        }
+        if (filenameMatch) filename = filenameMatch[1]
       }
       link.download = filename
       document.body.appendChild(link)
@@ -159,8 +106,6 @@ export default function Notes() {
         autoClose: 3000,
         closeOnClick: true
       })
-      
-      // Refresh notes in background (non-blocking)
       fetchNotes()
     } catch (error) {
       console.error('Download error:', error)
@@ -175,12 +120,9 @@ export default function Notes() {
 
   const filteredNotes = notes.filter((note) => {
     const matchesSearch = note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         (note.topic && note.topic.toLowerCase().includes(searchQuery.toLowerCase()))
-    // Handle both "10" and "Grade 10" formats
+                          (note.topic && note.topic.toLowerCase().includes(searchQuery.toLowerCase()))
     const matchesGrade = !user?.grade || 
-      note.grade === user.grade || 
-      note.grade === `Grade ${user.grade}` ||
-      note.grade === `grade ${user.grade}`
+      String(note.grade).replace(/\D/g, '') === String(user.grade).replace(/\D/g, '')
     const userInstitute = String(user?.institute || '').trim().toLowerCase()
     const noteClassLocation = String(classLocations[note.classId] || '').trim().toLowerCase()
     const matchesInstitute = !userInstitute || !note.classId || noteClassLocation === userInstitute
@@ -189,67 +131,92 @@ export default function Notes() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold text-gray-900">Notes & PDFs</h2>
-        <p className="text-gray-600 mt-1">Download all your learning materials</p>
+      {/* Page Header */}
+      <div className="rounded-2xl p-6 sm:p-8" style={{ background: 'linear-gradient(135deg,#0f172a 0%,#0f2240 60%,#1e293b 100%)', boxShadow: '0 8px 32px rgba(15,23,42,0.2)' }}>
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg,#3b82f6,#6366f1)', boxShadow: '0 4px 12px rgba(59,130,246,0.4)' }}>
+            <FiFileText className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">Notes & PDFs</h1>
+            <p className="text-sm mt-0.5" style={{ color: '#94a3b8' }}>Download all your learning materials and lecture guides</p>
+          </div>
+        </div>
       </div>
 
       {/* Filters */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="relative">
-            <FiSearch className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-            <Input
-              placeholder="Search notes..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-        </CardContent>
-      </Card>
+      <div className="bg-white rounded-2xl p-4 flex items-center" style={{ border: '1.5px solid rgba(226,232,240,0.8)' }}>
+        <div className="relative w-full">
+          <FiSearch className="absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Search notes by topic or title..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-11 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-blue-400 focus:bg-white transition-all"
+          />
+        </div>
+      </div>
 
       {/* Notes List */}
       {loading ? (
         <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="text-gray-600 mt-4">Loading notes...</p>
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="text-slate-500 text-sm mt-3 font-semibold">Loading notes...</p>
         </div>
       ) : filteredNotes.length === 0 ? (
-        <Card>
-          <CardContent className="text-center py-12">
-            <FiFileText className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No notes found</h3>
-            <p className="text-gray-600">
-              {searchQuery
-                ? 'Try adjusting your search'
-                : 'No notes available yet'}
-            </p>
-          </CardContent>
-        </Card>
+        <div className="rounded-2xl bg-white text-center py-16 px-4" style={{ border: '1.5px solid rgba(226,232,240,0.8)' }}>
+          <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <FiFileText className="h-7 w-7 text-slate-400" />
+          </div>
+          <h3 className="text-lg font-bold text-slate-800 mb-1">No Notes Found</h3>
+          <p className="text-sm text-slate-500 max-w-sm mx-auto">
+            {searchQuery ? 'Adjust your search query and try again.' : 'Lecure notes will appear here once uploaded.'}
+          </p>
+        </div>
       ) : (
-        <div className="space-y-3">
+        <div className="grid sm:grid-cols-2 gap-4">
           {filteredNotes.map((note) => (
-            <Card key={note.id} className="hover:shadow-lg transition-shadow">
-              <CardContent className="flex items-center gap-4 p-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100 text-purple-600 flex-shrink-0">
-                  <FiFileText className="h-6 w-6" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-gray-900 truncate">{(note.topic || note.title || 'Untitled Note').trim()}</h3>
-                  <div className="flex items-center gap-3 mt-1 text-sm text-gray-600 flex-wrap">
-                    {note.topic && <Badge variant="secondary">{note.topic}</Badge>}
-                    <span>{note.downloads || 0} downloads</span>
-                    <span className="hidden md:inline">•</span>
-                    <span className="hidden md:inline">{formatDateTime(note.uploaded_at || note.created_at)}</span>
+            <div
+              key={note.id}
+              className="bg-white rounded-2xl p-5 flex flex-col justify-between transition-all duration-300 hover:-translate-y-0.5"
+              style={{ border: '1.5px solid rgba(226,232,240,0.8)', boxShadow: '0 4px 18px rgba(0,0,0,0.03)' }}
+              onMouseEnter={e => e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.07)'}
+              onMouseLeave={e => e.currentTarget.style.boxShadow = '0 4px 18px rgba(0,0,0,0.03)'}
+            >
+              <div>
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <div className="w-11 h-11 bg-purple-500/10 border border-purple-500/15 rounded-xl flex items-center justify-center shrink-0">
+                    <FiFileText className="h-5.5 w-5.5 text-purple-600" />
                   </div>
+                  <span className="text-xxs font-bold px-2 py-0.5 rounded-full uppercase tracking-wider text-slate-400 bg-slate-100/80">
+                    {formatDateTime(note.uploaded_at || note.created_at)}
+                  </span>
                 </div>
-                <Button onClick={() => handleDownload(note)} className="flex-shrink-0">
-                  <FiDownload className="h-4 w-4 mr-2" />
+                <h3 className="font-bold text-slate-800 leading-snug line-clamp-2">{note.title}</h3>
+                {note.topic && (
+                  <span className="inline-block text-xxs font-bold text-blue-600 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-md mt-2">
+                    {note.topic}
+                  </span>
+                )}
+              </div>
+              
+              <div className="border-t border-slate-100/60 my-4" />
+
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-xs text-slate-400 font-semibold">{note.downloads || 0} downloads</span>
+                <button
+                  onClick={() => handleDownload(note)}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white transition-all shadow-sm"
+                  style={{ background: 'linear-gradient(135deg,#3b82f6,#6366f1)' }}
+                  onMouseEnter={e => e.currentTarget.style.opacity = '0.9'}
+                  onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+                >
+                  <FiDownload className="h-3.5 w-3.5" />
                   Download
-                </Button>
-              </CardContent>
-            </Card>
+                </button>
+              </div>
+            </div>
           ))}
         </div>
       )}

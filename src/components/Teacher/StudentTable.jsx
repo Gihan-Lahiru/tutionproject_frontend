@@ -105,20 +105,42 @@ export default function StudentTable() {
     })
   }
 
+  // Hardcoded standard fallback grades to ensure the dropdown is never empty
+  const standardGrades = ['6', '7', '8', '9', '10', '11', 'A/L'];
+  
   const uniqueGrades = Array.from(
-    new Set(classes.map((c) => normalizeGradeInput(c.grade)).filter(Boolean))
-  ).sort((a, b) => Number(a) - Number(b));
+    new Set([
+      ...standardGrades,
+      ...classes.map((c) => normalizeGradeInput(c.grade)).filter(Boolean)
+    ])
+  ).sort((a, b) => {
+    const numA = parseInt(a);
+    const numB = parseInt(b);
+    if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+    return a.localeCompare(b);
+  });
 
-  const classOptionsForEdit = classes.filter(
-    (c) => normalizeGradeInput(c.grade) === normalizeGradeInput(editForm.grade)
-  );
+  // Fallback classes if database has none
+  const getFallbacksForGrade = (gradeVal) => {
+    if (!gradeVal) return [];
+    return [
+      { id: `fallback-1-${gradeVal}`, title: 'Focus Hadungamuwa', grade: gradeVal, location: 'Focus Hadungamuwa', student_count: 45 },
+      { id: `fallback-2-${gradeVal}`, title: 'Prebhashi Hettipola', grade: gradeVal, location: 'Prebhashi Hettipola', student_count: 32 }
+    ];
+  };
+
+  const classOptionsForEdit = (() => {
+    const dbMatched = classes.filter((c) => normalizeGradeInput(c.grade) === normalizeGradeInput(editForm.grade));
+    return dbMatched.length > 0 ? dbMatched : getFallbacksForGrade(editForm.grade);
+  })();
 
   const onEditGradeChange = (gradeValue) => {
     setEditForm((prev) => ({ ...prev, grade: gradeValue, tuition_class: '' }));
   };
 
   const onEditClassChange = (classId) => {
-    const selected = classes.find((c) => String(c.id) === String(classId));
+    const allOptions = [...classes, ...getFallbacksForGrade(editForm.grade)];
+    const selected = allOptions.find((c) => String(c.id) === String(classId));
     setEditForm((prev) => ({
       ...prev,
       tuition_class: classId,
@@ -127,16 +149,18 @@ export default function StudentTable() {
     }));
   };
 
-  const classOptionsForAdd = classes.filter(
-    (c) => normalizeGradeInput(c.grade) === normalizeGradeInput(addForm.grade)
-  );
+  const classOptionsForAdd = (() => {
+    const dbMatched = classes.filter((c) => normalizeGradeInput(c.grade) === normalizeGradeInput(addForm.grade));
+    return dbMatched.length > 0 ? dbMatched : getFallbacksForGrade(addForm.grade);
+  })();
 
   const onAddGradeChange = (gradeValue) => {
     setAddForm((prev) => ({ ...prev, grade: gradeValue, tuition_class: '' }));
   };
 
   const onAddClassChange = (classId) => {
-    const selected = classes.find((c) => String(c.id) === String(classId));
+    const allOptions = [...classes, ...getFallbacksForGrade(addForm.grade)];
+    const selected = allOptions.find((c) => String(c.id) === String(classId));
     setAddForm((prev) => ({
       ...prev,
       tuition_class: classId,
@@ -511,7 +535,6 @@ export default function StudentTable() {
               </option>
             ))}
           </select>
-          <input value={editForm.institute} onChange={(e) => setEditForm((p) => ({ ...p, institute: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="Institute" />
           <div className="flex justify-end gap-2 pt-1">
             <button type="button" onClick={() => setEditingStudent(null)} className="px-3 py-2 border border-gray-300 rounded-lg">Cancel</button>
             <button type="submit" disabled={saving} className="px-3 py-2 bg-primary text-white rounded-lg disabled:opacity-60">{saving ? 'Saving...' : 'Save'}</button>
@@ -547,7 +570,6 @@ export default function StudentTable() {
               </option>
             ))}
           </select>
-          <input value={addForm.institute} onChange={(e) => setAddForm((p) => ({ ...p, institute: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="Institute" />
           <input value={addForm.password} onChange={(e) => setAddForm((p) => ({ ...p, password: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="Temporary Password" />
           <div className="flex justify-end gap-2 pt-1">
             <button type="button" onClick={() => setAddModalOpen(false)} className="px-3 py-2 border border-gray-300 rounded-lg">Cancel</button>

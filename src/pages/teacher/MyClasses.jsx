@@ -1,13 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import Card from '../../components/UI/Card'
-import Button from '../../components/UI/Button'
 import Modal from '../../components/UI/Modal'
 import api from '../../api/axios'
 import { classesApi } from '../../api'
 import { toast } from 'react-toastify'
-import { FiUsers, FiClock } from 'react-icons/fi'
-import { FiX } from 'react-icons/fi'
+import { Users, Clock, BookOpen, X, Megaphone, Video, FileText, StickyNote, ClipboardList } from 'lucide-react'
 
 export default function MyClasses() {
   const navigate = useNavigate()
@@ -172,68 +169,119 @@ export default function MyClasses() {
     return `Grade ${normalized}`
   }
 
+  const gradeColors = [
+    'linear-gradient(135deg, #3b82f6, #1d4ed8)', // Blue
+    'linear-gradient(135deg, #6366f1, #4f46e5)', // Indigo
+  ]
+
   if (loading) {
-    return <div className="text-center py-8">Loading...</div>
+    return (
+      <div className="space-y-6">
+        <div className="rounded-2xl p-6 sm:p-8 animate-pulse" style={{ background: '#e2e8f0', height: '120px' }} />
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1,2,3].map(i => <div key={i} className="rounded-2xl animate-pulse" style={{ background: '#f1f5f9', height: '180px' }} />)}
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div>
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">My Classes</h1>
-        <p className="text-gray-600 mt-2">
-          Classes are automatically created per grade with two locations when students register.
-        </p>
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div className="rounded-2xl p-6 sm:p-8" style={{ background: 'linear-gradient(135deg,#0f172a 0%,#0f2040 60%,#1e293b 100%)', boxShadow: '0 8px 32px rgba(15,23,42,0.2)' }}>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg,#3b82f6,#6366f1)', boxShadow: '0 4px 12px rgba(59,130,246,0.4)' }}>
+              <BookOpen className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-white">My Classes</h1>
+              <p className="text-sm mt-0.5" style={{ color: '#94a3b8' }}>Classes are grouped by grade and location.</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 px-4 py-2 rounded-xl self-start sm:self-auto" style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.25)' }}>
+            <BookOpen className="w-4 h-4" style={{ color: '#60a5fa' }} />
+            <span className="text-sm font-bold" style={{ color: '#60a5fa' }}>{preferredClasses.length} Classes</span>
+          </div>
+        </div>
       </div>
 
       {sortedGrades.length === 0 ? (
-        <Card className="p-6 text-center text-gray-600">No classes available yet.</Card>
+        <div className="rounded-2xl flex flex-col items-center justify-center py-16 gap-3" style={{ background: '#fff', border: '1.5px solid rgba(226,232,240,0.8)', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: '#f1f5f9' }}>
+            <BookOpen className="w-7 h-7" style={{ color: '#94a3b8' }} />
+          </div>
+          <p className="font-semibold" style={{ color: '#64748b' }}>No classes available yet.</p>
+          <p className="text-sm" style={{ color: '#94a3b8' }}>Classes are created automatically when students enrol.</p>
+        </div>
       ) : (
         <div className="space-y-8">
-          {sortedGrades.map((grade) => (
+          {sortedGrades.map((grade, gi) => (
             <div key={grade}>
               {formatGradeLabel(grade) && (
-                <h2 className="text-xl font-semibold mb-4">{formatGradeLabel(grade)}</h2>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-2 h-6 rounded-full" style={{ background: gradeColors[gi % gradeColors.length] }} />
+                  <h2 className="text-lg font-bold" style={{ color: '#1e293b' }}>{formatGradeLabel(grade)}</h2>
+                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: '#f1f5f9', color: '#64748b' }}>{groupedByGrade[grade].length} class{groupedByGrade[grade].length !== 1 ? 'es' : ''}</span>
+                </div>
               )}
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {groupedByGrade[grade].map((classItem) => (
-                  (() => {
-                    const rawTitle = String(classItem.title || classItem.name || classItem.subject || '').trim()
-                    const normalizedGrade = normalizeGradeLabel(grade)
-                    const gradePattern = new RegExp(`(?:^|\\s)Grade\\s*${escapeRegex(normalizedGrade)}(?:\\s|$)`, 'ig')
-                    const cleanedTitle = rawTitle.replace(gradePattern, ' ').replace(/\s+/g, ' ').trim() || 'Science Class'
-                    const instituteName = String(classItem.institute || classItem.location || '').trim() || 'Class Location'
-                    const locationLabel = String(classItem.location || '').trim()
-                    const studentCount =
-                      classItem.student_count ??
-                      classItem.studentCount ??
-                      (Array.isArray(classItem.students) ? classItem.students.length : 0)
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {groupedByGrade[grade].map((classItem, idx) => {
+                  const rawTitle = String(classItem.title || classItem.name || classItem.subject || '').trim()
+                  const normalizedGrade = normalizeGradeLabel(grade)
+                  const gradePattern = new RegExp(`(?:^|\\s)Grade\\s*${escapeRegex(normalizedGrade)}(?:\\s|$)`, 'ig')
+                  const cleanedTitle = rawTitle.replace(gradePattern, ' ').replace(/\s+/g, ' ').trim() || 'Science Class'
+                  const instituteName = String(classItem.institute || classItem.location || '').trim() || 'Class Location'
+                  const locationLabel = String(classItem.location || '').trim()
+                  const studentCount = classItem.student_count ?? classItem.studentCount ?? (Array.isArray(classItem.students) ? classItem.students.length : 0)
+                  const color = gradeColors[(gi + idx) % gradeColors.length]
 
-                    return (
-                  <Card key={classItem.id} className="hover:shadow-lg transition">
-                    <div className="mb-4">
-                      <h3 className="text-xl font-bold mb-1">{instituteName}</h3>
-                      <p className="text-sm text-gray-600">{cleanedTitle}</p>
-                      <p className="text-xs text-primary mt-1 capitalize">{locationLabel}</p>
-                      <div className="flex items-center text-sm text-gray-600 mt-2">
-                        <FiClock className="mr-2" />
-                        <span>
-                          {(classItem.day || 'Tuesday')} {classItem.time || '4.00pm-7.00pm'}
-                        </span>
+                  return (
+                    <div
+                      key={classItem.id}
+                      className="rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1"
+                      style={{ background: '#fff', border: '1.5px solid rgba(226,232,240,0.8)', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}
+                      onMouseEnter={e => e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.12)'}
+                      onMouseLeave={e => e.currentTarget.style.boxShadow = '0 4px 24px rgba(0,0,0,0.06)'}
+                    >
+                      {/* Card top accent bar */}
+                      <div className="h-1.5 w-full" style={{ background: color }} />
+                      <div className="p-5">
+                        <div className="flex items-start gap-3 mb-4">
+                          <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 text-white font-bold text-sm" style={{ background: color, boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}>
+                            {normalizeGradeLabel(grade)}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-bold text-base leading-tight" style={{ color: '#1e293b' }}>{instituteName}</h3>
+                            <p className="text-sm mt-0.5 truncate" style={{ color: '#64748b' }}>{cleanedTitle}</p>
+                            {locationLabel && <p className="text-xs mt-0.5 font-medium capitalize" style={{ color: '#3b82f6' }}>{locationLabel}</p>}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-4 mb-4">
+                          <div className="flex items-center gap-1.5 text-xs font-medium" style={{ color: '#64748b' }}>
+                            <Users className="w-3.5 h-3.5" />
+                            <span>{studentCount} students</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 text-xs font-medium" style={{ color: '#64748b' }}>
+                            <Clock className="w-3.5 h-3.5" />
+                            <span>{classItem.day || 'Tue'} · {classItem.time || '4:00pm'}</span>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() => setSelectedClass(classItem)}
+                          className="w-full py-2.5 rounded-xl text-sm font-semibold text-white transition-all duration-200"
+                          style={{ background: color, boxShadow: '0 2px 8px rgba(0,0,0,0.12)' }}
+                          onMouseEnter={e => e.currentTarget.style.opacity = '0.9'}
+                          onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+                        >
+                          Manage Class
+                        </button>
                       </div>
                     </div>
-
-                    <div className="flex items-center text-gray-600 mb-4">
-                      <FiUsers className="mr-2" />
-                      <span>{studentCount} students</span>
-                    </div>
-
-                    <Button className="w-full" size="sm" onClick={() => setSelectedClass(classItem)}>
-                      Manage Class
-                    </Button>
-                  </Card>
-                    )
-                  })()
-                ))}
+                  )
+                })}
               </div>
             </div>
           ))}
@@ -241,38 +289,60 @@ export default function MyClasses() {
       )}
 
       {selectedClass && (
-        <div className="fixed inset-0 z-50 bg-black/50 p-4 sm:p-6">
-          <div className="bg-white rounded-xl w-full h-full shadow-2xl overflow-hidden flex flex-col">
-            <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-gray-200">
-              <div>
-                <h2 className="text-lg sm:text-xl font-bold text-gray-900">
-                  {selectedClass.title || selectedClass.name}
-                  {selectedClass.location && <span className="text-primary ml-2 font-medium">({selectedClass.location})</span>}
-                </h2>
-                <p className="text-sm text-gray-600">Class Management Popup</p>
+        <div className="fixed inset-0 z-50 p-4 sm:p-6" style={{ background: 'rgba(15,23,42,0.7)', backdropFilter: 'blur(4px)' }}>
+          <div className="bg-white rounded-2xl w-full h-full shadow-2xl overflow-hidden flex flex-col" style={{ border: '1.5px solid rgba(226,232,240,0.8)' }}>
+            <div className="flex items-center justify-between px-4 sm:px-6 py-4" style={{ borderBottom: '1px solid #f1f5f9', background: 'linear-gradient(90deg,#f8fafc,#fff)' }}>
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#3b82f6,#6366f1)' }}>
+                  <BookOpen className="w-4 h-4 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-base sm:text-lg font-bold" style={{ color: '#1e293b' }}>
+                    {selectedClass.title || selectedClass.name}
+                    {selectedClass.location && <span className="ml-2 text-sm font-medium" style={{ color: '#3b82f6' }}>({selectedClass.location})</span>}
+                  </h2>
+                  <p className="text-xs" style={{ color: '#94a3b8' }}>Class Management</p>
+                </div>
               </div>
               <button
                 type="button"
                 onClick={() => setSelectedClass(null)}
-                className="inline-flex items-center justify-center w-10 h-10 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100"
+                className="flex items-center justify-center w-9 h-9 rounded-xl transition-all"
+                style={{ background: '#f1f5f9', border: '1px solid #e2e8f0', color: '#64748b' }}
+                onMouseEnter={e => e.currentTarget.style.background = '#e2e8f0'}
+                onMouseLeave={e => e.currentTarget.style.background = '#f1f5f9'}
                 aria-label="Close class popup"
               >
-                <FiX size={20} />
+                <X size={16} />
               </button>
             </div>
 
-            <div className="px-4 sm:px-6 py-4 border-b border-gray-200 bg-white">
-              <p className="text-sm text-gray-700 mb-3">Quick actions for this class:</p>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-2">
-                <Button size="sm" onClick={() => openPortalAction('announcement')}>Post Announcement</Button>
-                <Button size="sm" onClick={() => openPortalAction('assignment')}>Create Assignment</Button>
-                <Button size="sm" variant="secondary" onClick={() => openPortalAction('note')}>Upload Notes</Button>
-                <Button size="sm" variant="outline" onClick={() => openPortalAction('video')}>Add Video</Button>
-                <Button size="sm" variant="success" onClick={() => openPortalAction('paper')}>Upload Paper</Button>
+            <div className="px-4 sm:px-6 py-3" style={{ borderBottom: '1px solid #f1f5f9', background: '#f8fafc' }}>
+              <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: '#94a3b8' }}>Quick Actions</p>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { label: 'Post Announcement', action: 'announcement', icon: Megaphone, color: '#3b82f6', bg: 'rgba(59,130,246,0.1)' },
+                  { label: 'Create Assignment', action: 'assignment', icon: ClipboardList, color: '#10b981', bg: 'rgba(16,185,129,0.1)' },
+                  { label: 'Upload Notes', action: 'note', icon: StickyNote, color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
+                  { label: 'Add Video', action: 'video', icon: Video, color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)' },
+                  { label: 'Upload Paper', action: 'paper', icon: FileText, color: '#ec4899', bg: 'rgba(236,72,153,0.1)' },
+                ].map(({ label, action, icon: Icon, color, bg }) => (
+                  <button
+                    key={action}
+                    onClick={() => openPortalAction(action)}
+                    className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold transition-all"
+                    style={{ background: bg, color, border: `1px solid ${color}30` }}
+                    onMouseEnter={e => e.currentTarget.style.opacity = '0.8'}
+                    onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    {label}
+                  </button>
+                ))}
               </div>
             </div>
 
-            <div className="flex-1 bg-gray-50">
+            <div className="flex-1" style={{ background: '#f8fafc' }}>
               <iframe
                 key={`${selectedClass.id}-${iframeReloadSeed}`}
                 src={`/class/${selectedClass.id}?tab=${encodeURIComponent(activePopupTab)}`}
@@ -291,16 +361,21 @@ export default function MyClasses() {
                   value={announcementMessage}
                   onChange={(e) => setAnnouncementMessage(e.target.value)}
                   rows={5}
-                  placeholder="Type announcement for this class"
-                  className="w-full border border-gray-300 rounded-lg p-3"
+                  placeholder="Type announcement for this class..."
+                  className="w-full rounded-xl p-3 text-sm outline-none resize-none transition-all"
+                  style={{ border: '1.5px solid #e2e8f0', background: '#f8fafc', color: '#1e293b' }}
+                  onFocus={e => e.target.style.borderColor = '#3b82f6'}
+                  onBlur={e => e.target.style.borderColor = '#e2e8f0'}
                 />
                 <div className="flex justify-end gap-2">
-                  <Button type="button" variant="outline" onClick={closeAnnouncementModal} disabled={postingAnnouncement}>
-                    Cancel
-                  </Button>
-                  <Button type="submit" disabled={postingAnnouncement}>
-                    {postingAnnouncement ? 'Posting...' : 'Post Announcement'}
-                  </Button>
+                  <button type="button" onClick={closeAnnouncementModal} disabled={postingAnnouncement}
+                    className="px-4 py-2 rounded-xl text-sm font-semibold transition-all"
+                    style={{ background: '#f1f5f9', color: '#475569', border: '1.5px solid #e2e8f0' }}
+                  >Cancel</button>
+                  <button type="submit" disabled={postingAnnouncement}
+                    className="px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all"
+                    style={{ background: 'linear-gradient(135deg,#3b82f6,#6366f1)', opacity: postingAnnouncement ? 0.7 : 1 }}
+                  >{postingAnnouncement ? 'Posting...' : 'Post Announcement'}</button>
                 </div>
               </form>
             </Modal>

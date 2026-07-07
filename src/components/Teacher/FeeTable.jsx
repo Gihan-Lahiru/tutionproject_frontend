@@ -338,11 +338,22 @@ export default function FeeTable() {
               <>
                 {(() => {
                   const receiptObj = pendingReceipts.find((r) => r.id === selectedReceiptId);
-                  const receiptUrl = (receiptObj?.receiptUrl || receiptObj?.receipt_url) ? `http://localhost:5000${receiptObj.receiptUrl || receiptObj.receipt_url}` : null;
+                  const rawUrl = receiptObj?.receiptUrl || receiptObj?.receipt_url;
+                  
+                  const getFormattedUrl = (val) => {
+                    if (!val) return null;
+                    const cleanVal = String(val).trim();
+                    if (cleanVal.startsWith('http://') || cleanVal.startsWith('https://') || cleanVal.startsWith('data:')) {
+                      return cleanVal;
+                    }
+                    return cleanVal.startsWith('/') ? `http://localhost:5000${cleanVal}` : `http://localhost:5000/${cleanVal}`;
+                  };
+
+                  const receiptUrl = getFormattedUrl(rawUrl);
                   if (!receiptUrl) return null;
                   
-                  const isPdf = receiptUrl?.toLowerCase().includes('.pdf') || receiptUrl?.toLowerCase().includes('/pdf') || receiptUrl?.toLowerCase().includes('pdf');
-                  const isImage = receiptUrl?.toLowerCase().match(/\.(jpg|jpeg|png|gif|webp)$/i);
+                  const isPdf = receiptUrl.toLowerCase().includes('.pdf') || receiptUrl.toLowerCase().includes('/pdf') || receiptUrl.toLowerCase().includes('pdf');
+                  const isImage = !isPdf;
                   
                   return (
                     <div className="border border-gray-300 rounded-lg overflow-hidden bg-gray-100 space-y-2">

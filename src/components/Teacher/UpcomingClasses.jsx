@@ -1,16 +1,19 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Clock, Users } from "lucide-react"
+import { Users, BookOpen, ArrowRight } from 'lucide-react'
 import api from '../../api/axios'
+
+const gradeColors = [
+  'linear-gradient(135deg, #3b82f6, #1d4ed8)', // Blue
+  'linear-gradient(135deg, #6366f1, #4f46e5)', // Indigo
+]
 
 export default function UpcomingClasses() {
   const navigate = useNavigate()
   const [classes, setClasses] = useState([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    fetchClasses()
-  }, [])
+  useEffect(() => { fetchClasses() }, [])
 
   const fetchClasses = async () => {
     try {
@@ -24,44 +27,91 @@ export default function UpcomingClasses() {
     }
   }
 
-  const getColorByGrade = (grade) => {
-    return 'bg-primary'
-  }
-
   return (
-    <div className="bg-white rounded-xl p-6 shadow-md">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">My Classes</h3>
+    <div
+      className="rounded-2xl overflow-hidden"
+      style={{
+        background: '#fff',
+        border: '1.5px solid rgba(226,232,240,0.8)',
+        boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
+      }}
+    >
+      {/* Card header */}
+      <div
+        className="flex items-center justify-between px-6 py-4"
+        style={{ borderBottom: '1px solid #f1f5f9' }}
+      >
+        <div className="flex items-center gap-2">
+          <div
+            className="w-8 h-8 rounded-xl flex items-center justify-center"
+            style={{ background: 'linear-gradient(135deg,rgba(59,130,246,0.15),rgba(99,102,241,0.08))' }}
+          >
+            <BookOpen className="w-4 h-4" style={{ color: '#3b82f6' }} />
+          </div>
+          <h3 className="text-base font-bold" style={{ color: '#1e293b' }}>My Classes</h3>
+        </div>
         <button
           onClick={() => navigate('/teacher/classes')}
-          className="text-primary hover:text-primary/80 text-sm font-medium"
+          className="flex items-center gap-1 text-sm font-semibold transition-all px-3 py-1.5 rounded-lg"
+          style={{ color: '#3b82f6', background: 'rgba(59,130,246,0.08)' }}
+          onMouseEnter={e => e.currentTarget.style.background = 'rgba(59,130,246,0.15)'}
+          onMouseLeave={e => e.currentTarget.style.background = 'rgba(59,130,246,0.08)'}
         >
-          View All
+          View All <ArrowRight className="w-3.5 h-3.5" />
         </button>
       </div>
-      <div className="space-y-3">
+
+      {/* Card body */}
+      <div className="p-4 space-y-3">
         {loading ? (
-          <div className="text-center py-8 text-gray-500">Loading...</div>
+          <div className="flex flex-col gap-3">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="h-16 rounded-xl animate-pulse" style={{ background: '#f1f5f9' }} />
+            ))}
+          </div>
         ) : classes.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">No classes found</div>
+          <div className="flex flex-col items-center justify-center py-10 gap-2">
+            <div
+              className="w-12 h-12 rounded-2xl flex items-center justify-center"
+              style={{ background: '#f1f5f9' }}
+            >
+              <BookOpen className="w-6 h-6" style={{ color: '#94a3b8' }} />
+            </div>
+            <p className="text-sm font-medium" style={{ color: '#94a3b8' }}>No classes found</p>
+          </div>
         ) : (
-          classes.slice(0, 2).map((cls) => (
+          classes.slice(0, 4).map((cls, idx) => (
             <div
               key={cls.id}
-              className="flex items-center gap-4 p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
+              className="flex items-center gap-4 p-4 rounded-xl cursor-pointer transition-all duration-200"
+              style={{ background: '#f8fafc', border: '1px solid #f1f5f9' }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = '#f1f5f9'
+                e.currentTarget.style.border = '1px solid #e2e8f0'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = '#f8fafc'
+                e.currentTarget.style.border = '1px solid #f1f5f9'
+              }}
+              onClick={() => navigate('/teacher/classes')}
             >
-              <div className={`w-1 h-12 rounded-full ${getColorByGrade(cls.grade)}`} />
-              <div className="flex-1">
-                <p className="font-medium text-gray-900">{cls.title}</p>
-                <p className="text-sm text-gray-600">
-                  {cls.subject} - Grade {cls.grade}
-                </p>
+              {/* Grade badge */}
+              <div
+                className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 text-white font-bold text-sm"
+                style={{ background: gradeColors[idx % gradeColors.length], boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}
+              >
+                {cls.grade || '?'}
               </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <div className="flex items-center gap-1">
-                  <Users className="w-4 h-4" />
-                  {cls.student_count || 0}
-                </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-sm truncate" style={{ color: '#1e293b' }}>{cls.title}</p>
+                <p className="text-xs truncate mt-0.5" style={{ color: '#64748b' }}>{cls.subject} · Grade {cls.grade}</p>
+              </div>
+              <div
+                className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold shrink-0"
+                style={{ background: 'rgba(59,130,246,0.1)', color: '#3b82f6' }}
+              >
+                <Users className="w-3.5 h-3.5" />
+                {cls.student_count || 0}
               </div>
             </div>
           ))
