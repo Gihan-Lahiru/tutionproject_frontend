@@ -278,10 +278,11 @@ export default function StudentDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 flex flex-col">
       <Navbar />
 
-      <div className="pt-20 lg:flex min-h-screen">
+      {/* Below navbar — fills remaining viewport */}
+      <div className="flex flex-1 overflow-hidden" style={{ marginTop: '5rem' }}>
         {sidebarOpen && (
           <button
             type="button"
@@ -294,7 +295,7 @@ export default function StudentDashboard() {
         {/* ── Sidebar ── */}
         <aside
           id="student-dashboard-sidebar"
-          className={`fixed left-0 top-20 z-40 h-[calc(100vh-5rem)] w-72 max-w-[85vw] flex flex-col border-r border-slate-200 bg-slate-900 text-slate-300 transform transition-transform duration-300 ease-out lg:sticky lg:top-20 lg:z-20 lg:w-64 lg:max-w-none lg:translate-x-0 ${
+          className={`fixed left-0 top-20 z-40 h-[calc(100vh-5rem)] w-72 max-w-[85vw] flex flex-col border-r border-slate-200 bg-slate-900 text-slate-300 transform transition-transform duration-300 ease-out lg:static lg:top-auto lg:z-auto lg:h-[calc(100vh-5rem)] lg:w-64 lg:max-w-none lg:translate-x-0 lg:flex-shrink-0 lg:overflow-y-auto ${
             sidebarOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
         >
@@ -371,9 +372,9 @@ export default function StudentDashboard() {
         </aside>
 
         {/* ── Main Content ── */}
-        <main className="w-full flex-1 min-w-0 p-4 sm:p-6 lg:p-8 bg-slate-50">
+        <main className="flex-1 min-w-0 overflow-y-auto h-[calc(100vh-5rem)] p-4 sm:p-6 lg:p-8 bg-slate-50">
           {/* Mobile menu trigger */}
-          <div className="mb-4 lg:hidden sticky top-24 z-20">
+          <div className="mb-4 lg:hidden sticky top-0 z-20">
             <button
               type="button"
               onClick={() => setSidebarOpen(prev => !prev)}
