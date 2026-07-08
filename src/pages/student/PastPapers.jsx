@@ -197,15 +197,13 @@ export default function PastPapers() {
                 </div>
               )}
 
-              <div className="p-5 flex flex-col flex-1">
-                <div className="flex items-start justify-between gap-3 mb-2">
-                  <h3 className="font-bold text-slate-800 leading-snug line-clamp-2">{paper.title}</h3>
-                  <span className="text-xxs font-bold px-2 py-0.5 rounded-full uppercase tracking-wider text-slate-400 bg-slate-100/80 shrink-0">
-                    {formatDateTime(paper.createdAt || paper.uploaded_at || paper.created_at)}
-                  </span>
-                </div>
+              <div className="p-4 flex flex-col flex-1">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">
+                  {formatDateTime(paper.createdAt || paper.uploaded_at || paper.created_at)}
+                </span>
+                <h3 className="font-bold text-slate-800 leading-snug line-clamp-2 text-sm mb-1">{paper.title}</h3>
                 {paper.topic && paper.topic.trim().toLowerCase() !== paper.title?.trim().toLowerCase() && (
-                  <span className="inline-block text-xxs font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-md mt-1 w-fit">
+                  <span className="inline-block text-[10px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-md mt-0.5 w-fit">
                     {paper.topic}
                   </span>
                 )}
