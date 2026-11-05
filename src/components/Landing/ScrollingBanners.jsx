@@ -1,11 +1,7 @@
-import { FiBookOpen, FiVideo, FiFileText, FiAward, FiCheckCircle, FiTarget, FiTrendingUp } from 'react-icons/fi'
+import { FiAward, FiCheckCircle, FiTrendingUp } from 'react-icons/fi'
 
 const tickerItems = [
   { icon: FiAward, text: 'O/L Science (Grades 6–11)', color: 'from-blue-500 to-indigo-600' },
-  { icon: FiTarget, text: 'A/L Chemistry (Theory & Revision)', color: 'from-purple-500 to-pink-600' },
-  { icon: FiFileText, text: 'Model Papers & Discussion', color: 'from-amber-500 to-orange-600' },
-  { icon: FiVideo, text: 'Full HD Recorded Lessons', color: 'from-cyan-500 to-blue-600' },
-  { icon: FiBookOpen, text: 'Short Notes & Worksheets', color: 'from-emerald-500 to-teal-600' },
   { icon: FiTrendingUp, text: 'Proven Top Examination Results', color: 'from-rose-500 to-red-600' },
   { icon: FiCheckCircle, text: 'Deep Concept Clarity', color: 'from-indigo-500 to-cyan-600' },
 ]
@@ -18,7 +14,7 @@ export default function ScrollingBanners() {
       <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-slate-900 to-transparent z-10 pointer-events-none" />
 
       <div className="flex w-max animate-marquee hover:[animation-play-state:paused]">
-        {[...tickerItems, ...tickerItems].map((item, idx) => {
+        {[...tickerItems, ...tickerItems, ...tickerItems, ...tickerItems].map((item, idx) => {
           const Icon = item.icon
           return (
             <div
