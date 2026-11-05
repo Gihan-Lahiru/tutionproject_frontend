@@ -237,62 +237,7 @@ const Features = () => {
         </div>
       </section>
 
-      {/* Scrolling Banners Animation */}
-      <section className="bg-white overflow-hidden py-8 md:py-10">
-        <div className="space-y-4">
-          {/* First Row - Left to Right */}
-          <div className="marquee-row">
-            <div className="marquee-content marquee-ltr">
-              <span className="marquee-text text-blue-600">Grade 6</span>
-              <span className="marquee-text text-blue-600">Grade 7</span>
-              <span className="marquee-text text-blue-600">Grade 8</span>
-              <span className="marquee-text text-blue-600">Grade 9</span>
-              <span className="marquee-text text-blue-600">Grade 10</span>
-              <span className="marquee-text text-blue-600">O/L</span>
-              <span className="marquee-text text-blue-600">A/L</span>
-              <span className="marquee-text text-blue-600">Science</span>
-              <span className="marquee-text text-blue-600">Chemistry</span>
-              <span className="marquee-text text-blue-600">Theory</span>
-              <span className="marquee-text text-blue-600">Grade 6</span>
-              <span className="marquee-text text-blue-600">Grade 7</span>
-              <span className="marquee-text text-blue-600">Grade 8</span>
-              <span className="marquee-text text-blue-600">Grade 9</span>
-              <span className="marquee-text text-blue-600">Grade 10</span>
-              <span className="marquee-text text-blue-600">O/L</span>
-              <span className="marquee-text text-blue-600">A/L</span>
-              <span className="marquee-text text-blue-600">Science</span>
-              <span className="marquee-text text-blue-600">Chemistry</span>
-              <span className="marquee-text text-blue-600">Theory</span>
-            </div>
-          </div>
 
-          {/* Second Row - Right to Left */}
-          <div className="marquee-row">
-            <div className="marquee-content marquee-rtl">
-              <span className="marquee-text text-blue-600">🎯 Revision</span>
-              <span className="marquee-text text-blue-600">📄 Past Papers</span>
-              <span className="marquee-text text-blue-600">💡 MCQ</span>
-              <span className="marquee-text text-blue-600">Grade 6</span>
-              <span className="marquee-text text-blue-600">Grade 7</span>
-              <span className="marquee-text text-blue-600">Grade 8</span>
-              <span className="marquee-text text-blue-600">Grade 9</span>
-              <span className="marquee-text text-blue-600">Grade 10</span>
-              <span className="marquee-text text-blue-600">O/L</span>
-              <span className="marquee-text text-blue-600">A/L</span>
-              <span className="marquee-text text-blue-600">🎯 Revision</span>
-              <span className="marquee-text text-blue-600">📄 Past Papers</span>
-              <span className="marquee-text text-blue-600">💡 MCQ</span>
-              <span className="marquee-text text-blue-600">Grade 6</span>
-              <span className="marquee-text text-blue-600">Grade 7</span>
-              <span className="marquee-text text-blue-600">Grade 8</span>
-              <span className="marquee-text text-blue-600">Grade 9</span>
-              <span className="marquee-text text-blue-600">Grade 10</span>
-              <span className="marquee-text text-blue-600">O/L</span>
-              <span className="marquee-text text-blue-600">A/L</span>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* A/L Chemistry Topics Section */}
       <section 
