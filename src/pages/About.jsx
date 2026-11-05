@@ -3,163 +3,35 @@ import { FaLinkedinIn, FaFacebookF, FaTwitter, FaYoutube } from 'react-icons/fa'
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Layout/Navbar';
 import Footer from '../components/Layout/Footer';
-import { useState, useEffect, useRef } from 'react';
-
-// Keyframe animation for wave effect
-const waveAnimation = `
-  @keyframes wave {
-    0% {
-      transform: translateX(-100%);
-    }
-    100% {
-      transform: translateX(100%);
-    }
-  }
-
-  @keyframes fadeInUp {
-    0% {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes zoomInOut {
-    0%, 100% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.1);
-    }
-  }
-`;
+import { useState } from 'react';
 
 const About = () => {
-  const [animationKey, setAnimationKey] = useState(0);
-  const [teacherAnimationKey, setTeacherAnimationKey] = useState(0);
-  const [skillsAnimationKey, setSkillsAnimationKey] = useState(0);
-  const heroRef = useRef(null);
-  const teacherRef = useRef(null);
-  const skillsRef = useRef(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            if (entry.target === heroRef.current) {
-              setAnimationKey(prev => prev + 1);
-            } else if (entry.target === teacherRef.current) {
-              setTeacherAnimationKey(prev => prev + 1);
-            } else if (entry.target === skillsRef.current) {
-              setSkillsAnimationKey(prev => prev + 1);
-            }
-          }
-        });
-      },
-      { threshold: 0.3 }
-    );
-
-    if (heroRef.current) {
-      observer.observe(heroRef.current);
-    }
-    if (teacherRef.current) {
-      observer.observe(teacherRef.current);
-    }
-    if (skillsRef.current) {
-      observer.observe(skillsRef.current);
-    }
-
-    return () => {
-      if (heroRef.current) {
-        observer.unobserve(heroRef.current);
-      }
-      if (teacherRef.current) {
-        observer.unobserve(teacherRef.current);
-      }
-      if (skillsRef.current) {
-        observer.unobserve(skillsRef.current);
-      }
-    };
-  }, []);
-
   return (
     <div className="min-h-screen bg-gray-50 overflow-x-hidden">
-      <style>{waveAnimation}</style>
       <Navbar />
 
       {/* Hero Section */}
-      <section ref={heroRef} className="relative min-h-[85vh] flex items-center pt-20 overflow-hidden bg-gray-900">
-        {/* Background Image with Animation */}
-        <div className="absolute inset-0 opacity-90 animate-ken-burns">
-          <img src="/cartoon-ai-robot-scene.jpg" alt="Background" className="w-full h-full object-cover object-top scale-110" />
+      <section className="relative min-h-[75vh] flex items-center pt-24 pb-20 overflow-hidden bg-slate-950">
+        {/* Background Image with Dark Overlay */}
+        <div className="absolute inset-0 opacity-40">
+          <img src="/cartoon-ai-robot-scene.jpg" alt="Background" className="w-full h-full object-cover object-top" />
         </div>
-        {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-black/40"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-slate-950/60" />
 
-        <div className="max-w-7xl mx-auto px-4 py-20 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 relative z-10 w-full">
           <div className="text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-white text-sm font-medium mb-6 backdrop-blur-sm">
-              <FiStar className="w-4 h-4 fill-current" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-400/20 text-blue-300 text-xs sm:text-sm font-medium mb-5 backdrop-blur-sm">
+              <FiStar className="w-4 h-4 fill-current text-blue-400" />
               Guiding Students to the Highest Levels of Academic Success
             </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight" key={animationKey}>
-              {(() => {
-                const words1 = ["Guiding", "Students", "to", "the"];
-                const words2 = ["Highest", "Levels", "of", "Academic", "Success"];
-                let letterIndex = 0;
-                return (
-                  <>
-                    {words1.map((word, wordIndex) => (
-                      <span key={`w1-${wordIndex}`} className="inline-block mr-2">
-                        {word.split('').map((char, charIndex) => {
-                          const delay = letterIndex * 0.04;
-                          letterIndex++;
-                          return (
-                            <span
-                              key={`w1-${wordIndex}-${charIndex}`}
-                              className="inline-block animate-letter-fill"
-                              style={{
-                                animationDelay: `${delay}s`,
-                                WebkitTextStroke: '2px #ffffff',
-                                color: 'transparent'
-                              }}
-                            >
-                              {char}
-                            </span>
-                          );
-                        })}
-                      </span>
-                    ))}
-                    {words2.map((word, wordIndex) => (
-                      <span key={`w2-${wordIndex}`} className="inline-block mr-2">
-                        {word.split('').map((char, charIndex) => {
-                          const delay = letterIndex * 0.04;
-                          letterIndex++;
-                          return (
-                            <span
-                              key={`w2-${wordIndex}-${charIndex}`}
-                              className="inline-block animate-letter-fill-red"
-                              style={{
-                                animationDelay: `${delay}s`,
-                                WebkitTextStroke: '3px #ff4500',
-                                color: 'transparent'
-                              }}
-                            >
-                              {char}
-                            </span>
-                          );
-                        })}
-                      </span>
-                    ))}
-                  </>
-                );
-              })()}
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight tracking-tight">
+              Guiding Students to the{' '}
+              <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400 bg-clip-text text-transparent">
+                Highest Levels
+              </span>{' '}
+              of Academic Success
             </h1>
-            <p className="text-white/90 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+            <p className="text-slate-300 text-base sm:text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
               We believe every student has the potential to succeed when guided correctly through structured teaching, exam-focused strategies, and individual attention.
             </p>
           </div>

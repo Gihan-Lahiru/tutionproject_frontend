@@ -302,31 +302,6 @@ html {
   overflow: hidden;
 }
 
-.marquee {
-  display: flex;
-  animation: scrollLeft 10s linear infinite;
-  white-space: nowrap;
-  will-change: transform;
-}
-
-.marquee .text {
-  color: #1e3a8a;
-  font-size: 6rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 0 1rem;
-  flex-shrink: 0;
-  transition: color 0.3s ease, transform 0.3s ease;
-  cursor: pointer;
-}
-
-.marquee .text-color-1:hover { color: #f97316; }
-.marquee .text-color-2:hover { color: #fbbf24; }
-.marquee .text-color-3:hover { color: #059669; }
-.marquee .text-color-4:hover { color: #dc2626; }
-.marquee .text-color-5:hover { color: #7c3aed; transform: scale(1.1); }
-
 @keyframes scrollLeft {
   from {
     transform: translateX(0);
@@ -334,14 +309,6 @@ html {
   to {
     transform: translateX(-50%);
   }
-}
-
-/* Hide unexpected scrolling text overlays in Results section */
-.scrolling-text-container,
-.scrolling-text,
-#results .scrolling-text-container,
-#results .scrolling-text {
-  display: none !important;
 }
 
 /* Subject ticker (LTR) */

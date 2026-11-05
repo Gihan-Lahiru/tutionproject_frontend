@@ -260,18 +260,32 @@ export default function Navbar() {
             </div>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-6">
-            {navItems.map((item) => (
+          {/* Navigation - Public marketing links or Dashboard portal tag */}
+          {!isDashboard ? (
+            <div className="hidden lg:flex items-center gap-6">
+              {navItems.map((item) => (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="hidden lg:flex items-center gap-3">
+              <span className="px-3.5 py-1 text-xs font-semibold uppercase tracking-wider rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                {user?.role === 'teacher' || user?.role === 'admin' ? 'Teacher Portal' : 'Student Portal'}
+              </span>
               <Link
-                key={item.name}
-                to={item.href}
-                className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
+                to="/"
+                className="text-xs font-medium text-gray-500 hover:text-blue-600 transition-colors"
               >
-                {item.name}
+                View Public Site →
               </Link>
-            ))}
-          </div>
+            </div>
+          )}
 
           {/* CTA Buttons / User Profile */}
           <div className="hidden lg:flex items-center gap-3">
