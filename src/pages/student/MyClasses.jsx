@@ -141,61 +141,104 @@ export default function MyClasses() {
   }
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6">My Classes</h1>
+    <div className="space-y-8">
+      {/* Page Header - Clean Light Design */}
+      <div className="rounded-2xl p-6 sm:p-8 bg-white border border-slate-200/90 shadow-xs relative overflow-hidden">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100 shadow-xs">
+            <FiUsers className="w-6 h-6" />
+          </div>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">My Classes</h1>
+            <p className="text-sm text-slate-500 mt-0.5">Explore enrolled tuition classes and available syllabus modules.</p>
+          </div>
+        </div>
+      </div>
 
       {/* Enrolled Classes */}
-      <section className="mb-10">
-        <h2 className="text-2xl font-semibold mb-4">Enrolled Classes</h2>
+      <section>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold text-slate-900">Enrolled Classes</h2>
+          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+            {classes.length} {classes.length === 1 ? 'Class' : 'Classes'}
+          </span>
+        </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {classes.map((classItem) => (
-            <Card key={classItem.id} className="hover:shadow-lg transition">
-              <h3 className="text-xl font-bold mb-2">{classItem.title}</h3>
-              <p className="text-sm text-gray-600 mb-1">By {classItem.teacher}</p>
-              <p className="text-sm text-gray-600 mb-3">{classItem.description}</p>
-              
-              <div className="flex items-center text-sm text-gray-600 mb-4">
-                <FiCalendar className="mr-2" />
-                {classItem.schedule}
+            <div
+              key={classItem.id}
+              className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs hover:border-blue-300 hover:shadow-md transition-all flex flex-col justify-between"
+            >
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[11px] font-bold text-blue-600 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-md">
+                    Grade {classItem.grade}
+                  </span>
+                </div>
+                <h3 className="text-lg font-bold text-slate-900 mb-1">{classItem.title}</h3>
+                <p className="text-xs font-medium text-slate-500 mb-2">Teacher: {classItem.teacher}</p>
+                <p className="text-xs text-slate-600 leading-relaxed mb-4">{classItem.description}</p>
               </div>
+              
+              <div>
+                <div className="flex items-center text-xs text-slate-500 mb-4 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                  <FiCalendar className="mr-2 text-blue-500 shrink-0" />
+                  <span>{classItem.schedule}</span>
+                </div>
 
-              <Link to={`/class/${classItem.id}`}>
-                <Button className="w-full" size="sm">
-                  Go to Class
-                </Button>
-              </Link>
-            </Card>
+                <Link to={`/class/${classItem.id}`}>
+                  <button className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer">
+                    Go to Class
+                  </button>
+                </Link>
+              </div>
+            </div>
           ))}
         </div>
       </section>
 
       {/* Available Classes */}
-      <section>
-        <h2 className="text-2xl font-semibold mb-4">Available Classes</h2>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {availableClasses.map((classItem) => (
-            <Card key={classItem.id} className="hover:shadow-lg transition">
-              <h3 className="text-xl font-bold mb-2">{classItem.title}</h3>
-              <p className="text-sm text-gray-600 mb-1">By {classItem.teacher}</p>
-              <p className="text-sm text-gray-600 mb-3">{classItem.description}</p>
-              
-              <div className="flex items-center text-sm text-gray-600 mb-4">
-                <FiCalendar className="mr-2" />
-                {classItem.schedule}
-              </div>
-
-              <Button
-                onClick={() => handleEnroll(classItem.id)}
-                variant="success"
-                className="w-full"
-                size="sm"
+      {availableClasses.length > 0 && (
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-slate-900">Available Classes</h2>
+            <span className="text-xs text-slate-500">Other Grades</span>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {availableClasses.map((classItem) => (
+              <div
+                key={classItem.id}
+                className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
               >
-                Enroll Now
-              </Button>
-            </Card>
-          ))}
-        </div>
-      </section>
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[11px] font-bold text-slate-600 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md">
+                      Grade {classItem.grade}
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-900 mb-1">{classItem.title}</h3>
+                  <p className="text-xs font-medium text-slate-500 mb-2">Teacher: {classItem.teacher}</p>
+                  <p className="text-xs text-slate-600 leading-relaxed mb-4">{classItem.description}</p>
+                </div>
+                
+                <div>
+                  <div className="flex items-center text-xs text-slate-500 mb-4 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                    <FiCalendar className="mr-2 text-slate-400 shrink-0" />
+                    <span>{classItem.schedule}</span>
+                  </div>
+
+                  <button
+                    onClick={() => handleEnroll(classItem.id)}
+                    className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
+                  >
+                    Enroll Now
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   )
 }

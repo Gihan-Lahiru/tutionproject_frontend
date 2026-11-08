@@ -129,15 +129,15 @@ export default function PastPapers() {
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
-      <div className="rounded-2xl p-6 sm:p-8" style={{ background: 'linear-gradient(135deg,#0f172a 0%,#0f2240 60%,#1e293b 100%)', boxShadow: '0 8px 32px rgba(15,23,42,0.2)' }}>
+      {/* Page Header - Clean Light Design */}
+      <div className="rounded-2xl p-6 sm:p-8 bg-white border border-slate-200/90 shadow-xs relative overflow-hidden">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg,#3b82f6,#6366f1)', boxShadow: '0 4px 12px rgba(59,130,246,0.4)' }}>
-            <FiBookOpen className="w-6 h-6 text-white" />
+          <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100 shadow-xs">
+            <FiBookOpen className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white">Past Papers</h1>
-            <p className="text-sm mt-0.5" style={{ color: '#94a3b8' }}>Download mock exams, past papers, and monthly assessments</p>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Past Papers & Exams</h1>
+            <p className="text-sm text-slate-500 mt-0.5">Download model tests, past papers, and monthly assessments.</p>
           </div>
         </div>
       </div>

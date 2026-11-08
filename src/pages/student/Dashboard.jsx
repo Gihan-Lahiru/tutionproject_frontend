@@ -2,7 +2,7 @@ import { useEffect, useState, useContext } from 'react'
 import { toast } from 'react-toastify'
 import { Routes, Route, Link, useLocation } from 'react-router-dom'
 import { AuthContext } from '../../contexts/AuthContext'
-import { FiHome, FiBook, FiFileText, FiVideo, FiDollarSign, FiUser, FiBookOpen, FiLogOut, FiCheckCircle, FiClock, FiMenu, FiX, FiUploadCloud, FiAlertCircle, FiSettings, FiActivity } from 'react-icons/fi'
+import { FiHome, FiBook, FiFileText, FiVideo, FiDollarSign, FiUser, FiBookOpen, FiLogOut, FiCheckCircle, FiClock, FiMenu, FiX, FiUploadCloud, FiAlertCircle, FiSettings, FiActivity, FiClipboard, FiExternalLink } from 'react-icons/fi'
 import Navbar from '../../components/Layout/Navbar'
 import api from '../../api/axios'
 
@@ -247,30 +247,31 @@ export default function StudentDashboard() {
   }, [])
 
   const navItems = [
-    { path: '/student/dashboard', icon: FiUser, label: 'Profile' },
+    { path: '/student', icon: FiHome, label: 'Dashboard' },
     { path: '/student/notes', icon: FiFileText, label: 'Notes' },
-    { path: '/student/past-papers', icon: FiBookOpen, label: 'Papers' },
-    { path: '/student/assignments', icon: FiFileText, label: 'Assignments' },
+    { path: '/student/past-papers', icon: FiBookOpen, label: 'Past Papers' },
+    { path: '/student/assignments', icon: FiClipboard, label: 'Assignments' },
     { path: '/student/videos', icon: FiVideo, label: 'Video Lessons' },
     { path: '/student/payments', icon: FiDollarSign, label: 'Payments' },
+    { path: '/student/dashboard', icon: FiUser, label: 'Profile' },
   ]
 
   if (user?.approvalStatus === 'pending') {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 flex flex-col items-center justify-center p-4">
-        <div className="max-w-md w-full bg-slate-900/60 backdrop-blur-xl border border-slate-800 rounded-2xl p-8 text-center shadow-2xl">
-          <div className="mx-auto w-20 h-20 bg-amber-500/10 border border-amber-500/20 rounded-full flex items-center justify-center mb-6">
-            <FiClock className="w-10 h-10 text-amber-500" />
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white border border-slate-200 rounded-3xl p-8 text-center shadow-xl">
+          <div className="mx-auto w-16 h-16 bg-amber-50 border border-amber-200 rounded-2xl flex items-center justify-center mb-5">
+            <FiClock className="w-8 h-8 text-amber-500" />
           </div>
-          <h2 className="text-2xl font-bold text-slate-100 mb-2">Waiting for Approval</h2>
-          <p className="text-slate-400 mb-8 leading-relaxed text-sm">
-            Your registration has been submitted and is currently under review. Please wait until sir confirms your account to access the classes and dashboard.
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">Waiting for Approval</h2>
+          <p className="text-slate-500 mb-6 leading-relaxed text-sm">
+            Your registration has been submitted and is currently under review by Mr. Maleesha Wickramasinghe. Once approved, you will have immediate access to your classes, notes, and video lessons.
           </p>
           <button
             onClick={logout}
-            className="w-full py-3 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-red-600 to-rose-600 hover:opacity-95 transition-all"
+            className="w-full py-3 rounded-xl text-sm font-semibold text-white bg-slate-800 hover:bg-slate-900 transition-all cursor-pointer shadow-md"
           >
-            Log Out
+            Sign Out
           </button>
         </div>
       </div>
@@ -288,84 +289,105 @@ export default function StudentDashboard() {
             type="button"
             aria-label="Close sidebar"
             onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm lg:hidden"
+            className="fixed inset-0 z-30 bg-slate-900/40 backdrop-blur-xs lg:hidden cursor-pointer"
           />
         )}
 
-        {/* ── Sidebar ── */}
+        {/* ── Modern Clean Light Sidebar ── */}
         <aside
           id="student-dashboard-sidebar"
-          className={`fixed left-0 top-20 z-40 h-[calc(100vh-5rem)] w-72 max-w-[85vw] flex flex-col border-r border-slate-200 bg-slate-900 text-slate-300 transform transition-transform duration-300 ease-out lg:static lg:top-auto lg:z-auto lg:h-[calc(100vh-5rem)] lg:w-64 lg:max-w-none lg:translate-x-0 lg:flex-shrink-0 lg:overflow-y-auto ${
+          className={`fixed left-0 top-20 z-40 h-[calc(100vh-5rem)] w-72 max-w-[85vw] flex flex-col border-r border-slate-200/90 bg-white text-slate-700 transform transition-transform duration-300 ease-out lg:static lg:top-auto lg:z-auto lg:h-[calc(100vh-5rem)] lg:w-64 lg:max-w-none lg:translate-x-0 lg:flex-shrink-0 lg:overflow-y-auto shadow-xs ${
             sidebarOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
         >
-          {/* Profile card with direct clickable settings shortcut */}
+          {/* Brand Header */}
+          <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-100">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shrink-0 shadow-md shadow-blue-500/20">
+              <span className="text-white font-black text-lg tracking-wider">MW</span>
+            </div>
+            <div>
+              <p className="text-slate-900 font-extrabold text-sm tracking-tight leading-tight">MW Tuition</p>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+                <p className="text-[11px] font-semibold text-slate-500">Student Portal</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Profile Card in Sidebar */}
           <Link
             to="/student/dashboard"
             onClick={() => setSidebarOpen(false)}
-            className="p-6 border-b border-slate-800/60 flex items-center gap-3 hover:bg-slate-800/40 transition-all duration-200 group cursor-pointer"
+            className="mx-3.5 my-3.5 rounded-xl p-3 flex items-center gap-3 bg-slate-50/80 hover:bg-blue-50/50 border border-slate-200/80 hover:border-blue-200 transition-all duration-200 group cursor-pointer"
           >
             {getProfileImageSrc(user?.profile_picture) ? (
               <img 
                 src={getProfileImageSrc(user.profile_picture)}
                 alt={user.name}
-                className="w-12 h-12 rounded-full object-cover shrink-0 group-hover:border-purple-400 transition-colors"
+                className="w-10 h-10 rounded-full object-cover shrink-0 border border-slate-200"
               />
             ) : (
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center shrink-0 shadow-lg">
-                <span className="text-white text-base font-bold">
-                  {user?.name?.charAt(0).toUpperCase()}
-                </span>
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shrink-0 shadow-xs text-white font-bold text-sm">
+                {user?.name?.charAt(0).toUpperCase() || 'S'}
               </div>
             )}
             <div className="min-w-0 flex-1">
-              <p className="font-bold text-sm text-slate-100 truncate group-hover:text-blue-400 transition-colors">{user?.name}</p>
-              <p className="text-xs text-slate-400 font-medium truncate mt-0.5">
+              <p className="font-bold text-sm text-slate-900 truncate group-hover:text-blue-600 transition-colors">{user?.name}</p>
+              <p className="text-xs text-slate-500 font-medium truncate mt-0.5">
                 {user?.grade
                   ? (String(user.grade).toLowerCase().startsWith('grade') ? user.grade : `Grade ${user.grade}`)
                   : 'Student'}
               </p>
             </div>
-            <FiSettings className="w-4 h-4 text-slate-500 shrink-0 group-hover:text-slate-300 transition-colors" />
+            <FiSettings className="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors shrink-0" />
           </Link>
           
-          <nav className="p-4 space-y-1 flex-1 overflow-y-auto">
+          {/* Navigation Items */}
+          <nav className="p-3 space-y-1 flex-1 overflow-y-auto">
             {navItems.map((item) => {
               const Icon = item.icon
-              const isActive = location.pathname === item.path
+              const isActive = item.path === '/student'
+                ? (location.pathname === '/student' || location.pathname === '/student/')
+                : location.pathname === item.path
               return (
                 <Link
                   key={item.path}
                   to={item.path}
                   onClick={() => setSidebarOpen(false)}
-                  className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group relative"
+                  className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-200 group relative text-sm font-semibold"
                   style={{
-                    background: isActive
-                      ? 'linear-gradient(135deg,rgba(59,130,246,0.2),rgba(99,102,241,0.1))'
-                      : 'transparent',
-                    border: isActive ? '1px solid rgba(99,102,241,0.25)' : '1px solid transparent',
-                    color: isActive ? '#fff' : '#94a3b8'
+                    background: isActive ? '#eff6ff' : 'transparent',
+                    color: isActive ? '#2563eb' : '#64748b',
+                    border: isActive ? '1px solid #bfdbfe' : '1px solid transparent',
                   }}
                 >
                   {isActive && (
                     <span
-                      className="absolute left-0 top-2.5 bottom-2.5 w-1 rounded-r-full"
-                      style={{ background: 'linear-gradient(180deg,#3b82f6,#6366f1)' }}
+                      className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full"
+                      style={{ background: '#2563eb' }}
                     />
                   )}
-                  <Icon className="w-5 h-5 shrink-0" style={{ color: isActive ? '#3b82f6' : '#64748b' }} />
-                  <span className="text-sm font-semibold">{item.label}</span>
+                  <Icon className="w-4 h-4 shrink-0" style={{ color: isActive ? '#2563eb' : '#94a3b8' }} />
+                  <span>{item.label}</span>
                 </Link>
               )
             })}
           </nav>
           
-          <div className="p-4 border-t border-slate-800/60">
+          {/* Bottom Area */}
+          <div className="p-3 border-t border-slate-100 space-y-1">
+            <Link
+              to="/"
+              className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+            >
+              <FiExternalLink className="w-4 h-4 text-slate-400" />
+              <span>View Public Site</span>
+            </Link>
             <button
               onClick={() => { setSidebarOpen(false); logout(); }}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition-all duration-200"
+              className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
             >
-              <FiLogOut className="w-5 h-5 shrink-0" />
+              <FiLogOut className="w-4 h-4" />
               <span>Sign Out</span>
             </button>
           </div>
