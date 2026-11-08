@@ -44,11 +44,18 @@ export default function RecentPapers({ refreshTrigger, searchQuery = "" }) {
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
+    if (!dateString) return 'Recent';
+    try {
+      const d = new Date(dateString);
+      if (isNaN(d.getTime())) return 'Recent';
+      return d.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    } catch {
+      return 'Recent';
+    }
   };
 
   const handleEdit = (paper) => {
@@ -173,8 +180,9 @@ export default function RecentPapers({ refreshTrigger, searchQuery = "" }) {
       </div>
     );
   }
-  const q = searchQuery.trim().toLowerCase();
-  const filteredPapers = papers.filter((paper) => {
+  const q = (searchQuery || '').trim().toLowerCase();
+  const filteredPapers = (Array.isArray(papers) ? papers : []).filter((paper) => {
+    if (!paper) return false;
     if (!q) return true;
     const title = String(paper.title || '').toLowerCase();
     const topic = String(paper.topic || '').toLowerCase();

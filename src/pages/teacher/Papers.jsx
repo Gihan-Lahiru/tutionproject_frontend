@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Search, FileText } from "lucide-react";
+import { Search, FileText, X } from "lucide-react";
 import PaperUpload from "../../components/Teacher/PaperUpload";
 import RecentPapers from "../../components/Teacher/RecentPapers";
 

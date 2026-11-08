@@ -64,8 +64,9 @@ export default function VideoLibrary({ refreshTrigger, searchQuery = "" }) {
     window.open(url, '_blank')
   }
 
-  const q = searchQuery.trim().toLowerCase();
-  const filteredVideos = videos.filter((video) => {
+  const q = (searchQuery || '').trim().toLowerCase();
+  const filteredVideos = (Array.isArray(videos) ? videos : []).filter((video) => {
+    if (!video) return false;
     if (!q) return true;
     const title = String(video.title || '').toLowerCase();
     const grade = String(video.grade || '').toLowerCase();

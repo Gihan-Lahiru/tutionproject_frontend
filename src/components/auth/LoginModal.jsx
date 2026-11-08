@@ -9,17 +9,11 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Prevent aggressive browser autofill on page load
-  const [emailReadOnly, setEmailReadOnly] = useState(true);
-  const [passwordReadOnly, setPasswordReadOnly] = useState(true);
-
   useEffect(() => {
     if (isOpen) {
       setFormData({ email: '', password: '' });
       setRememberMe(false);
       setShowPassword(false);
-      setEmailReadOnly(true);
-      setPasswordReadOnly(true);
     }
   }, [isOpen]);
 
@@ -242,8 +236,6 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  onFocus={() => setEmailReadOnly(false)}
-                  readOnly={emailReadOnly}
                   required
                   placeholder="student@example.com"
                   className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-xs"
@@ -261,8 +253,6 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
-                    onFocus={() => setPasswordReadOnly(false)}
-                    readOnly={passwordReadOnly}
                     required
                     placeholder="Enter your password"
                     className="w-full px-4 py-3 pr-11 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-xs"
