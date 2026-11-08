@@ -238,7 +238,7 @@ export default function Navbar() {
     };
   }, [showNotifications]);
 
-  const isDarkHeader = !isDashboard && (location.pathname === '/' || location.pathname === '/about');
+  const isDarkHeader = !isDashboard;
 
   const navItems = [
     { name: 'Home', href: '/' },

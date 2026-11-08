@@ -403,22 +403,25 @@ const About = () => {
       </section>
 
       {/* Teaching Approach Section */}
-      <section id="approach" className="relative pt-8 pb-20 bg-white overflow-hidden" style={{ backgroundImage: "url('/3696093.jpg')", backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
-        <div className="absolute inset-0 bg-white/50"></div>
-        <div className="max-w-7xl mx-auto px-4 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+      <section id="approach" className="py-16 md:py-24 bg-slate-50 border-t border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Content */}
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-black mb-6" style={{ textShadow: '2px 2px 6px rgba(255,255,255,0.9)' }}>
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs sm:text-sm font-semibold mb-4">
+                <FiZap className="w-4 h-4 text-blue-600" />
+                <span>Proven Methodology</span>
+              </div>
+              <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight mb-4">
                 Our Teaching Approach
               </h2>
-              <p className="text-black mb-8 leading-relaxed text-lg font-semibold" style={{ textShadow: '1px 1px 4px rgba(255,255,255,0.9)' }}>
+              <p className="text-slate-600 mb-8 leading-relaxed text-base md:text-lg">
                 We believe every student has the potential to succeed when guided correctly.
                 Our methodology combines traditional teaching excellence with modern
                 exam-focused strategies.
               </p>
 
-              <div className="space-y-4">
+              <div className="space-y-3.5">
                 {[
                   { icon: FiZap, title: "Smart Teaching", description: "Simplified methods that make complex concepts easy to understand" },
                   { icon: FiTarget, title: "Exam-Oriented", description: "Lesson planning focused on exam success and practical application" },
@@ -428,47 +431,57 @@ const About = () => {
                 ].map((approach, index) => (
                   <div
                     key={index}
-                    className="flex items-start gap-4 p-4 rounded-xl hover:bg-white transition-all duration-300 group border border-transparent hover:border-gray-200 hover:shadow-md opacity-0 animate-fade-in-up"
-                    style={{ animationDelay: `${index * 0.2}s`, animationFillMode: 'forwards' }}
+                    className="flex items-start gap-4 p-4 rounded-xl bg-white border border-slate-200/80 shadow-xs hover:border-blue-300 hover:shadow-sm transition-all"
                   >
-                    <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-600 transition-colors">
-                      <approach.icon className="w-6 h-6 text-blue-600 group-hover:text-white" />
+                    <div className="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100">
+                      <approach.icon className="w-5 h-5 text-blue-600" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-black mb-1" style={{ textShadow: '1px 1px 3px rgba(255,255,255,0.9)' }}>{approach.title}</h4>
-                      <p className="text-sm text-black font-semibold" style={{ textShadow: '1px 1px 3px rgba(255,255,255,0.8)' }}>{approach.description}</p>
+                      <h4 className="font-bold text-slate-900 text-base mb-1">{approach.title}</h4>
+                      <p className="text-sm text-slate-600 leading-relaxed">{approach.description}</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Visual */}
+            {/* Visual / Highlights Card */}
             <div className="relative">
-              <div className="absolute -inset-4 bg-gradient-to-br from-purple-500 to-pink-600 rounded-3xl blur-2xl opacity-60 animate-pulse" />
-              <div className="relative bg-gradient-to-br from-purple-600 via-purple-700 to-pink-700 rounded-3xl shadow-2xl p-8 space-y-6 border border-purple-500">
-                <h3 className="text-2xl font-bold text-yellow-300 text-center">
-                  අප තෝරා ගන්නේ ඇයි?
-                </h3>
+              <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 text-white rounded-3xl shadow-xl p-8 md:p-10 border border-slate-700/80 space-y-6 relative overflow-hidden">
+                {/* Subtle ambient light */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
 
-                <div className="space-y-4">
-                  {[
-                    "පළපුරුදු සහ සුදුසුකම් ලත් ගුරුවරයා",
-                    "ඔප්පු වූ ප්‍රතිඵල සහ ශාස්ත්‍රීය විශිෂ්ටත්වය",
-                    "සහායක සහ විනයගරුක ඉගෙනුම් පරිසරයක්",
-                    "අවබෝධය සහ විභාග කාර්ය සාධනය යන දෙකටම අවධානය යොමු කිරීම",
-                  ].map((reason, index) => (
-                    <div key={index} className="flex items-center gap-3">
-                      <FiCheckCircle className="w-5 h-5 text-pink-300 flex-shrink-0" />
-                      <span className="text-white font-medium" style={{ fontFamily: "'Noto Sans Sinhala', sans-serif" }}>{reason}</span>
-                    </div>
-                  ))}
-                </div>
+                <div className="relative z-10">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-blue-300 text-xs font-semibold mb-4">
+                    <span>Student Excellence</span>
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mb-6">
+                    අප තෝරා ගන්නේ ඇයි?
+                  </h3>
 
-                <div className="bg-gradient-to-br from-purple-800 to-pink-800 rounded-xl p-6 text-center border border-purple-600">
-                  <blockquote className="text-lg italic text-pink-100 leading-relaxed font-medium" style={{ fontFamily: "'Noto Sans Sinhala', sans-serif" }}>
-                    "නිවැරදි මඟ පෙන්වීමක් ලැබූ විට සෑම සිසුවෙකුටම සාර්ථක වීමට හැකියාව ඇති බව අපි විශ්වාස කරමු. විශ්වාසයෙන් එකතු වී ඔබේ අධ්‍යාපන ඉලක්ක සාක්ෂාත් කර ගන්න."
-                  </blockquote>
+                  <div className="space-y-3.5 mb-8">
+                    {[
+                      "පළපුරුදු සහ සුදුසුකම් ලත් ගුරුවරයා",
+                      "ඔප්පු වූ ප්‍රතිඵල සහ ශාස්ත්‍රීය විශිෂ්ටත්වය",
+                      "සහායක සහ විනයගරුක ඉගෙනුම් පරිසරයක්",
+                      "අවබෝධය සහ විභාග කාර්ය සාධනය යන දෙකටම අවධානය යොමු කිරීම",
+                    ].map((reason, index) => (
+                      <div key={index} className="flex items-center gap-3">
+                        <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                          <FiCheckCircle className="w-4 h-4" />
+                        </div>
+                        <span className="text-slate-200 text-sm md:text-base font-medium" style={{ fontFamily: "'Noto Sans Sinhala', sans-serif" }}>
+                          {reason}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-white/5 border border-white/10 text-center">
+                    <blockquote className="text-sm md:text-base italic text-slate-300 leading-relaxed font-medium" style={{ fontFamily: "'Noto Sans Sinhala', sans-serif" }}>
+                      "නිවැරදි මඟ පෙන්වීමක් ලැබූ විට සෑම සිසුවෙකුටම සාර්ථක වීමට හැකියාව ඇති බව අපි විශ්වාස කරමු. විශ්වාසයෙන් එකතු වී ඔබේ අධ්‍යාපන ඉලක්ක සාක්ෂාත් කර ගන්න."
+                    </blockquote>
+                  </div>
                 </div>
               </div>
             </div>
@@ -490,7 +503,7 @@ const FAQSection = () => {
   const faqs = [
     {
       question: "Tuition classes වලට ඉගන්වන්නේ මොන විෂයයන්ද?",
-      answer: "අපි විශේෂඥ වෙන්නේ G.C.E. A/L Chemistry සහ ඒ ආශ්‍රිත විද්‍යා විෂයයන් වලට. Classes වලට cover කරන්නේ  Organic Chemistry, Inorganic Chemistry, MCQ techniques, structured question practice සහ essey questions.",
+      answer: "අපි විශේෂඥ වෙන්නේ G.C.E. A/L Chemistry සහ ඒ ආශ්‍රිත විද්‍යා විෂයයන් වලට. Classes වලට cover කරන්නේ Organic Chemistry, Inorganic Chemistry, MCQ techniques, structured question practice සහ essay questions.",
     },
     {
       question: "Class timings සහ schedules මොනවද?",
@@ -523,69 +536,66 @@ const FAQSection = () => {
   ];
 
   return (
-    <section className="relative pt-12 pb-12 md:pt-16 md:pb-16 overflow-hidden">
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage: "url('/faq.jpg')",
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundAttachment: 'fixed',
-          animation: 'zoomInOut 20s ease-in-out infinite'
-        }}
-      ></div>
-      <div className="absolute inset-0 bg-white/30"></div>
-      <div className="max-w-7xl mx-auto px-4 relative z-10">
+    <section className="py-16 md:py-24 bg-white border-t border-slate-200">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Frequently Asked{" "}
-            <span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">Questions</span>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs sm:text-sm font-semibold mb-3">
+            <span>Got Questions?</span>
+          </div>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight mb-3">
+            Frequently Asked <span className="text-blue-600">Questions</span>
           </h2>
-          <p className="text-blue-700 text-xl font-semibold max-w-2xl mx-auto">
-            Find answers to common questions about our classes, schedules, and teaching methods.
+          <p className="text-slate-600 text-base md:text-lg max-w-2xl mx-auto">
+            Find answers to common questions about our physical & online classes, schedules, and learning materials.
           </p>
         </div>
 
-        <div className="max-w-3xl mx-auto space-y-4">
-          {faqs.map((faq, index) => (
-            <div
-              key={index}
-              className={`border rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md ${expandedIndex === index
-                  ? 'bg-gradient-to-br from-purple-100 to-pink-100 border-purple-400'
-                  : 'bg-gradient-to-br from-blue-200 via-cyan-200 to-teal-200 border-blue-500'
+        <div className="space-y-3">
+          {faqs.map((faq, index) => {
+            const isOpen = expandedIndex === index;
+            return (
+              <div
+                key={index}
+                className={`rounded-2xl border transition-all duration-200 overflow-hidden ${
+                  isOpen
+                    ? 'bg-white border-blue-400 shadow-md ring-1 ring-blue-100'
+                    : 'bg-slate-50/70 border-slate-200/90 hover:border-slate-300 hover:bg-slate-50'
                 }`}
-            >
-              <button
-                onClick={() => setExpandedIndex(expandedIndex === index ? null : index)}
-                className={`w-full text-left px-6 py-5 flex items-center justify-between gap-4 transition-colors ${expandedIndex === index ? 'bg-purple-200/50' : 'hover:bg-blue-300/40'
-                  }`}
               >
-                <span className={`font-semibold ${expandedIndex === index ? 'text-purple-900' : 'text-blue-900'}`}>
-                  {faq.question}
-                </span>
-                <FiChevronDown
-                  className={`w-5 h-5 flex-shrink-0 transition-transform duration-300 ${expandedIndex === index ? 'rotate-180 text-purple-700' : 'text-blue-800'
-                    }`}
-                />
-              </button>
-              {expandedIndex === index && (
-                <div className="px-6 pb-5 text-gray-800 font-medium">
-                  {faq.answer}
-                </div>
-              )}
-            </div>
-          ))}
+                <button
+                  onClick={() => setExpandedIndex(isOpen ? null : index)}
+                  className="w-full text-left px-5 sm:px-6 py-4 sm:py-5 flex items-center justify-between gap-4 transition-colors cursor-pointer"
+                >
+                  <span className={`text-base sm:text-lg font-bold transition-colors ${
+                    isOpen ? 'text-blue-600' : 'text-slate-900'
+                  }`}>
+                    {faq.question}
+                  </span>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-all ${
+                    isOpen ? 'bg-blue-50 text-blue-600 rotate-180' : 'bg-slate-200/60 text-slate-500'
+                  }`}>
+                    <FiChevronDown className="w-4 h-4 transition-transform duration-200" />
+                  </div>
+                </button>
+                {isOpen && (
+                  <div className="px-5 sm:px-6 pb-5 pt-1 text-slate-600 text-sm sm:text-base leading-relaxed border-t border-slate-100">
+                    <p className="pt-2">{faq.answer}</p>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
 
-        <div className="mt-12 text-center">
-          <p className="text-gray-900 text-lg font-semibold mb-4">
+        <div className="mt-12 text-center p-6 rounded-2xl bg-slate-50 border border-slate-200">
+          <p className="text-slate-800 text-base font-semibold mb-3">
             Still have questions? Feel free to reach out to us!
           </p>
           <Link
             to="/contact"
-            className="inline-flex items-center gap-2 text-blue-700 text-lg font-bold hover:text-blue-800 hover:underline transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700 shadow-sm hover:shadow transition-all"
           >
-            Contact Us
+            Contact Us <FiArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </div>
