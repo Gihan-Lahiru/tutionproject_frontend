@@ -238,6 +238,8 @@ export default function Navbar() {
     };
   }, [showNotifications]);
 
+  const isDarkHeader = !isDashboard && (location.pathname === '/' || location.pathname === '/about');
+
   const navItems = [
     { name: 'Home', href: '/' },
     { name: 'About', href: '/about' },
@@ -246,32 +248,57 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4">
+    <nav
+      className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${
+        isDarkHeader
+          ? 'bg-slate-950/85 backdrop-blur-xl border-b border-slate-800/80 shadow-2xl shadow-black/30'
+          : 'bg-white/90 backdrop-blur-xl border-b border-slate-200/90 shadow-sm'
+      }`}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-500 flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
-              <span className="text-white font-bold text-lg">MW</span>
+          <Link to="/" className="flex items-center gap-3 group">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 via-indigo-600 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/25 group-hover:scale-105 transition-transform">
+              <span className="text-white font-black text-lg tracking-wider">MW</span>
             </div>
-            <div className="block leading-tight max-w-[150px] sm:max-w-none">
-              <span className="block font-bold text-[13px] sm:text-lg text-gray-900 truncate">Maleesha Wickramasinghe</span>
-              <span className="block text-[10px] sm:text-xs text-gray-600 -mt-0.5">Tuition Classes</span>
+            <div className="block leading-tight max-w-[170px] sm:max-w-none">
+              <span className={`block font-extrabold text-[13px] sm:text-lg truncate tracking-tight transition-colors ${
+                isDarkHeader ? 'text-white' : 'text-slate-900'
+              }`}>
+                Maleesha Wickramasinghe
+              </span>
+              <span className={`block text-[10px] sm:text-xs -mt-0.5 font-medium transition-colors ${
+                isDarkHeader ? 'text-slate-400' : 'text-slate-500'
+              }`}>
+                Tuition Classes
+              </span>
             </div>
           </Link>
 
           {/* Navigation - Public marketing links or Dashboard portal tag */}
           {!isDashboard ? (
-            <div className="hidden lg:flex items-center gap-6">
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
-                >
-                  {item.name}
-                </Link>
-              ))}
+            <div className="hidden lg:flex items-center gap-1.5 p-1 rounded-2xl">
+              {navItems.map((item) => {
+                const isActive = item.href === '/' ? location.pathname === '/' : location.pathname.startsWith(item.href);
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className={`text-sm font-semibold px-4 py-2 rounded-xl transition-all ${
+                      isActive
+                        ? isDarkHeader
+                          ? 'text-white bg-white/10 border border-white/10 shadow-sm'
+                          : 'text-blue-600 bg-blue-50 border border-blue-100 shadow-xs'
+                        : isDarkHeader
+                          ? 'text-slate-300 hover:text-white hover:bg-white/5'
+                          : 'text-slate-600 hover:text-blue-600 hover:bg-slate-100/60'
+                    }`}
+                  >
+                    {item.name}
+                  </Link>
+                );
+              })}
             </div>
           ) : (
             <div className="hidden lg:flex items-center gap-3">
@@ -300,24 +327,36 @@ export default function Navbar() {
                       navigate('/teacher/dashboard');
                     }
                   }}
-                  className="flex items-center gap-3 px-4 py-2 rounded-lg transition-all"
+                  className={`flex items-center gap-3 px-3.5 py-1.5 rounded-xl transition-all cursor-pointer ${
+                    isDarkHeader ? 'hover:bg-slate-800/60' : 'hover:bg-slate-100'
+                  }`}
                 >
                   {(user.profile_picture || user.profilePicture) ? (
                     <img 
                       src={getProfileImageSrc(user.profile_picture || user.profilePicture)}
                       alt={user.name}
-                      className="w-12 h-12 rounded-full object-cover shadow-md border-2 border-gray-200"
+                      className={`w-10 h-10 rounded-full object-cover shadow-md border-2 ${
+                        isDarkHeader ? 'border-slate-700' : 'border-slate-200'
+                      }`}
                     />
                   ) : (
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-full flex items-center justify-center shadow-md">
-                      <span className="text-white text-base font-bold">
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center shadow-md">
+                      <span className="text-white text-sm font-bold">
                         {user.name?.charAt(0).toUpperCase()}
                       </span>
                     </div>
                   )}
                   <div className="text-left">
-                    <p className="text-sm font-semibold text-gray-900">{user.name}</p>
-                    <p className="text-xs text-gray-600 capitalize">{user.role}</p>
+                    <p className={`text-sm font-semibold truncate max-w-[140px] ${
+                      isDarkHeader ? 'text-white' : 'text-slate-900'
+                    }`}>
+                      {user.name}
+                    </p>
+                    <p className={`text-xs capitalize ${
+                      isDarkHeader ? 'text-slate-400' : 'text-slate-500'
+                    }`}>
+                      {user.role}
+                    </p>
                   </div>
                 </button>
 
@@ -427,13 +466,17 @@ export default function Navbar() {
               <>
                 <button
                   onClick={openLogin}
-                  className="px-6 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
+                  className={`px-5 py-2 text-sm font-semibold rounded-xl border transition-all cursor-pointer ${
+                    isDarkHeader
+                      ? 'text-slate-200 hover:text-white hover:bg-slate-800/80 border-slate-700/80'
+                      : 'text-slate-700 hover:text-blue-600 hover:bg-slate-100 border-slate-200'
+                  }`}
                 >
                   Login
                 </button>
                 <button
                   onClick={openRegister}
-                  className="px-6 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-cyan-500 rounded-lg hover:shadow-lg transition-all"
+                  className="px-5 py-2 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 rounded-xl shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-0.5 transition-all cursor-pointer"
                 >
                   Get Started
                 </button>
@@ -444,27 +487,46 @@ export default function Navbar() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className={`lg:hidden p-2 rounded-xl transition-colors cursor-pointer ${
+              isDarkHeader
+                ? 'text-white hover:bg-slate-800/80'
+                : 'text-slate-800 hover:bg-slate-100'
+            }`}
           >
             {mobileMenuOpen ? <FiX className="w-6 h-6" /> : <FiMenu className="w-6 h-6" />}
           </button>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
-          <div className="lg:hidden py-4 border-t border-gray-200">
-            <div className="flex flex-col gap-1">
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="px-4 py-3 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                >
-                  {item.name}
-                </Link>
-              ))}
-              <div className="pt-4 px-4 flex flex-col gap-2">
+          <div className={`lg:hidden py-4 border-t transition-colors ${
+            isDarkHeader
+              ? 'border-slate-800 bg-slate-950/95 backdrop-blur-xl'
+              : 'border-slate-200 bg-white/95 backdrop-blur-xl'
+          }`}>
+            <div className="flex flex-col gap-1 px-2">
+              {navItems.map((item) => {
+                const isActive = item.href === '/' ? location.pathname === '/' : location.pathname.startsWith(item.href);
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`px-4 py-3 text-sm font-semibold rounded-xl transition-colors ${
+                      isActive
+                        ? isDarkHeader
+                          ? 'text-white bg-white/10'
+                          : 'text-blue-600 bg-blue-50'
+                        : isDarkHeader
+                          ? 'text-slate-300 hover:text-white hover:bg-white/5'
+                          : 'text-slate-700 hover:text-blue-600 hover:bg-slate-50'
+                    }`}
+                  >
+                    {item.name}
+                  </Link>
+                );
+              })}
+              <div className="pt-4 px-2 flex flex-col gap-2">
                 {user ? (
                   <button
                     onClick={() => {
@@ -475,7 +537,7 @@ export default function Navbar() {
                       }
                       setMobileMenuOpen(false);
                     }}
-                    className="flex items-center gap-3 w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-lg"
+                    className="flex items-center gap-3 w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl shadow-md"
                   >
                     {(user.profile_picture || user.profilePicture) ? (
                       <img 
@@ -502,7 +564,11 @@ export default function Navbar() {
                         setMobileMenuOpen(false);
                         openLogin();
                       }}
-                      className="w-full px-6 py-3 text-center text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                      className={`w-full px-6 py-3 text-center text-sm font-semibold rounded-xl border transition-colors ${
+                        isDarkHeader
+                          ? 'text-white border-slate-700 hover:bg-slate-800'
+                          : 'text-slate-700 border-slate-300 hover:bg-slate-50'
+                      }`}
                     >
                       Login
                     </button>
@@ -511,7 +577,7 @@ export default function Navbar() {
                         setMobileMenuOpen(false);
                         openRegister();
                       }}
-                      className="w-full px-6 py-3 text-center text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-cyan-500 rounded-lg hover:shadow-lg transition-all"
+                      className="w-full px-6 py-3 text-center text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg transition-all"
                     >
                       Get Started
                     </button>
