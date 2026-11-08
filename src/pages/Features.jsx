@@ -1,323 +1,227 @@
-import { FiVideo, FiFileText, FiCheckCircle, FiClock, FiUsers, FiAward, FiBook, FiTrendingUp } from 'react-icons/fi';
-import { Link } from 'react-router-dom';
-import { useEffect, useRef } from 'react';
+import { useState } from 'react';
+import { FiVideo, FiFileText, FiCheckCircle, FiClock, FiUsers, FiAward, FiBook, FiTrendingUp, FiLayers, FiCompass } from 'react-icons/fi';
 import Navbar from '../components/Layout/Navbar';
 import Footer from '../components/Layout/Footer';
 import GradesSection from '../components/Classes/GradesSection';
 
-const Features = () => {
-  const olSectionRef = useRef(null);
-  const olParallaxRef = useRef(null);
-  const alSectionRef = useRef(null);
-  const alParallaxRef = useRef(null);
-
-  useEffect(() => {
-    // Scroll to top on page load
-    window.scrollTo(0, 0);
-
-    const handleScroll = () => {
-      // O/L Section Parallax
-      if (olParallaxRef.current && olSectionRef.current) {
-        const scrolled = window.pageYOffset;
-        const olSectionTop = olSectionRef.current.offsetTop;
-        const olOffset = (scrolled - olSectionTop) * 0.5;
-        olParallaxRef.current.style.transform = `translateY(${olOffset}px)`;
-      }
-
-      // A/L Section Parallax
-      if (alParallaxRef.current && alSectionRef.current) {
-        const scrolled = window.pageYOffset;
-        const alSectionTop = alSectionRef.current.offsetTop;
-        const alOffset = (scrolled - alSectionTop) * 0.5;
-        alParallaxRef.current.style.transform = `translateY(${alOffset}px)`;
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+export default function Features() {
+  const [activeSyllabus, setActiveSyllabus] = useState('ol');
 
   const features = [
     {
-      icon: <FiVideo className="w-7 h-7" />,
+      icon: FiVideo,
       title: 'Video Lessons',
       description: 'Access comprehensive recorded video lessons anytime, anywhere. Learn at your own pace with high-quality content.',
-      gradient: 'from-blue-600 to-cyan-500'
     },
     {
-      icon: <FiFileText className="w-7 h-7" />,
+      icon: FiFileText,
       title: 'Study Materials',
-      description: 'Download well-organized notes, worksheets, and past papers to support your learning journey.',
-      gradient: 'from-cyan-600 to-blue-500'
+      description: 'Download well-organized notes, worksheets, and model papers to support your learning journey.',
     },
     {
-      icon: <FiCheckCircle className="w-7 h-7" />,
+      icon: FiCheckCircle,
       title: 'Assignments & Quizzes',
-      description: 'Regular assessments to track your progress and identify areas that need more attention.',
-      gradient: 'from-blue-700 to-cyan-600'
+      description: 'Regular assessments and monthly evaluations to track your progress and identify areas for improvement.',
     },
     {
-      icon: <FiClock className="w-7 h-7" />,
+      icon: FiClock,
       title: 'Flexible Timing',
-      description: 'Choose between physical classes and online sessions that fit your schedule perfectly.',
-      gradient: 'from-cyan-700 to-blue-600'
+      description: 'Choose between physical classes and interactive online sessions that fit your daily schedule.',
     },
     {
-      icon: <FiUsers className="w-7 h-7" />,
-      title: 'Small Batch Sizes',
-      description: 'Personal attention in small groups ensures every student gets the support they need.',
-      gradient: 'from-blue-500 to-cyan-400'
+      icon: FiUsers,
+      title: 'Focused Batch Sizes',
+      description: 'Individual attention in manageable groups ensures every student gets personal guidance.',
     },
     {
-      icon: <FiAward className="w-7 h-7" />,
+      icon: FiAward,
       title: 'Proven Results',
-      description: 'Join successful students who have achieved island rankings and top grades.',
-      gradient: 'from-cyan-500 to-blue-400'
+      description: 'Join successful students who have achieved top school rankings and high distinction passes.',
     },
     {
-      icon: <FiBook className="w-7 h-7" />,
+      icon: FiBook,
       title: 'Comprehensive Coverage',
-      description: 'Complete syllabus coverage with concept-based teaching methodology.',
-      gradient: 'from-blue-600 to-cyan-500'
+      description: 'Full syllabus coverage following the national curriculum with deep, concept-based understanding.',
     },
     {
-      icon: <FiTrendingUp className="w-7 h-7" />,
-      title: 'Progress Tracking',
-      description: 'Monitor your performance with detailed analytics and personalized feedback.',
-      gradient: 'from-cyan-600 to-blue-500'
-    }
+      icon: FiTrendingUp,
+      title: 'Continuous Tracking',
+      description: 'Monitor your performance through structured feedback and targeted revision sessions.',
+    },
+  ];
+
+  const olTopics = [
+    { number: '01', title: 'විද්‍යාව සහ තාක්ෂණය', english: 'Science and Technology' },
+    { number: '02', title: 'විද්‍යුත් චුම්භකත්වය', english: 'Electricity and Magnetism' },
+    { number: '03', title: 'තරංග', english: 'Waves' },
+    { number: '04', title: 'තාපය හා ශක්තිය', english: 'Heat and Energy' },
+    { number: '05', title: 'ආලෝකය', english: 'Light' },
+    { number: '06', title: 'පරමාණුක ව්‍යුහය', english: 'Atomic Structure' },
+    { number: '07', title: 'රසායනික ප්‍රතික්‍රියා', english: 'Chemical Reactions' },
+    { number: '08', title: 'අම්ල හා භෂ්ම', english: 'Acids and Bases' },
+    { number: '09', title: 'කාබනික රසායනය', english: 'Organic Chemistry' },
+    { number: '10', title: 'සෛලීය ජීව විද්‍යාව', english: 'Cell Biology' },
+    { number: '11', title: 'ශාක හා සතුන්', english: 'Plants and Animals' },
+    { number: '12', title: 'මානව ශරීරය', english: 'Human Body Systems' },
+    { number: '13', title: 'පරිසරය', english: 'Environment' },
+    { number: '14', title: 'ජානමය විද්‍යාව', english: 'Genetics' },
+    { number: '15', title: 'පරිණාමය', english: 'Evolution' },
+  ];
+
+  const alTopics = [
+    { number: '01', title: 'පරමාණුක ව්‍යුහය', english: 'Atomic Structure' },
+    { number: '02', title: 'ව්‍යුහය හා බන්ධන', english: 'Structure and Bonding' },
+    { number: '03', title: 'රසායනික ගණනය කිරීම්', english: 'Chemical Calculations' },
+    { number: '04', title: 'පදාර්ථයේ වායු අවස්ථාව', english: 'Gaseous State' },
+    { number: '05', title: 'ශක්ති විද්‍යාව', english: 'Energetics' },
+    { number: '06', title: 'අකාබනික රසායනය', english: 'Inorganic Chemistry' },
+    { number: '07', title: 'චාලක රසායනය', english: 'Chemical Kinetics' },
+    { number: '08', title: 'කාබනික රසායනය', english: 'Organic Chemistry' },
+    { number: '09', title: 'රසායනික සමතුලිතතාවය', english: 'Chemical Equilibrium' },
+    { number: '10', title: 'අයනික සමතුලිතතාවය', english: 'Ionic Equilibrium' },
+    { number: '11', title: 'කලාප රසායනය', english: 'Block Chemistry' },
+    { number: '12', title: 'විද්‍යුත් රසායනය', english: 'Electrochemistry' },
+    { number: '13', title: 'කර්මාන්ත රසායනය', english: 'Industrial Chemistry' },
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col">
       <Navbar />
-        
-        {/* Hero Section */}
-        <section className="pt-32 pb-12 bg-gradient-to-br from-blue-50 via-white to-cyan-50">
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="text-center">
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">
-                <span className="hollow-to-color" style={{ 
-                  fontWeight: '900'
-                }}>
-                  Our Features
-                </span>
-              </h1>
-              <p className="text-xl text-gray-700 font-medium max-w-3xl mx-auto">
-                Discover the comprehensive features that make our tuition classes the perfect choice for your academic success.
-              </p>
-            </div>
-          </div>
-        </section>
 
-        {/* Features Grid */}
-        <section className="pt-8 md:pt-12 pb-20 md:pb-28 bg-white">
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {features.map((feature, index) => (
+      {/* Page Header */}
+      <section className="pt-32 pb-16 bg-white border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs sm:text-sm font-semibold mb-4">
+            <FiCompass className="w-4 h-4 text-blue-600" />
+            <span>Learning Methodology & Curriculum</span>
+          </div>
+          <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
+            Our Features & Syllabus
+          </h1>
+          <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+            Discover the teaching tools, class benefits, and comprehensive syllabus structure designed to ensure your academic excellence.
+          </p>
+        </div>
+      </section>
+
+      {/* 8 Feature Cards Grid */}
+      <section className="py-16 md:py-20 bg-slate-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">What Makes Our Classes Stand Out</h2>
+            <p className="text-slate-600 text-sm sm:text-base mt-2">Core pillars that guide every lecture and revision session</p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {features.map((feature, index) => {
+              const Icon = feature.icon;
+              return (
                 <div
                   key={index}
-                  className={`group relative bg-gradient-to-br ${feature.gradient} rounded-2xl p-6 border-2 border-transparent overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl cursor-pointer`}
+                  className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-400 transition-all duration-200 flex flex-col justify-between"
                 >
-                  {/* White overlay that reduces on hover */}
-                  <div className="absolute inset-0 bg-white/90 group-hover:bg-white/0 transition-all duration-500"></div>
-                  
-                  {/* Decorative elements */}
-                  <div className={`absolute -top-10 -right-10 w-32 h-32 bg-white/50 rounded-full group-hover:scale-150 transition-transform duration-700`}></div>
-                  
-                  <div className="relative z-10">
-                    <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center text-white mb-5 shadow-lg transition-all duration-500`}>
-                      <div className="rotate-360">
-                        {feature.icon}
-                      </div>
+                  <div>
+                    <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4 border border-blue-100">
+                      <Icon className="w-6 h-6" />
                     </div>
-                    <h3 className="text-lg font-bold text-gray-900 group-hover:text-white mb-3 transition-all duration-300">
-                      {feature.title}
-                    </h3>
-                    <p className="text-gray-700 group-hover:text-white/90 text-sm leading-relaxed transition-colors duration-300">
-                      {feature.description}
-                    </p>
-                  </div>
-                  
-                  {/* Shine effect on hover */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                    <h3 className="text-base font-bold text-slate-900 mb-2">{feature.title}</h3>
+                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">{feature.description}</p>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Grades Section with Topics */}
-        <GradesSection />
-
-        {/* O/L Science Topics Section */}
-        <section 
-          ref={olSectionRef}
-          className="pt-8 md:pt-12 pb-8 md:pb-12 relative overflow-hidden"
-        >
-        {/* Parallax Background */}
-        <div 
-          ref={olParallaxRef}
-          className="absolute inset-0 w-full h-[120%] -top-[10%] bg-cover bg-no-repeat"
-          style={{
-            backgroundImage: 'url(/international-day-education-cartoon-style.jpg)',
-            backgroundPosition: 'center 65%'
-          }}
-        ></div>
-        
-        {/* Dark Overlay */}
-        <div className="absolute inset-0 bg-black/40"></div>
-        
-        <div className="max-w-7xl mx-auto px-4 relative z-10">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 border border-blue-200 mb-6">
-              <FiBook className="w-4 h-4 text-blue-600" />
-              <span className="text-sm font-medium text-blue-600">O/L Science Syllabus</span>
-            </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 drop-shadow-lg">
-              Complete{' '}
-              <span className="text-cyan-300">
-                O/L Topics Covered
-              </span>
-            </h2>
-            <p className="text-white/90 text-lg max-w-2xl mx-auto drop-shadow-md">
-              Comprehensive coverage for Grades 6-11 O/L Science syllabus
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              { number: '01', title: 'විද්‍යාව සහ තාක්ෂණය', english: 'Science and Technology' },
-              { number: '02', title: 'විද්‍යුත් චුම්භකත්වය', english: 'Electricity and Magnetism' },
-              { number: '03', title: 'තරංග', english: 'Waves' },
-              { number: '04', title: 'තාපය හා ශක්තිය', english: 'Heat and Energy' },
-              { number: '05', title: 'ආලෝකය', english: 'Light' },
-              { number: '06', title: 'පරමාණුක ව්‍යුහය', english: 'Atomic Structure' },
-              { number: '07', title: 'රසායනික ප්‍රතික්‍රියා', english: 'Chemical Reactions' },
-              { number: '08', title: 'අම්ල හා භෂ්ම', english: 'Acids and Bases' },
-              { number: '09', title: 'කාබනික රසායනය', english: 'Organic Chemistry' },
-              { number: '10', title: 'සෛලීය ජීව විද්‍යාව', english: 'Cell Biology' },
-              { number: '11', title: 'ශාක හා සතුන්', english: 'Plants and Animals' },
-              { number: '12', title: 'මානව ශරීරය', english: 'Human Body Systems' },
-              { number: '13', title: 'පරිසරය', english: 'Environment' },
-              { number: '14', title: 'ජානමය විද්‍යාව', english: 'Genetics' },
-              { number: '15', title: 'පරිණාමය', english: 'Evolution' },
-            ].map((topic, index) => (
-              <div
-                key={index}
-                className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-200 p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-600 to-cyan-500 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                    <span className="text-white font-bold text-lg">{topic.number}</span>
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors" style={{ fontFamily: "'UN-Gurulugomi', sans-serif" }}>
-                      {topic.title}
-                    </h3>
-                    <p className="text-sm text-gray-600">{topic.english}</p>
-                  </div>
-                </div>
-                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-600/10 to-cyan-500/10 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform" />
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-12 text-center">
-            <div className="inline-flex flex-col sm:flex-row items-center gap-4 p-6 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-2xl shadow-lg">
-              <FiCheckCircle className="w-8 h-8 text-white" />
-              <div className="text-white text-left">
-                <p className="font-semibold text-lg">Complete Syllabus Coverage - Grades 6 to 11</p>
-                <p className="text-blue-100">Theory, Practical, MCQs, Structured Questions & Past Papers</p>
-              </div>
-            </div>
+              );
+            })}
           </div>
         </div>
       </section>
 
+      {/* Grade Selector / Grades Section */}
+      <section className="py-12 bg-white border-y border-slate-200">
+        <GradesSection />
+      </section>
 
-
-      {/* A/L Chemistry Topics Section */}
-      <section 
-        ref={alSectionRef}
-        className="pt-8 md:pt-12 pb-12 md:pb-16 relative overflow-hidden"
-      >
-        {/* Parallax Background */}
-        <div 
-          ref={alParallaxRef}
-          className="absolute inset-0 w-full h-[120%] -top-[10%] bg-cover bg-no-repeat"
-          style={{
-            backgroundImage: 'url(/graduation-high-school-university-concept.jpg)',
-            backgroundPosition: 'center 50%'
-          }}
-        ></div>
-        
-        {/* Dark Overlay */}
-        <div className="absolute inset-0 bg-black/40"></div>
-
-        <div className="max-w-7xl mx-auto px-4 relative z-10">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-100 border border-purple-200 mb-6">
-              <FiBook className="w-4 h-4 text-purple-600" />
-              <span className="text-sm font-medium text-purple-600">A/L Chemistry Syllabus</span>
+      {/* Syllabus Topics Section with Clean Tabs */}
+      <section className="py-16 md:py-24 bg-slate-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center max-w-2xl mx-auto mb-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-200 text-slate-700 text-xs font-semibold mb-3">
+              <FiLayers className="w-3.5 h-3.5" />
+              <span>Syllabus Breakdown</span>
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 drop-shadow-lg">
-              Complete{' '}
-              <span className="text-pink-300">
-                A/L Topics Covered
-              </span>
+            <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900">
+              Curriculum Units Covered
             </h2>
-            <p className="text-white/90 text-lg max-w-2xl mx-auto drop-shadow-md">
-              Comprehensive coverage for Advanced Level Chemistry syllabus
+            <p className="text-slate-600 text-sm sm:text-base mt-2">
+              Select between O/L Science and A/L Chemistry to view covered units
             </p>
+
+            {/* Tab Switcher */}
+            <div className="inline-flex p-1 mt-6 rounded-xl bg-slate-200/80 border border-slate-300">
+              <button
+                type="button"
+                onClick={() => setActiveSyllabus('ol')}
+                className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                  activeSyllabus === 'ol'
+                    ? 'bg-white text-blue-600 shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                O/L Science (Grades 6–11)
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveSyllabus('al')}
+                className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                  activeSyllabus === 'al'
+                    ? 'bg-white text-blue-600 shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                A/L Chemistry (Grades 12–13)
+              </button>
+            </div>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              { number: '01', title: 'පරමාණුක ව්‍යුහය', english: 'Atomic Structure' },
-              { number: '02', title: 'ව්‍යුහය හා බන්ධන', english: 'Structure and Bonding' },
-              { number: '03', title: 'රසායනික ගණනය කිරීම්', english: 'Chemical Calculations' },
-              { number: '04', title: 'පදාර්ථයේ වායු අවස්ථාව', english: 'Gaseous State' },
-              { number: '05', title: 'ශක්ති විද්‍යාව', english: 'Energetics' },
-              { number: '06', title: 'අකාබනික රසායනය', english: 'Inorganic Chemistry' },
-              { number: '07', title: 'චාලක රසායනය', english: 'Chemical Kinetics' },
-              { number: '08', title: 'කාබනික රසායනය', english: 'Organic Chemistry' },
-              { number: '09', title: 'රසායනික සමතුලිතතාවය', english: 'Chemical Equilibrium' },
-              { number: '10', title: 'අයනික සමතුලිතතාවය', english: 'Ionic Equilibrium' },
-              { number: '11', title: 'කලාප රසායනය', english: 'Block Chemistry' },
-              { number: '12', title: 'විද්‍යුත් රසායනය', english: 'Electrochemistry' },
-              { number: '13', title: 'කර්මාන්ත රසායනය', english: 'Industrial Chemistry' },
-            ].map((topic, index) => (
+          {/* Active Syllabus Grid */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {(activeSyllabus === 'ol' ? olTopics : alTopics).map((topic, index) => (
               <div
                 key={index}
-                className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm hover:border-blue-400 hover:shadow transition-all flex items-center gap-4"
               >
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-600 to-pink-500 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                    <span className="text-white font-bold text-lg">{topic.number}</span>
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors" style={{ fontFamily: "'UN-Gurulugomi', sans-serif" }}>
-                      {topic.title}
-                    </h3>
-                    <p className="text-sm text-gray-600">{topic.english}</p>
-                  </div>
+                <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 font-bold text-sm flex items-center justify-center shrink-0 border border-blue-100">
+                  {topic.number}
                 </div>
-                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-purple-600/10 to-pink-500/10 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform" />
+                <div className="min-w-0">
+                  <h4 className="font-semibold text-slate-900 text-sm sm:text-base truncate">
+                    {topic.title}
+                  </h4>
+                  <p className="text-xs text-slate-500 truncate mt-0.5">{topic.english}</p>
+                </div>
               </div>
             ))}
           </div>
 
-          <div className="mt-12 text-center">
-            <div className="inline-flex flex-col sm:flex-row items-center gap-4 p-6 bg-gradient-to-r from-purple-600 to-pink-500 rounded-2xl shadow-lg">
-              <FiCheckCircle className="w-8 h-8 text-white" />
-              <div className="text-white text-left">
-                <p className="font-semibold text-lg">Complete A/L Chemistry Coverage</p>
-                <p className="text-purple-100">Theory, Practical, MCQs, Structured Questions & Past Papers</p>
+          {/* Bottom Confirmation Card */}
+          <div className="mt-12 p-6 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+                <FiCheckCircle className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <p className="font-bold text-base sm:text-lg">
+                  Complete {activeSyllabus === 'ol' ? 'O/L Science' : 'A/L Chemistry'} Syllabus Coverage
+                </p>
+                <p className="text-xs sm:text-sm text-blue-100">
+                  Includes Theory, Practical Demonstrations, MCQs, Structured Questions & Past Papers
+                </p>
               </div>
             </div>
+            <a
+              href="/contact"
+              className="px-5 py-2.5 rounded-xl bg-white text-blue-600 text-sm font-bold shadow hover:bg-blue-50 transition-colors shrink-0"
+            >
+              Enroll in Class
+            </a>
           </div>
         </div>
       </section>
@@ -325,6 +229,4 @@ const Features = () => {
       <Footer />
     </div>
   );
-};
-
-export default Features;
+}
