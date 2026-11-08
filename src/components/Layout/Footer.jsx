@@ -13,44 +13,6 @@ export default function Footer() {
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Pre-Footer Action Banner */}
-      <div className="relative border-b border-slate-800/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
-          <div className="rounded-2xl bg-gradient-to-r from-blue-900/40 via-indigo-900/30 to-slate-900/60 border border-blue-500/20 p-6 sm:p-8 backdrop-blur-md flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
-            <div className="text-center md:text-left">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold border border-emerald-500/20 mb-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                Admissions Open for All Grades
-              </span>
-              <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-                Ready to excel in Science & Chemistry?
-              </h3>
-              <p className="text-slate-400 text-sm mt-1">
-                Join physical or interactive online batches with Mr. Maleesha Wickramasinghe.
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center justify-center gap-3 shrink-0">
-              <a
-                href="https://wa.me/94714390924?text=Hello%20Sir%2C%20I%20would%20like%20to%20inquire%20about%20joining%20classes."
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold shadow-lg shadow-emerald-600/25 transition-all hover:-translate-y-0.5"
-              >
-                <FaWhatsapp className="w-4 h-4" />
-                <span>Chat on WhatsApp</span>
-              </a>
-              <Link
-                to="/contact"
-                onClick={scrollToTop}
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 text-sm font-semibold transition-all hover:-translate-y-0.5"
-              >
-                <span>Contact Details</span>
-                <FiChevronRight className="w-4 h-4" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Main Footer Links Grid */}
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-16 pb-12">
