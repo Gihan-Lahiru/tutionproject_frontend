@@ -24,22 +24,22 @@ export default function Payments() {
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
-      <div className="rounded-2xl p-6 sm:p-8" style={{ background: 'linear-gradient(135deg,#0f172a 0%,#1a2e1a 60%,#1e293b 100%)', boxShadow: '0 8px 32px rgba(15,23,42,0.2)' }}>
+      {/* Page Header - Clean Light Design */}
+      <div className="rounded-2xl p-6 sm:p-8 bg-white border border-slate-200/90 shadow-xs relative overflow-hidden">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg,#f59e0b,#ef4444)', boxShadow: '0 4px 12px rgba(245,158,11,0.4)' }}>
-              <DollarSign className="w-6 h-6 text-white" />
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 border border-amber-100 shadow-xs">
+              <DollarSign className="w-6 h-6" />
             </div>
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-white">Fee Management</h1>
-              <p className="text-sm mt-0.5" style={{ color: '#94a3b8' }}>Track and manage student fee payments</p>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Fee Management</h1>
+              <p className="text-sm text-slate-500 mt-0.5">Track monthly tuition payments, review bank receipts, and verify slips.</p>
             </div>
           </div>
           {pendingCount > 0 && (
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl self-start sm:self-auto" style={{ background: 'rgba(239,68,68,0.2)', border: '1px solid rgba(239,68,68,0.3)' }}>
-              <Clock className="w-4 h-4" style={{ color: '#fca5a5' }} />
-              <span className="text-sm font-bold" style={{ color: '#fca5a5' }}>{pendingCount} Pending</span>
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 self-start sm:self-auto">
+              <Clock className="w-4 h-4 text-rose-600" />
+              <span className="text-sm font-bold">{pendingCount} Pending Receipts</span>
             </div>
           )}
         </div>

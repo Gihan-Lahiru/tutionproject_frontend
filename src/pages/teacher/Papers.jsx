@@ -31,19 +31,19 @@ export default function Papers() {
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
-      <div className="rounded-2xl p-6 sm:p-8" style={{ background: 'linear-gradient(135deg,#0f172a 0%,#1a2e4a 60%,#1e293b 100%)', boxShadow: '0 8px 32px rgba(15,23,42,0.2)' }}>
+      {/* Page Header - Clean Light Design */}
+      <div className="rounded-2xl p-6 sm:p-8 bg-white border border-slate-200/90 shadow-xs relative overflow-hidden">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg,#10b981,#059669)', boxShadow: '0 4px 12px rgba(16,185,129,0.4)' }}>
-            <FileText className="w-6 h-6 text-white" />
+          <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100 shadow-xs">
+            <FileText className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white">Paper Management</h1>
-            <p className="text-sm mt-0.5" style={{ color: '#94a3b8' }}>Upload and manage question papers, assignments, and study materials.</p>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Paper Management</h1>
+            <p className="text-sm text-slate-500 mt-0.5">Upload and organize question papers, model tests, and revision notes.</p>
             {classContext && (
-              <div className="mt-2 flex flex-wrap gap-2">
-                <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ background: 'rgba(59,130,246,0.2)', color: '#60a5fa' }}>📚 {classContext.title}</span>
-                <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ background: 'rgba(255,255,255,0.08)', color: '#94a3b8' }}>📍 {classContext.location || classContext.institute || 'Class Location'}</span>
+              <div className="mt-2.5 flex flex-wrap gap-2">
+                <span className="text-xs font-semibold px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200">📚 {classContext.title}</span>
+                <span className="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200">📍 {classContext.location || classContext.institute || 'Class Location'}</span>
               </div>
             )}
           </div>
