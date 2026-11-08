@@ -327,77 +327,87 @@ const About = () => {
         </div>
       </section>
 
-      {/* Achievements Section */}
-      <section className="relative py-20 bg-white" style={{ backgroundImage: "url('/assortment-different-medals.jpg')", backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
-        <div className="absolute inset-0 bg-white/10"></div>
-        <div className="max-w-7xl mx-auto px-4 relative z-10">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 animate-gradient-text">
-              Our Achievements
+      {/* Proven Track Record / Achievements Section */}
+      <section className="relative py-20 md:py-28 bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white overflow-hidden border-t border-slate-800">
+        {/* Subtle Ambient Glows */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-10 right-10 w-[400px] h-[300px] bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+          <div className="text-center mb-14">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-400/25 text-blue-300 text-xs sm:text-sm font-semibold mb-4 backdrop-blur-md">
+              <FiAward className="w-4 h-4 text-blue-400" />
+              <span>Proven Track Record</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-4">
+              Proven Track Record of <span className="bg-gradient-to-r from-blue-400 via-sky-300 to-indigo-300 bg-clip-text text-transparent">Success</span>
             </h2>
-            <p className="text-white max-w-2xl mx-auto font-bold text-lg md:text-xl" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.7)' }}>
-              A track record of excellence and student success that speaks for itself
+            <p className="text-slate-300 max-w-2xl mx-auto text-base sm:text-lg leading-relaxed">
+              A history of excellence, island & district rankings, and student distinctions that speaks for itself.
             </p>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 max-w-5xl mx-auto">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
             {[
               {
                 icon: FiAward,
-                value: "Best",
+                value: "Island & District",
                 label: "Outstanding Results",
-                gradient: "from-orange-500 to-red-500",
-                hoverColor: "bg-orange-500",
-                content: "Recognized for producing top results in national exams."
+                gradient: "from-amber-500 to-orange-500",
+                content: "Recognized for producing top results and rankings in national exams."
               },
               {
                 icon: FiTrendingUp,
-                value: "High",
-                label: "Consistent Pass Rates",
+                value: "High Pass Rate",
+                label: "Consistent Performance",
                 gradient: "from-blue-500 to-cyan-500",
-                hoverColor: "bg-blue-500",
-                content: "Year after year, our students achieve high pass rates."
+                content: "Year after year, students achieve exceptional pass rates and distinction grades."
               },
               {
                 icon: FiUsers,
                 value: "1000+",
                 label: "Students Guided",
-                gradient: "from-purple-500 to-pink-500",
-                hoverColor: "bg-purple-500",
-                content: "Over a thousand students have benefited from our guidance."
+                gradient: "from-indigo-500 to-purple-500",
+                content: "Over a thousand students have benefited from our systematic learning guidance."
               },
               {
                 icon: FiStar,
-                value: "Numerous",
+                value: "Numerous A's",
                 label: "A Grades & Distinctions",
-                gradient: "from-yellow-500 to-orange-500",
-                hoverColor: "bg-yellow-500",
-                content: "Many students have earned A grades and distinctions."
+                gradient: "from-emerald-500 to-teal-500",
+                content: "Hundreds of students achieve distinction A grades in O/L Science & A/L Chemistry."
               },
-            ].map((item, index) => (
-              <div
-                key={index}
-                className="group relative bg-white rounded-full aspect-square p-5 shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105 text-center border border-gray-200 flex flex-col items-center justify-center max-w-[220px] mx-auto overflow-hidden"
-              >
-                {/* Icon with gradient background, changes color on hover */}
-                <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${item.gradient} flex items-center justify-center mb-3 transition-all duration-300 group-hover:scale-110 group-hover:${item.hoverColor}`}>
-                  <item.icon className="w-6 h-6 text-white" />
+            ].map((item, index) => {
+              const Icon = item.icon;
+              return (
+                <div
+                  key={index}
+                  className="relative bg-white/5 hover:bg-white/10 backdrop-blur-md rounded-2xl p-6 sm:p-7 border border-white/10 hover:border-blue-400/50 shadow-lg hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-between group"
+                >
+                  <div>
+                    {/* Icon */}
+                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.gradient} flex items-center justify-center text-white mb-5 shadow-md shadow-black/30 group-hover:scale-110 transition-transform`}>
+                      <Icon className="w-6 h-6" />
+                    </div>
+
+                    {/* Stat Value */}
+                    <div className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-1">
+                      {item.value}
+                    </div>
+
+                    {/* Stat Label */}
+                    <h3 className="text-base font-bold text-slate-200 mb-2">
+                      {item.label}
+                    </h3>
+
+                    {/* Description */}
+                    <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                      {item.content}
+                    </p>
+                  </div>
                 </div>
-                {/* Value */}
-                <p className="text-xl md:text-2xl font-bold text-gray-900 mb-2 transition-colors duration-300 group-hover:text-white">
-                  {item.value}
-                </p>
-                {/* Label */}
-                <p className="text-xs md:text-sm text-gray-600 leading-tight px-2 transition-colors duration-300 group-hover:text-white">{item.label}</p>
-                {/* Hidden content, appears on hover */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-80 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 px-4 text-xs md:text-sm text-center z-10 rounded-full">
-                  <div
-                    className={`absolute inset-0 rounded-full achievement-card-gradient z-[-1]`}
-                  />
-                  <p className="relative z-10 font-bold text-base md:text-lg">{item.content}</p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
