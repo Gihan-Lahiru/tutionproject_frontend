@@ -405,16 +405,6 @@ const About = () => {
       {/* Teaching Approach Section */}
       <section id="approach" className="relative pt-8 pb-20 bg-white overflow-hidden" style={{ backgroundImage: "url('/3696093.jpg')", backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
         <div className="absolute inset-0 bg-white/50"></div>
-        {/* Animated Wave Overlay - reveals background as it moves */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background: 'linear-gradient(to right, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 45%, rgba(255,255,255,0) 55%, rgba(255,255,255,0.5) 100%)',
-            width: '100%',
-            animation: 'wave 15s ease-in-out infinite',
-            pointerEvents: 'none'
-          }}
-        ></div>
         <div className="max-w-7xl mx-auto px-4 relative z-10">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             {/* Content */}
