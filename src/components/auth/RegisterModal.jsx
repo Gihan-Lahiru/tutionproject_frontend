@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../api/axios';
 import { toast } from 'react-toastify';
-import { FiX } from 'react-icons/fi';
-import Input from '../UI/Input';
-import Button from '../UI/Button';
-
+import { FiX, FiMail, FiUser, FiPhone, FiLock, FiEye, FiEyeOff, FiCheck, FiArrowRight, FiCheckCircle, FiBookOpen, FiMapPin } from 'react-icons/fi';
 import authBg from '../../assets/auth_bg.png';
 
 export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -26,6 +26,8 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
     if (isOpen) {
       setEmail('');
       setSubmitted(false);
+      setShowPassword(false);
+      setShowConfirmPassword(false);
       setFormData({
         name: '',
         phone: '',
@@ -50,12 +52,12 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
     }
 
     const newErrors = {};
-    if (!formData.name.trim()) newErrors.name = 'Name is required';
-    if (!formData.phone.trim()) newErrors.phone = 'Phone Number is required';
+    if (!formData.name.trim()) newErrors.name = 'Full name is required';
+    if (!formData.phone.trim()) newErrors.phone = 'Phone number is required';
     if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
-    if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
-    if (!formData.grade) newErrors.grade = 'Please select a grade';
-    if (!formData.institute) newErrors.institute = 'Please select an institute';
+    if (formData.password.length < 6) newErrors.password = 'Must be at least 6 characters';
+    if (!formData.grade) newErrors.grade = 'Please select your grade';
+    if (!formData.institute) newErrors.institute = 'Please select your institute';
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -84,123 +86,365 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl flex overflow-hidden relative max-h-[90vh]">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-md animate-fade-in">
+      {/* Modal Container */}
+      <div 
+        className="bg-white rounded-3xl shadow-2xl w-full max-w-4xl flex overflow-hidden relative max-h-[94vh] border border-white/20"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Close Button */}
         <button 
           onClick={onClose}
-          className="absolute top-4 right-4 z-20 p-2 bg-white/50 hover:bg-gray-100 rounded-full text-gray-500 transition-colors"
+          aria-label="Close modal"
+          className="absolute top-4 right-4 z-20 w-9 h-9 bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-xs"
         >
-          <FiX size={20} />
+          <FiX className="w-5 h-5" />
         </button>
         
-        {/* Left side - Image & Branding */}
-        <div className="hidden lg:flex lg:w-1/2 relative bg-primary items-center justify-center overflow-hidden">
-          <div className="absolute inset-0 z-0">
+        {/* Left side - Visual & Branding */}
+        <div className="hidden lg:flex lg:w-5/12 relative bg-gradient-to-br from-blue-950 via-slate-900 to-indigo-950 text-white flex-col justify-between p-10 overflow-hidden">
+          {/* Background Illustration & Overlay */}
+          <div className="absolute inset-0 z-0 pointer-events-none">
             <img 
-              src={'/graduation-high-school-university-concept.jpg'} 
-              alt="EduTeach Background" 
-              className="w-full h-full object-cover opacity-90 mix-blend-overlay"
+              src={authBg} 
+              alt="Tuition Class Background" 
+              className="w-full h-full object-cover opacity-25 mix-blend-luminosity scale-110"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/50 to-transparent"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-blue-950/60 to-slate-950/80"></div>
+            {/* Ambient Glows */}
+            <div className="absolute -top-10 -left-10 w-72 h-72 bg-blue-500/20 rounded-full blur-3xl"></div>
+            <div className="absolute -bottom-10 -right-10 w-72 h-72 bg-emerald-500/20 rounded-full blur-3xl"></div>
           </div>
-          <div className="relative z-10 p-10 text-white text-center">
-            <div className="w-16 h-16 bg-white/20 backdrop-blur-xl rounded-2xl flex items-center justify-center mx-auto mb-6 border border-white/30 shadow-2xl">
-              <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
-              </svg>
+
+          {/* Top Brand Header */}
+          <div className="relative z-10">
+            <div className="inline-flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-blue-500 via-indigo-600 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/30 border border-white/20">
+                <span className="text-white font-black text-lg tracking-wider">MW</span>
+              </div>
+              <div className="leading-tight">
+                <span className="block font-extrabold text-white text-base tracking-tight">
+                  Maleesha Wickramasinghe
+                </span>
+                <span className="block text-xs font-medium text-blue-300">
+                  Tuition Classes
+                </span>
+              </div>
             </div>
-            <h1 className="text-3xl font-bold mb-4 tracking-tight leading-tight">Start Your Journey</h1>
-            <p className="text-base text-blue-100/90 leading-relaxed font-light">
-              Join thousands of students and get access to premium resources and personalized tuition.
+          </div>
+
+          {/* Center Content */}
+          <div className="relative z-10 my-auto py-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-400/20 text-blue-300 text-xs font-semibold mb-4 backdrop-blur-md">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>New Student Enrollment</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mb-3 leading-snug">
+              Start Your Journey to <span className="bg-gradient-to-r from-blue-400 via-sky-300 to-indigo-300 bg-clip-text text-transparent">Academic Excellence</span>
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal mb-6">
+              Join hundreds of students preparing for O/L Science & A/L Chemistry with island & district-ranked results.
             </p>
+
+            {/* Feature Pills */}
+            <div className="space-y-2.5 text-xs text-slate-300">
+              <div className="flex items-center gap-2.5">
+                <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center shrink-0">
+                  <FiCheck className="w-3 h-3" />
+                </div>
+                <span>Physical & Interactive Zoom Classes</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center shrink-0">
+                  <FiCheck className="w-3 h-3" />
+                </div>
+                <span>Theory, MCQs & Structured Revision</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center shrink-0">
+                  <FiCheck className="w-3 h-3" />
+                </div>
+                <span>Individual Mentoring & Doubt Support</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Badge */}
+          <div className="relative z-10 pt-4 border-t border-white/10 flex items-center justify-between text-xs text-slate-400">
+            <span>Prebhashi (Hettipola) & Focus (Hadungamuwa)</span>
           </div>
         </div>
 
-        {/* Right side - Form */}
-        <div className="w-full lg:w-1/2 flex flex-col justify-center p-8 sm:p-12 relative overflow-y-auto">
-          <div className="absolute inset-0 lg:hidden z-0">
-             <img src={'/graduation-high-school-university-concept.jpg'} alt="" className="w-full h-full object-cover opacity-10" />
-             <div className="absolute inset-0 bg-white/90 backdrop-blur-sm"></div>
-          </div>
-
-          <div className="w-full max-w-sm relative z-10 mx-auto">
-            <div className="mb-6 text-center lg:text-left">
-              <h2 className="text-3xl font-bold text-gray-900 tracking-tight">Create Account</h2>
-              <p className="mt-2 text-gray-500 text-sm">{submitted ? 'Waiting for approval' : 'Join our classes today'}</p>
+        {/* Right side - Register Form */}
+        <div className="w-full lg:w-7/12 flex flex-col justify-center p-6 sm:p-10 relative overflow-y-auto max-h-[92vh]">
+          <div className="w-full max-w-md mx-auto">
+            {/* Header */}
+            <div className="mb-6">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold mb-2.5 border border-blue-100">
+                <span>Registration</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                {submitted ? 'Request Received' : 'Create Account'}
+              </h2>
+              <p className="mt-1 text-slate-500 text-xs sm:text-sm">
+                {submitted ? 'Waiting for teacher verification' : 'Fill in your details to register for tuition classes'}
+              </p>
             </div>
 
             {submitted ? (
-              <div className="py-6 text-center space-y-6">
-                <div className="mx-auto w-16 h-16 rounded-full bg-amber-50 flex items-center justify-center border-4 border-amber-100 shadow-inner">
-                  <svg className="w-8 h-8 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M4.93 19h14.14a2 2 0 001.73-3L14.73 5a2 2 0 00-3.46 0L3.2 16a2 2 0 001.73 3z" />
-                  </svg>
+              /* Success / Pending Approval State */
+              <div className="py-8 text-center space-y-6">
+                <div className="mx-auto w-20 h-20 rounded-full bg-emerald-50 border-4 border-emerald-100 flex items-center justify-center shadow-lg shadow-emerald-500/10">
+                  <FiCheckCircle className="w-10 h-10 text-emerald-600 animate-bounce" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900 tracking-tight">Registration submitted successfully</h3>
-                  <p className="mt-2 text-gray-600 text-sm">Please wait until your teacher approves your account.</p>
+                  <h3 className="text-xl font-bold text-slate-900 tracking-tight">
+                    Registration Submitted Successfully!
+                  </h3>
+                  <p className="mt-2 text-slate-600 text-sm max-w-sm mx-auto leading-relaxed">
+                    Thank you! Your account request has been forwarded to Mr. Maleesha Wickramasinghe. Once approved, you will be able to sign in immediately.
+                  </p>
                 </div>
-                <Button type="button" className="w-full py-3 mt-2" onClick={onSwitchToLogin}>
-                  Go to Login
-                </Button>
+                <button
+                  type="button"
+                  onClick={onSwitchToLogin}
+                  className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-blue-500/25 transition-all cursor-pointer"
+                >
+                  Proceed to Sign in
+                </button>
               </div>
             ) : (
-            <form onSubmit={handleRegister} className="space-y-4">
-              <Input label="Email Address" type="email" name="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="student@example.com" className="bg-gray-50/50" />
-              <div className="grid grid-cols-2 gap-4">
-                <Input label="Full Name" type="text" name="name" value={formData.name} onChange={handleChange} error={errors.name} required placeholder="John Doe" className="bg-gray-50/50" />
-                <Input label="Phone Number" type="text" name="phone" value={formData.phone} onChange={handleChange} error={errors.phone} required placeholder="07xxxxxxxxx" className="bg-gray-50/50" />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-3">
+              /* Registration Form */
+              <form onSubmit={handleRegister} className="space-y-3.5">
+                {/* Email Address */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Grade <span className="text-red-500">*</span>
+                  <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wider">
+                    Email Address <span className="text-red-500">*</span>
                   </label>
-                  <select name="grade" value={formData.grade} onChange={handleChange} className="w-full px-3 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm" required>
-                    <option value="">Select</option>
-                    <option value="6">Grade 6</option>
-                    <option value="7">Grade 7</option>
-                    <option value="8">Grade 8</option>
-                    <option value="9">Grade 9</option>
-                    <option value="10">Grade 10</option>
-                    <option value="11">Grade 11</option>
-                    <option value="A/L">A/L Class</option>
-                  </select>
-                  {errors.grade && <p className="text-red-500 text-xs mt-1">{errors.grade}</p>}
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                      <FiMail className="w-4 h-4" />
+                    </div>
+                    <input
+                      type="email"
+                      name="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      placeholder="student@example.com"
+                      className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 text-slate-800 text-sm placeholder-slate-400 transition-all"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Institute <span className="text-red-500">*</span>
-                  </label>
-                  <select name="institute" value={formData.institute} onChange={handleChange} className="w-full px-3 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm" required>
-                    <option value="">Select</option>
-                    <option value="Prebhashi Hettipola">Prebhashi</option>
-                    <option value="Focus Hadungamuwa">Focus</option>
-                  </select>
-                  {errors.institute && <p className="text-red-500 text-xs mt-1">{errors.institute}</p>}
+
+                {/* Name & Phone in 2 Columns */}
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wider">
+                      Full Name <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <FiUser className="w-4 h-4" />
+                      </div>
+                      <input
+                        type="text"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        required
+                        placeholder="John Doe"
+                        className={`w-full pl-10 pr-3 py-2.5 bg-slate-50 border rounded-xl focus:bg-white focus:outline-none focus:ring-2 text-slate-800 text-sm placeholder-slate-400 transition-all ${
+                          errors.name ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:ring-blue-500/20 focus:border-blue-600'
+                        }`}
+                      />
+                    </div>
+                    {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wider">
+                      Phone Number <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <FiPhone className="w-4 h-4" />
+                      </div>
+                      <input
+                        type="tel"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        required
+                        placeholder="07xxxxxxxx"
+                        className={`w-full pl-10 pr-3 py-2.5 bg-slate-50 border rounded-xl focus:bg-white focus:outline-none focus:ring-2 text-slate-800 text-sm placeholder-slate-400 transition-all ${
+                          errors.phone ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:ring-blue-500/20 focus:border-blue-600'
+                        }`}
+                      />
+                    </div>
+                    {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
+                  </div>
                 </div>
-              </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <Input label="Password" type="password" name="password" value={formData.password} onChange={handleChange} error={errors.password} required placeholder="6+ chars" className="bg-gray-50/50" />
-                <Input label="Confirm" type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} error={errors.confirmPassword} required placeholder="Re-enter" className="bg-gray-50/50" />
-              </div>
+                {/* Grade & Institute in 2 Columns */}
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wider">
+                      Grade <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <FiBookOpen className="w-4 h-4" />
+                      </div>
+                      <select
+                        name="grade"
+                        value={formData.grade}
+                        onChange={handleChange}
+                        required
+                        className={`w-full pl-10 pr-8 py-2.5 bg-slate-50 border rounded-xl focus:bg-white focus:outline-none focus:ring-2 text-slate-800 text-sm transition-all appearance-none cursor-pointer ${
+                          errors.grade ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:ring-blue-500/20 focus:border-blue-600'
+                        }`}
+                      >
+                        <option value="">Select Grade</option>
+                        <option value="6">Grade 6</option>
+                        <option value="7">Grade 7</option>
+                        <option value="8">Grade 8</option>
+                        <option value="9">Grade 9</option>
+                        <option value="10">Grade 10</option>
+                        <option value="11">Grade 11</option>
+                        <option value="A/L">A/L Chemistry</option>
+                      </select>
+                    </div>
+                    {errors.grade && <p className="text-red-500 text-xs mt-1">{errors.grade}</p>}
+                  </div>
 
-              <Button type="submit" className="w-full py-3 mt-2 font-semibold shadow-lg shadow-primary/30 hover:shadow-primary/40 transition-all duration-200" disabled={loading}>
-                {loading ? 'Creating...' : 'Create Account'}
-              </Button>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wider">
+                      Institute <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <FiMapPin className="w-4 h-4" />
+                      </div>
+                      <select
+                        name="institute"
+                        value={formData.institute}
+                        onChange={handleChange}
+                        required
+                        className={`w-full pl-10 pr-8 py-2.5 bg-slate-50 border rounded-xl focus:bg-white focus:outline-none focus:ring-2 text-slate-800 text-sm transition-all appearance-none cursor-pointer ${
+                          errors.institute ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:ring-blue-500/20 focus:border-blue-600'
+                        }`}
+                      >
+                        <option value="">Select Institute</option>
+                        <option value="Prebhashi Hettipola">Prebhashi - Hettipola</option>
+                        <option value="Focus Hadungamuwa">Focus - Hadungamuwa</option>
+                      </select>
+                    </div>
+                    {errors.institute && <p className="text-red-500 text-xs mt-1">{errors.institute}</p>}
+                  </div>
+                </div>
 
-              <div className="mt-6 border-t border-gray-200 text-center pt-4">
-                <p className="text-sm text-gray-600">
-                  Already have an account?{' '}
-                  <button type="button" onClick={onSwitchToLogin} className="font-semibold text-primary hover:text-primary/80 transition-colors">
-                    Sign in here
-                  </button>
-                </p>
-              </div>
-            </form>
+                {/* Password & Confirm Password in 2 Columns */}
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wider">
+                      Password <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <FiLock className="w-4 h-4" />
+                      </div>
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        required
+                        placeholder="6+ characters"
+                        className={`w-full pl-9 pr-9 py-2.5 bg-slate-50 border rounded-xl focus:bg-white focus:outline-none focus:ring-2 text-slate-800 text-sm placeholder-slate-400 transition-all ${
+                          errors.password ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:ring-blue-500/20 focus:border-blue-600'
+                        }`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      >
+                        {showPassword ? <FiEyeOff className="w-3.5 h-3.5" /> : <FiEye className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+                    {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wider">
+                      Confirm <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <FiLock className="w-4 h-4" />
+                      </div>
+                      <input
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        name="confirmPassword"
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        required
+                        placeholder="Re-enter password"
+                        className={`w-full pl-9 pr-9 py-2.5 bg-slate-50 border rounded-xl focus:bg-white focus:outline-none focus:ring-2 text-slate-800 text-sm placeholder-slate-400 transition-all ${
+                          errors.confirmPassword ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:ring-blue-500/20 focus:border-blue-600'
+                        }`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
+                        aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                      >
+                        {showConfirmPassword ? <FiEyeOff className="w-3.5 h-3.5" /> : <FiEye className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+                    {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>}
+                  </div>
+                </div>
+
+                {/* Submit Button */}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-3 sm:py-3.5 px-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-500 hover:via-indigo-500 hover:to-blue-600 text-white font-bold text-sm rounded-xl shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 mt-3"
+                >
+                  {loading ? (
+                    <>
+                      <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <span>Creating Account...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Create Account</span>
+                      <FiArrowRight className="w-4 h-4" />
+                    </>
+                  )}
+                </button>
+
+                {/* Switch to Login */}
+                <div className="pt-3 border-t border-slate-100 text-center">
+                  <p className="text-xs sm:text-sm text-slate-600">
+                    Already have an account?{' '}
+                    <button
+                      type="button"
+                      onClick={onSwitchToLogin}
+                      className="font-bold text-blue-600 hover:text-blue-700 hover:underline cursor-pointer transition-colors"
+                    >
+                      Sign in here
+                    </button>
+                  </p>
+                </div>
+              </form>
             )}
           </div>
         </div>
