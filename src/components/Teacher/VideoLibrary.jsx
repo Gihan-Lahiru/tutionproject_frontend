@@ -3,7 +3,7 @@ import { Play, Eye, Clock, Trash2 } from "lucide-react"
 import api from '../../api/axios'
 import { toast } from 'react-toastify'
 
-export default function VideoLibrary({ refreshTrigger }) {
+export default function VideoLibrary({ refreshTrigger, searchQuery = "" }) {
   const [videos, setVideos] = useState([])
   const [loading, setLoading] = useState(true)
   const [classLocations, setClassLocations] = useState({})
@@ -64,22 +64,51 @@ export default function VideoLibrary({ refreshTrigger }) {
     window.open(url, '_blank')
   }
 
+  const q = searchQuery.trim().toLowerCase();
+  const filteredVideos = videos.filter((video) => {
+    if (!q) return true;
+    const title = String(video.title || '').toLowerCase();
+    const grade = String(video.grade || '').toLowerCase();
+    const subject = String(video.subject || '').toLowerCase();
+    const desc = String(video.description || '').toLowerCase();
+    const location = String(video.classId && classLocations[video.classId] ? classLocations[video.classId] : '').toLowerCase();
+    return title.includes(q) || grade.includes(q) || subject.includes(q) || desc.includes(q) || location.includes(q);
+  });
+
   return (
     <div className="bg-white rounded-xl p-6 shadow-md">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">Video Library</h3>
-        <span className="text-sm text-gray-500">{videos.length} videos</span>
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900">
+            {q ? 'Search Results' : 'Video Library'}
+          </h3>
+          {q && (
+            <p className="text-xs text-slate-500">
+              Found {filteredVideos.length} matching {filteredVideos.length === 1 ? 'lesson' : 'lessons'}
+            </p>
+          )}
+        </div>
+        <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 border border-purple-200">
+          {q ? `${filteredVideos.length} / ${videos.length}` : `${videos.length} videos`}
+        </span>
       </div>
       
       <div className="space-y-3 max-h-96 overflow-y-auto">
         {loading ? (
           <div className="text-center py-8 text-gray-500">Loading videos...</div>
-        ) : videos.length === 0 ? (
+        ) : filteredVideos.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
-            No videos uploaded yet. Upload your first video!
+            <p className="font-medium text-slate-700">
+              {q ? `No videos found matching "${searchQuery}"` : 'No videos uploaded yet. Upload your first video!'}
+            </p>
+            {q && (
+              <p className="text-xs text-slate-400 mt-1">
+                Try searching by video title, grade, subject, or institute name
+              </p>
+            )}
           </div>
         ) : (
-          videos.map((video) => (
+          filteredVideos.map((video) => (
             <div
               key={video.id}
               className="flex items-center justify-between p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors group"

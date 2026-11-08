@@ -3,9 +3,10 @@ import { useState, useEffect } from "react";
 import api from "../../api/axios";
 import { toast } from "react-toastify";
 
-export default function RecentPapers({ refreshTrigger }) {
+export default function RecentPapers({ refreshTrigger, searchQuery = "" }) {
   const [papers, setPapers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showAll, setShowAll] = useState(false);
   const [editModal, setEditModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const [selectedPaper, setSelectedPaper] = useState(null);
@@ -24,7 +25,7 @@ export default function RecentPapers({ refreshTrigger }) {
       const nextPapers = Array.isArray(response.data)
         ? response.data
         : (response.data?.papers || []);
-      setPapers(nextPapers.slice(0, 4)); // Show only recent 4
+      setPapers(nextPapers);
     } catch (error) {
       console.error('Error fetching papers:', error);
       try {
@@ -32,7 +33,7 @@ export default function RecentPapers({ refreshTrigger }) {
         if (!localResponse.ok) throw new Error(`Failed to load local papers: ${localResponse.status}`);
         const localData = await localResponse.json();
         const localPapers = Array.isArray(localData?.papers) ? localData.papers : [];
-        setPapers(localPapers.map((item) => ({ ...item, __local: true })).slice(0, 4));
+        setPapers(localPapers.map((item) => ({ ...item, __local: true })));
       } catch (localError) {
         console.error('Error loading local papers:', localError);
         toast.error('Failed to load papers');
@@ -172,23 +173,63 @@ export default function RecentPapers({ refreshTrigger }) {
       </div>
     );
   }
+  const q = searchQuery.trim().toLowerCase();
+  const filteredPapers = papers.filter((paper) => {
+    if (!q) return true;
+    const title = String(paper.title || '').toLowerCase();
+    const topic = String(paper.topic || '').toLowerCase();
+    const grade = String(paper.grade || '').toLowerCase();
+    const type = String(paper.type || '').toLowerCase();
+    const subject = String(paper.subject || '').toLowerCase();
+    return title.includes(q) || topic.includes(q) || grade.includes(q) || type.includes(q) || subject.includes(q);
+  });
+
+  const displayPapers = q ? filteredPapers : (showAll ? filteredPapers : filteredPapers.slice(0, 4));
+
   return (
     <div className="bg-white rounded-xl p-6 shadow-md">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">Recently Uploaded</h3>
-        <button className="text-primary hover:text-primary/90 text-sm font-medium">
-          View All
-        </button>
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900">
+            {q ? 'Search Results' : 'Recently Uploaded'}
+          </h3>
+          {q && (
+            <p className="text-xs text-slate-500">
+              Found {filteredPapers.length} matching {filteredPapers.length === 1 ? 'item' : 'items'}
+            </p>
+          )}
+        </div>
+        {q ? (
+          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+            {filteredPapers.length} / {papers.length}
+          </span>
+        ) : (
+          papers.length > 4 && (
+            <button
+              onClick={() => setShowAll(!showAll)}
+              className="text-primary hover:text-primary/90 text-sm font-medium cursor-pointer"
+            >
+              {showAll ? 'Show Recent' : `View All (${papers.length})`}
+            </button>
+          )
+        )}
       </div>
       
       <div className="space-y-3">
-        {papers.length === 0 ? (
+        {displayPapers.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             <FileText className="w-12 h-12 mx-auto mb-2 text-gray-400" />
-            <p>No papers uploaded yet</p>
+            <p className="font-medium text-slate-700">
+              {q ? `No papers found matching "${searchQuery}"` : 'No papers uploaded yet'}
+            </p>
+            {q && (
+              <p className="text-xs text-slate-400 mt-1">
+                Try searching with a different keyword, topic, or grade
+              </p>
+            )}
           </div>
         ) : (
-          papers.map((paper) => (
+          displayPapers.map((paper) => (
             <div
               key={paper.id}
               className="flex items-center justify-between p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"

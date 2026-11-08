@@ -53,17 +53,26 @@ export default function Papers() {
       {/* Search Bar */}
       <div className="rounded-2xl p-4" style={{ background: '#fff', border: '1.5px solid rgba(226,232,240,0.8)', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: '#94a3b8' }} />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#94a3b8' }} />
           <input
             type="text"
-            placeholder="Search papers, assignments, notes..."
+            placeholder="Search papers by title, topic, grade, or document type..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm outline-none transition-all"
+            className="w-full pl-10 pr-10 py-2.5 rounded-xl text-sm outline-none transition-all"
             style={{ background: '#f8fafc', border: '1.5px solid #e2e8f0', color: '#1e293b' }}
             onFocus={e => e.target.style.borderColor = '#3b82f6'}
             onBlur={e => e.target.style.borderColor = '#e2e8f0'}
           />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1"
+              title="Clear search"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
 
@@ -73,7 +82,7 @@ export default function Papers() {
           <PaperUpload onUploadSuccess={handleUploadSuccess} classContext={classContext} initialType={defaultType} />
         </div>
         <div className="rounded-2xl overflow-hidden" style={{ background: '#fff', border: '1.5px solid rgba(226,232,240,0.8)', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
-          <RecentPapers refreshTrigger={refreshTrigger} />
+          <RecentPapers refreshTrigger={refreshTrigger} searchQuery={searchQuery} />
         </div>
       </div>
     </div>

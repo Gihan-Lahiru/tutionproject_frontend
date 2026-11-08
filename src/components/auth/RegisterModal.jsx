@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../api/axios';
 import { toast } from 'react-toastify';
-import { FiX, FiMail, FiUser, FiPhone, FiLock, FiEye, FiEyeOff, FiCheck, FiArrowRight, FiCheckCircle, FiBookOpen, FiMapPin } from 'react-icons/fi';
-import authBg from '../../assets/auth_bg.png';
+import { FiX, FiEye, FiEyeOff } from 'react-icons/fi';
 
 export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
   const [email, setEmail] = useState('');
@@ -86,7 +85,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-md animate-fade-in">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/65 backdrop-blur-sm animate-fade-in">
       {/* Modal Container */}
       <div 
         className="bg-white rounded-3xl shadow-2xl w-full max-w-4xl flex overflow-hidden relative max-h-[94vh] border border-white/20"
@@ -96,119 +95,173 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
         <button 
           onClick={onClose}
           aria-label="Close modal"
-          className="absolute top-4 right-4 z-20 w-9 h-9 bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-xs"
+          className="absolute top-5 right-5 z-20 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer p-1"
         >
           <FiX className="w-5 h-5" />
         </button>
         
-        {/* Left side - Visual & Branding */}
-        <div className="hidden lg:flex lg:w-5/12 relative bg-gradient-to-br from-blue-950 via-slate-900 to-indigo-950 text-white flex-col justify-between p-10 overflow-hidden">
-          {/* Background Illustration & Overlay */}
-          <div className="absolute inset-0 z-0 pointer-events-none">
-            <img 
-              src={authBg} 
-              alt="Tuition Class Background" 
-              className="w-full h-full object-cover opacity-25 mix-blend-luminosity scale-110"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-blue-950/60 to-slate-950/80"></div>
-            {/* Ambient Glows */}
-            <div className="absolute -top-10 -left-10 w-72 h-72 bg-blue-500/20 rounded-full blur-3xl"></div>
-            <div className="absolute -bottom-10 -right-10 w-72 h-72 bg-emerald-500/20 rounded-full blur-3xl"></div>
+        {/* Left side - 3D Futuristic Glass Artwork & Branding */}
+        <div className="hidden lg:flex lg:w-5/12 relative bg-gradient-to-br from-blue-600 via-blue-600 to-indigo-700 text-white flex-col items-center justify-between p-10 overflow-hidden select-none">
+          {/* Ambient Lighting & Glows */}
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-1/4 left-1/3 w-72 h-72 bg-sky-400/35 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-10 right-10 w-64 h-64 bg-indigo-500/30 rounded-full blur-3xl"></div>
+            <div className="absolute -top-12 -left-12 w-48 h-48 bg-blue-300/20 rounded-full blur-2xl"></div>
           </div>
 
-          {/* Top Brand Header */}
-          <div className="relative z-10">
-            <div className="inline-flex items-center gap-3">
-              <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-blue-500 via-indigo-600 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/30 border border-white/20">
-                <span className="text-white font-black text-lg tracking-wider">MW</span>
-              </div>
-              <div className="leading-tight">
-                <span className="block font-extrabold text-white text-base tracking-tight">
-                  Maleesha Wickramasinghe
-                </span>
-                <span className="block text-xs font-medium text-blue-300">
-                  Tuition Classes
-                </span>
-              </div>
+          {/* Top Brand Tag */}
+          <div className="relative z-10 w-full flex items-center justify-start">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white text-xs font-semibold">
+              <span className="w-2 h-2 rounded-full bg-cyan-300 animate-pulse"></span>
+              <span>EduTeach • Student Registration</span>
             </div>
           </div>
 
-          {/* Center Content */}
-          <div className="relative z-10 my-auto py-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-400/20 text-blue-300 text-xs font-semibold mb-4 backdrop-blur-md">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span>New Student Enrollment</span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mb-3 leading-snug">
-              Start Your Journey to <span className="bg-gradient-to-r from-blue-400 via-sky-300 to-indigo-300 bg-clip-text text-transparent">Academic Excellence</span>
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal mb-6">
-              Join hundreds of students preparing for O/L Science & A/L Chemistry with island & district-ranked results.
-            </p>
+          {/* Center 3D Glass Artwork */}
+          <div className="relative z-10 w-full flex flex-col items-center justify-center my-auto py-2">
+            <div className="relative w-56 h-56 sm:w-64 sm:h-64 flex items-center justify-center">
+              <svg viewBox="0 0 320 320" className="w-full h-full drop-shadow-2xl overflow-visible" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="regRingGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#ffffff" stopOpacity="0.8" />
+                    <stop offset="45%" stopColor="#93c5fd" stopOpacity="0.4" />
+                    <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.1" />
+                  </linearGradient>
+                  <linearGradient id="regRingGrad2" x1="100%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="#ffffff" stopOpacity="0.75" />
+                    <stop offset="50%" stopColor="#60a5fa" stopOpacity="0.35" />
+                    <stop offset="100%" stopColor="#1d4ed8" stopOpacity="0.08" />
+                  </linearGradient>
+                  <linearGradient id="regGlassBadgeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#ffffff" stopOpacity="0.32" />
+                    <stop offset="100%" stopColor="#ffffff" stopOpacity="0.10" />
+                  </linearGradient>
+                  <linearGradient id="regSphereGrad" x1="30%" y1="20%" x2="90%" y2="90%">
+                    <stop offset="0%" stopColor="#ffffff" stopOpacity="0.85" />
+                    <stop offset="35%" stopColor="#93c5fd" stopOpacity="0.4" />
+                    <stop offset="100%" stopColor="#1e40af" stopOpacity="0.15" />
+                  </linearGradient>
+                  <filter id="regGlassBadgeGlow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="8" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                  </filter>
+                </defs>
 
-            {/* Feature Pills */}
-            <div className="space-y-2.5 text-xs text-slate-300">
-              <div className="flex items-center gap-2.5">
-                <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center shrink-0">
-                  <FiCheck className="w-3 h-3" />
-                </div>
-                <span>Physical & Interactive Zoom Classes</span>
-              </div>
-              <div className="flex items-center gap-2.5">
-                <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center shrink-0">
-                  <FiCheck className="w-3 h-3" />
-                </div>
-                <span>Theory, MCQs & Structured Revision</span>
-              </div>
-              <div className="flex items-center gap-2.5">
-                <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center shrink-0">
-                  <FiCheck className="w-3 h-3" />
-                </div>
-                <span>Individual Mentoring & Doubt Support</span>
-              </div>
+                {/* Floating Hexagon */}
+                <polygon 
+                  points="255,50 280,65 280,95 255,110 230,95 230,65" 
+                  fill="url(#regGlassBadgeGrad)" 
+                  stroke="rgba(255,255,255,0.45)" 
+                  strokeWidth="1.5"
+                  className="opacity-80"
+                  transform="rotate(10 255 80)"
+                />
+
+                {/* Floating Book Outline */}
+                <g transform="translate(40, 75) rotate(-14) scale(0.95)" opacity="0.85">
+                  <path d="M0,20 Q20,10 40,18 L40,48 Q20,40 0,50 Z" fill="rgba(255,255,255,0.14)" stroke="rgba(255,255,255,0.65)" strokeWidth="1.5" />
+                  <path d="M40,18 Q60,10 80,20 L80,50 Q60,40 40,48 Z" fill="rgba(255,255,255,0.14)" stroke="rgba(255,255,255,0.65)" strokeWidth="1.5" />
+                  <path d="M40,18 L40,48" stroke="rgba(255,255,255,0.85)" strokeWidth="1.5" />
+                </g>
+
+                {/* Large Ring */}
+                <ellipse 
+                  cx="145" cy="155" rx="105" ry="95" 
+                  fill="none" 
+                  stroke="url(#regRingGrad1)" 
+                  strokeWidth="24" 
+                  strokeLinecap="round"
+                  transform="rotate(-18 145 155)"
+                  style={{ filter: 'drop-shadow(0 12px 24px rgba(14, 165, 233, 0.3))' }}
+                />
+                <ellipse 
+                  cx="145" cy="155" rx="93" ry="83" 
+                  fill="none" 
+                  stroke="rgba(255,255,255,0.65)" 
+                  strokeWidth="1.5" 
+                  transform="rotate(-18 145 155)"
+                />
+
+                {/* Secondary Ring */}
+                <ellipse 
+                  cx="185" cy="145" rx="75" ry="70" 
+                  fill="none" 
+                  stroke="url(#regRingGrad2)" 
+                  strokeWidth="18" 
+                  strokeLinecap="round"
+                  transform="rotate(24 185 145)"
+                  style={{ filter: 'drop-shadow(0 8px 18px rgba(30, 58, 138, 0.4))' }}
+                />
+
+                {/* Bubbles */}
+                <circle cx="58" cy="190" r="16" fill="url(#regSphereGrad)" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" />
+                <circle cx="282" cy="220" r="10" fill="url(#regSphereGrad)" stroke="rgba(255,255,255,0.4)" strokeWidth="1" />
+                <circle cx="44" cy="235" r="5" fill="rgba(255,255,255,0.6)" />
+
+                {/* Center Badge with Graduation Cap */}
+                <g transform="translate(125, 115)">
+                  <rect x="0" y="0" width="70" height="70" rx="20" ry="20" fill="rgba(56, 189, 248, 0.35)" filter="url(#regGlassBadgeGlow)" />
+                  <rect x="0" y="0" width="70" height="70" rx="20" ry="20" fill="url(#regGlassBadgeGrad)" stroke="rgba(255, 255, 255, 0.7)" strokeWidth="1.8" />
+                  
+                  <g transform="translate(16, 17) scale(1.6)">
+                    <polygon points="12,3 23,8 12,13 1,8" fill="#ffffff" />
+                    <path d="M5,10.2 L5,14.5 C5,17.5 8.1,20 12,20 C15.9,20 19,17.5 19,14.5 L19,10.2 L12,13.2 Z" fill="#ffffff" opacity="0.95" />
+                    <path d="M20.5,9 L20.5,15.5 C20.5,16.5 21.5,17.5 22,18" stroke="#ffffff" strokeWidth="1.2" strokeLinecap="round" />
+                  </g>
+                </g>
+              </svg>
+            </div>
+
+            {/* Typography */}
+            <div className="mt-4 text-center max-w-sm">
+              <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight leading-tight">
+                Join EduTeach
+              </h1>
+              <p className="text-blue-100 text-xs sm:text-sm mt-3 font-normal leading-relaxed">
+                Empowering your learning journey with premium educational tools and expert guidance.
+              </p>
             </div>
           </div>
 
-          {/* Bottom Badge */}
-          <div className="relative z-10 pt-4 border-t border-white/10 flex items-center justify-between text-xs text-slate-400">
-            <span>Prebhashi (Hettipola) & Focus (Hadungamuwa)</span>
+          {/* Bottom Note */}
+          <div className="relative z-10 w-full text-center text-xs text-blue-200/80">
+            <span>Fast, direct approval by your teacher</span>
           </div>
         </div>
 
-        {/* Right side - Register Form */}
-        <div className="w-full lg:w-7/12 flex flex-col justify-center p-6 sm:p-10 relative overflow-y-auto max-h-[92vh]">
+        {/* Right side - Form Container */}
+        <div className="w-full lg:w-7/12 flex flex-col justify-center p-6 sm:p-10 relative overflow-y-auto">
           <div className="w-full max-w-md mx-auto">
             {/* Header */}
             <div className="mb-6">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold mb-2.5 border border-blue-100">
-                <span>Registration</span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                {submitted ? 'Request Received' : 'Create Account'}
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+                Create account
               </h2>
-              <p className="mt-1 text-slate-500 text-xs sm:text-sm">
-                {submitted ? 'Waiting for teacher verification' : 'Fill in your details to register for tuition classes'}
+              <p className="mt-1 text-slate-500 text-sm font-normal">
+                Enter your details to create your student account
               </p>
             </div>
 
             {submitted ? (
-              /* Success / Pending Approval State */
-              <div className="py-8 text-center space-y-6">
-                <div className="mx-auto w-20 h-20 rounded-full bg-emerald-50 border-4 border-emerald-100 flex items-center justify-center shadow-lg shadow-emerald-500/10">
-                  <FiCheckCircle className="w-10 h-10 text-emerald-600 animate-bounce" />
+              /* Success Confirmation */
+              <div className="py-8 text-center space-y-4">
+                <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto border border-blue-200">
+                  <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                  </svg>
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-slate-900 tracking-tight">
-                    Registration Submitted Successfully!
+                    Registration Submitted!
                   </h3>
                   <p className="mt-2 text-slate-600 text-sm max-w-sm mx-auto leading-relaxed">
-                    Thank you! Your account request has been forwarded to Mr. Maleesha Wickramasinghe. Once approved, you will be able to sign in immediately.
+                    Thank you! Your registration has been sent to your teacher for approval. Once approved, you can sign in directly.
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={onSwitchToLogin}
-                  className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-blue-500/25 transition-all cursor-pointer"
+                  className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium rounded-xl shadow-lg shadow-blue-500/25 transition-all cursor-pointer mt-4"
                 >
                   Proceed to Sign in
                 </button>
@@ -216,15 +269,30 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
             ) : (
               /* Registration Form */
               <form onSubmit={handleRegister} className="space-y-3.5">
-                {/* Email Address */}
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wider">
-                    Email Address <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                      <FiMail className="w-4 h-4" />
-                    </div>
+                {/* Full Name & Email in 2 Columns */}
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                      Full Name
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      required
+                      placeholder="John Doe"
+                      className={`w-full px-4 py-2.5 sm:py-3 bg-white border rounded-xl text-slate-900 placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 transition-all ${
+                        errors.name ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:ring-blue-500/20 focus:border-blue-500'
+                      }`}
+                    />
+                    {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                      Email Address
+                    </label>
                     <input
                       type="email"
                       name="email"
@@ -232,128 +300,85 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
                       onChange={(e) => setEmail(e.target.value)}
                       required
                       placeholder="student@example.com"
-                      className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 text-slate-800 text-sm placeholder-slate-400 transition-all"
+                      className="w-full px-4 py-2.5 sm:py-3 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                     />
                   </div>
                 </div>
 
-                {/* Name & Phone in 2 Columns */}
+                {/* Phone & Grade in 2 Columns */}
                 <div className="grid sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wider">
-                      Full Name <span className="text-red-500">*</span>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                      Phone Number
                     </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                        <FiUser className="w-4 h-4" />
-                      </div>
-                      <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        required
-                        placeholder="John Doe"
-                        className={`w-full pl-10 pr-3 py-2.5 bg-slate-50 border rounded-xl focus:bg-white focus:outline-none focus:ring-2 text-slate-800 text-sm placeholder-slate-400 transition-all ${
-                          errors.name ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:ring-blue-500/20 focus:border-blue-600'
-                        }`}
-                      />
-                    </div>
-                    {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      required
+                      placeholder="0712345678"
+                      className={`w-full px-4 py-2.5 sm:py-3 bg-white border rounded-xl text-slate-900 placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 transition-all ${
+                        errors.phone ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:ring-blue-500/20 focus:border-blue-500'
+                      }`}
+                    />
+                    {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wider">
-                      Phone Number <span className="text-red-500">*</span>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                      Grade
                     </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                        <FiPhone className="w-4 h-4" />
-                      </div>
-                      <input
-                        type="tel"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleChange}
-                        required
-                        placeholder="07xxxxxxxx"
-                        className={`w-full pl-10 pr-3 py-2.5 bg-slate-50 border rounded-xl focus:bg-white focus:outline-none focus:ring-2 text-slate-800 text-sm placeholder-slate-400 transition-all ${
-                          errors.phone ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:ring-blue-500/20 focus:border-blue-600'
-                        }`}
-                      />
-                    </div>
-                    {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
+                    <select
+                      name="grade"
+                      value={formData.grade}
+                      onChange={handleChange}
+                      required
+                      className={`w-full px-4 py-2.5 sm:py-3 bg-white border rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 transition-all cursor-pointer ${
+                        errors.grade ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:ring-blue-500/20 focus:border-blue-500'
+                      }`}
+                    >
+                      <option value="">Select Grade</option>
+                      <option value="6">Grade 6</option>
+                      <option value="7">Grade 7</option>
+                      <option value="8">Grade 8</option>
+                      <option value="9">Grade 9</option>
+                      <option value="10">Grade 10</option>
+                      <option value="11">Grade 11</option>
+                      <option value="A/L">A/L Chemistry</option>
+                    </select>
+                    {errors.grade && <p className="text-red-500 text-xs mt-1">{errors.grade}</p>}
                   </div>
                 </div>
 
-                {/* Grade & Institute in 2 Columns */}
-                <div className="grid sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wider">
-                      Grade <span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                        <FiBookOpen className="w-4 h-4" />
-                      </div>
-                      <select
-                        name="grade"
-                        value={formData.grade}
-                        onChange={handleChange}
-                        required
-                        className={`w-full pl-10 pr-8 py-2.5 bg-slate-50 border rounded-xl focus:bg-white focus:outline-none focus:ring-2 text-slate-800 text-sm transition-all appearance-none cursor-pointer ${
-                          errors.grade ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:ring-blue-500/20 focus:border-blue-600'
-                        }`}
-                      >
-                        <option value="">Select Grade</option>
-                        <option value="6">Grade 6</option>
-                        <option value="7">Grade 7</option>
-                        <option value="8">Grade 8</option>
-                        <option value="9">Grade 9</option>
-                        <option value="10">Grade 10</option>
-                        <option value="11">Grade 11</option>
-                        <option value="A/L">A/L Chemistry</option>
-                      </select>
-                    </div>
-                    {errors.grade && <p className="text-red-500 text-xs mt-1">{errors.grade}</p>}
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wider">
-                      Institute <span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                        <FiMapPin className="w-4 h-4" />
-                      </div>
-                      <select
-                        name="institute"
-                        value={formData.institute}
-                        onChange={handleChange}
-                        required
-                        className={`w-full pl-10 pr-8 py-2.5 bg-slate-50 border rounded-xl focus:bg-white focus:outline-none focus:ring-2 text-slate-800 text-sm transition-all appearance-none cursor-pointer ${
-                          errors.institute ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:ring-blue-500/20 focus:border-blue-600'
-                        }`}
-                      >
-                        <option value="">Select Institute</option>
-                        <option value="Prebhashi Hettipola">Prebhashi - Hettipola</option>
-                        <option value="Focus Hadungamuwa">Focus - Hadungamuwa</option>
-                      </select>
-                    </div>
-                    {errors.institute && <p className="text-red-500 text-xs mt-1">{errors.institute}</p>}
-                  </div>
+                {/* Institute Field */}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                    Institute / Location
+                  </label>
+                  <select
+                    name="institute"
+                    value={formData.institute}
+                    onChange={handleChange}
+                    required
+                    className={`w-full px-4 py-2.5 sm:py-3 bg-white border rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 transition-all cursor-pointer ${
+                      errors.institute ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:ring-blue-500/20 focus:border-blue-500'
+                    }`}
+                  >
+                    <option value="">Select Institute</option>
+                    <option value="Prebhashi Hettipola">Prebhashi - Hettipola</option>
+                    <option value="Focus Hadungamuwa">Focus - Hadungamuwa</option>
+                  </select>
+                  {errors.institute && <p className="text-red-500 text-xs mt-1">{errors.institute}</p>}
                 </div>
 
                 {/* Password & Confirm Password in 2 Columns */}
                 <div className="grid sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wider">
-                      Password <span className="text-red-500">*</span>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                      Password
                     </label>
                     <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                        <FiLock className="w-4 h-4" />
-                      </div>
                       <input
                         type={showPassword ? 'text' : 'password'}
                         name="password"
@@ -361,8 +386,8 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
                         onChange={handleChange}
                         required
                         placeholder="6+ characters"
-                        className={`w-full pl-9 pr-9 py-2.5 bg-slate-50 border rounded-xl focus:bg-white focus:outline-none focus:ring-2 text-slate-800 text-sm placeholder-slate-400 transition-all ${
-                          errors.password ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:ring-blue-500/20 focus:border-blue-600'
+                        className={`w-full px-4 py-2.5 sm:py-3 pr-10 bg-white border rounded-xl text-slate-900 placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 transition-all ${
+                          errors.password ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:ring-blue-500/20 focus:border-blue-500'
                         }`}
                       />
                       <button
@@ -371,20 +396,17 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
                         className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
                         aria-label={showPassword ? 'Hide password' : 'Show password'}
                       >
-                        {showPassword ? <FiEyeOff className="w-3.5 h-3.5" /> : <FiEye className="w-3.5 h-3.5" />}
+                        {showPassword ? <FiEyeOff className="w-4 h-4" /> : <FiEye className="w-4 h-4" />}
                       </button>
                     </div>
                     {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wider">
-                      Confirm <span className="text-red-500">*</span>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                      Confirm Password
                     </label>
                     <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                        <FiLock className="w-4 h-4" />
-                      </div>
                       <input
                         type={showConfirmPassword ? 'text' : 'password'}
                         name="confirmPassword"
@@ -392,8 +414,8 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
                         onChange={handleChange}
                         required
                         placeholder="Re-enter password"
-                        className={`w-full pl-9 pr-9 py-2.5 bg-slate-50 border rounded-xl focus:bg-white focus:outline-none focus:ring-2 text-slate-800 text-sm placeholder-slate-400 transition-all ${
-                          errors.confirmPassword ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:ring-blue-500/20 focus:border-blue-600'
+                        className={`w-full px-4 py-2.5 sm:py-3 pr-10 bg-white border rounded-xl text-slate-900 placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 transition-all ${
+                          errors.confirmPassword ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:ring-blue-500/20 focus:border-blue-500'
                         }`}
                       />
                       <button
@@ -402,7 +424,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
                         className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
                         aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
                       >
-                        {showConfirmPassword ? <FiEyeOff className="w-3.5 h-3.5" /> : <FiEye className="w-3.5 h-3.5" />}
+                        {showConfirmPassword ? <FiEyeOff className="w-4 h-4" /> : <FiEye className="w-4 h-4" />}
                       </button>
                     </div>
                     {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>}
@@ -413,34 +435,31 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 sm:py-3.5 px-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-500 hover:via-indigo-500 hover:to-blue-600 text-white font-bold text-sm rounded-xl shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 mt-3"
+                  className="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium text-sm sm:text-base rounded-xl shadow-lg shadow-blue-500/25 hover:shadow-blue-500/35 transition-all flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed mt-3"
                 >
                   {loading ? (
-                    <>
+                    <div className="flex items-center gap-2">
                       <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
                       <span>Creating Account...</span>
-                    </>
+                    </div>
                   ) : (
-                    <>
-                      <span>Create Account</span>
-                      <FiArrowRight className="w-4 h-4" />
-                    </>
+                    <span>Create account</span>
                   )}
                 </button>
 
                 {/* Switch to Login */}
-                <div className="pt-3 border-t border-slate-100 text-center">
-                  <p className="text-xs sm:text-sm text-slate-600">
+                <div className="mt-6 text-center">
+                  <p className="text-sm text-slate-600">
                     Already have an account?{' '}
                     <button
                       type="button"
                       onClick={onSwitchToLogin}
-                      className="font-bold text-blue-600 hover:text-blue-700 hover:underline cursor-pointer transition-colors"
+                      className="font-medium text-blue-600 hover:text-blue-700 hover:underline cursor-pointer transition-colors"
                     >
-                      Sign in here
+                      Sign in
                     </button>
                   </p>
                 </div>
