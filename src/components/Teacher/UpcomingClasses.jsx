@@ -1,12 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Users, BookOpen, ArrowRight } from 'lucide-react'
+import { Users, BookOpen, ArrowRight, MapPin, Plus } from 'lucide-react'
 import api from '../../api/axios'
-
-const gradeColors = [
-  'linear-gradient(135deg, #3b82f6, #1d4ed8)', // Blue
-  'linear-gradient(135deg, #6366f1, #4f46e5)', // Indigo
-]
 
 export default function UpcomingClasses() {
   const navigate = useNavigate()
@@ -28,94 +23,93 @@ export default function UpcomingClasses() {
   }
 
   return (
-    <div
-      className="rounded-2xl overflow-hidden"
-      style={{
-        background: '#fff',
-        border: '1.5px solid rgba(226,232,240,0.8)',
-        boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
-      }}
-    >
-      {/* Card header */}
-      <div
-        className="flex items-center justify-between px-6 py-4"
-        style={{ borderBottom: '1px solid #f1f5f9' }}
-      >
-        <div className="flex items-center gap-2">
-          <div
-            className="w-8 h-8 rounded-xl flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg,rgba(59,130,246,0.15),rgba(99,102,241,0.08))' }}
-          >
-            <BookOpen className="w-4 h-4" style={{ color: '#3b82f6' }} />
+    <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden flex flex-col justify-between">
+      {/* Card Header */}
+      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100">
+            <BookOpen className="w-4 h-4" />
           </div>
-          <h3 className="text-base font-bold" style={{ color: '#1e293b' }}>My Classes</h3>
+          <div>
+            <h3 className="text-base font-bold text-slate-900 leading-tight">My Classes & Batches</h3>
+            <p className="text-xs text-slate-500 font-medium">Active tuition groups</p>
+          </div>
         </div>
         <button
           onClick={() => navigate('/teacher/classes')}
-          className="flex items-center gap-1 text-sm font-semibold transition-all px-3 py-1.5 rounded-lg"
-          style={{ color: '#3b82f6', background: 'rgba(59,130,246,0.08)' }}
-          onMouseEnter={e => e.currentTarget.style.background = 'rgba(59,130,246,0.15)'}
-          onMouseLeave={e => e.currentTarget.style.background = 'rgba(59,130,246,0.08)'}
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100/80 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
         >
-          View All <ArrowRight className="w-3.5 h-3.5" />
+          <span>View All</span>
+          <ArrowRight className="w-3.5 h-3.5" />
         </button>
       </div>
 
-      {/* Card body */}
-      <div className="p-4 space-y-3">
+      {/* Card Body */}
+      <div className="p-4 sm:p-5 space-y-2.5 flex-1">
         {loading ? (
           <div className="flex flex-col gap-3">
             {[1, 2, 3].map(i => (
-              <div key={i} className="h-16 rounded-xl animate-pulse" style={{ background: '#f1f5f9' }} />
+              <div key={i} className="h-16 rounded-xl bg-slate-100 animate-pulse" />
             ))}
           </div>
         ) : classes.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-10 gap-2">
-            <div
-              className="w-12 h-12 rounded-2xl flex items-center justify-center"
-              style={{ background: '#f1f5f9' }}
-            >
-              <BookOpen className="w-6 h-6" style={{ color: '#94a3b8' }} />
+          <div className="flex flex-col items-center justify-center py-10 text-center">
+            <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mb-3">
+              <BookOpen className="w-6 h-6" />
             </div>
-            <p className="text-sm font-medium" style={{ color: '#94a3b8' }}>No classes found</p>
+            <p className="text-sm font-bold text-slate-800">No classes registered yet</p>
+            <p className="text-xs text-slate-500 mt-0.5 mb-4">Create your first class batch to get started</p>
+            <button
+              onClick={() => navigate('/teacher/classes')}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 transition-colors shadow-xs"
+            >
+              <Plus className="w-3.5 h-3.5" /> Add Class
+            </button>
           </div>
         ) : (
-          classes.slice(0, 4).map((cls, idx) => (
+          classes.slice(0, 4).map((cls) => (
             <div
               key={cls.id}
-              className="flex items-center gap-4 p-4 rounded-xl cursor-pointer transition-all duration-200"
-              style={{ background: '#f8fafc', border: '1px solid #f1f5f9' }}
-              onMouseEnter={e => {
-                e.currentTarget.style.background = '#f1f5f9'
-                e.currentTarget.style.border = '1px solid #e2e8f0'
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.background = '#f8fafc'
-                e.currentTarget.style.border = '1px solid #f1f5f9'
-              }}
               onClick={() => navigate('/teacher/classes')}
+              className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50/80 hover:bg-blue-50/50 border border-slate-100 hover:border-blue-200 transition-all duration-200 cursor-pointer group"
             >
-              {/* Grade badge */}
-              <div
-                className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 text-white font-bold text-sm"
-                style={{ background: gradeColors[idx % gradeColors.length], boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}
-              >
-                {cls.grade || '?'}
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-xs">
+                  {cls.grade ? (String(cls.grade).startsWith('Grade') ? cls.grade.replace('Grade ', 'G') : cls.grade) : 'G'}
+                </div>
+                <div className="min-w-0">
+                  <h4 className="text-sm font-bold text-slate-800 truncate group-hover:text-blue-600 transition-colors">
+                    {cls.title || cls.name || `Grade ${cls.grade} Science`}
+                  </h4>
+                  <div className="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
+                    {cls.location || cls.institute ? (
+                      <span className="flex items-center gap-1 truncate">
+                        <MapPin className="w-3 h-3 text-slate-400" />
+                        {cls.location || cls.institute}
+                      </span>
+                    ) : null}
+                    <span className="flex items-center gap-1 font-medium">
+                      <Users className="w-3 h-3 text-slate-400" />
+                      {cls.studentCount || cls.studentsCount || 0} students
+                    </span>
+                  </div>
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm truncate" style={{ color: '#1e293b' }}>{cls.title}</p>
-                <p className="text-xs truncate mt-0.5" style={{ color: '#64748b' }}>{cls.subject} · Grade {cls.grade}</p>
-              </div>
-              <div
-                className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold shrink-0"
-                style={{ background: 'rgba(59,130,246,0.1)', color: '#3b82f6' }}
-              >
-                <Users className="w-3.5 h-3.5" />
-                {cls.student_count || 0}
-              </div>
+              <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all shrink-0 ml-2" />
             </div>
           ))
         )}
+      </div>
+
+      {/* Card Footer */}
+      <div className="px-6 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+        <span>Managing {classes.length} active tuition batches</span>
+        <button
+          onClick={() => navigate('/teacher/classes')}
+          className="font-semibold text-blue-600 hover:underline cursor-pointer"
+        >
+          Manage All &rarr;
+        </button>
       </div>
     </div>
   )

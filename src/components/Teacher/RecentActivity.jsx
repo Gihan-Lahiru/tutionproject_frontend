@@ -1,17 +1,18 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { FileText, Video, DollarSign, UserPlus, Bell, Activity } from 'lucide-react'
+import { FileText, Video, DollarSign, UserPlus, Bell, Activity, ArrowRight } from 'lucide-react'
 import api from '../../api/axios'
 
 const typeConfig = {
-  paper:        { icon: FileText,  bg: 'rgba(59,130,246,0.12)',  color: '#3b82f6',  label: 'Paper' },
-  student:      { icon: UserPlus,  bg: 'rgba(16,185,129,0.12)',  color: '#10b981',  label: 'Student' },
-  video:        { icon: Video,     bg: 'rgba(139,92,246,0.12)',  color: '#8b5cf6',  label: 'Video' },
-  fee:          { icon: DollarSign,bg: 'rgba(245,158,11,0.12)',  color: '#f59e0b',  label: 'Fee' },
-  announcement: { icon: Bell,      bg: 'rgba(236,72,153,0.12)',  color: '#ec4899',  label: 'Announcement' },
+  paper:        { icon: FileText,  bg: 'bg-blue-50 text-blue-600 border-blue-100',   label: 'Paper' },
+  student:      { icon: UserPlus,  bg: 'bg-emerald-50 text-emerald-600 border-emerald-100', label: 'Student' },
+  video:        { icon: Video,     bg: 'bg-indigo-50 text-indigo-600 border-indigo-100',  label: 'Video' },
+  fee:          { icon: DollarSign,bg: 'bg-amber-50 text-amber-600 border-amber-100',   label: 'Fee Payment' },
+  announcement: { icon: Bell,      bg: 'bg-pink-50 text-pink-600 border-pink-100',    label: 'Announcement' },
 }
 
 function getTimeAgo(dateString) {
+  if (!dateString) return 'Recently'
   const now = new Date()
   const date = new Date(dateString)
   const seconds = Math.floor((now - date) / 1000)
@@ -54,99 +55,80 @@ export default function RecentActivity() {
   }
 
   return (
-    <div
-      className="rounded-2xl overflow-hidden"
-      style={{
-        background: '#fff',
-        border: '1.5px solid rgba(226,232,240,0.8)',
-        boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
-      }}
-    >
-      {/* Card header */}
-      <div
-        className="flex items-center justify-between px-6 py-4"
-        style={{ borderBottom: '1px solid #f1f5f9' }}
-      >
-        <div className="flex items-center gap-2">
-          <div
-            className="w-8 h-8 rounded-xl flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg,rgba(16,185,129,0.15),rgba(5,150,105,0.08))' }}
-          >
-            <Activity className="w-4 h-4" style={{ color: '#10b981' }} />
+    <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden flex flex-col justify-between">
+      {/* Card Header */}
+      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
+            <Activity className="w-4 h-4" />
           </div>
-          <h3 className="text-base font-bold" style={{ color: '#1e293b' }}>Recent Activity</h3>
+          <div>
+            <h3 className="text-base font-bold text-slate-900 leading-tight">Recent Activity</h3>
+            <p className="text-xs text-slate-500 font-medium">Real-time tuition updates</p>
+          </div>
         </div>
-        <div
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold"
-          style={{ background: 'rgba(16,185,129,0.1)', color: '#10b981' }}
-        >
-          <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
-          Live
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold border border-emerald-200">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          <span>Live Feed</span>
         </div>
       </div>
 
-      {/* Card body */}
-      <div className="p-4 space-y-2">
+      {/* Card Body */}
+      <div className="p-4 sm:p-5 space-y-2.5 flex-1">
         {loading ? (
           <div className="flex flex-col gap-3">
             {[1, 2, 3, 4].map(i => (
-              <div key={i} className="h-14 rounded-xl animate-pulse" style={{ background: '#f1f5f9' }} />
+              <div key={i} className="h-14 rounded-xl bg-slate-100 animate-pulse" />
             ))}
           </div>
         ) : activities.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-10 gap-2">
-            <div
-              className="w-12 h-12 rounded-2xl flex items-center justify-center"
-              style={{ background: '#f1f5f9' }}
-            >
-              <Activity className="w-6 h-6" style={{ color: '#94a3b8' }} />
+          <div className="flex flex-col items-center justify-center py-10 text-center">
+            <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mb-3">
+              <Activity className="w-6 h-6" />
             </div>
-            <p className="text-sm font-medium" style={{ color: '#94a3b8' }}>No recent activity</p>
+            <p className="text-sm font-bold text-slate-800">No recent activity</p>
+            <p className="text-xs text-slate-500 mt-0.5">Events and student submissions will appear here</p>
           </div>
         ) : (
-          activities.slice(0, 6).map((activity) => {
-            const cfg = typeConfig[activity.type] || typeConfig.paper
-            const Icon = cfg.icon
+          activities.slice(0, 5).map((act, index) => {
+            const config = typeConfig[act.type] || { icon: Activity, bg: 'bg-slate-50 text-slate-600 border-slate-100', label: 'Action' }
+            const Icon = config.icon
+
             return (
               <div
-                key={activity.id}
-                className="flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-all duration-200"
-                style={{ background: '#f8fafc', border: '1px solid #f1f5f9' }}
-                onClick={() => handleClick(activity)}
-                onMouseEnter={e => {
-                  e.currentTarget.style.background = '#f1f5f9'
-                  e.currentTarget.style.border = '1px solid #e2e8f0'
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.background = '#f8fafc'
-                  e.currentTarget.style.border = '1px solid #f1f5f9'
-                }}
+                key={index}
+                onClick={() => handleClick(act)}
+                className="flex items-center justify-between p-3 rounded-xl bg-slate-50/70 hover:bg-slate-100/80 border border-slate-100 transition-all duration-200 cursor-pointer group"
               >
-                <div
-                  className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                  style={{ background: cfg.bg }}
-                >
-                  <Icon className="w-4 h-4" style={{ color: cfg.color }} />
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border ${config.bg}`}>
+                    <Icon className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs sm:text-sm font-semibold text-slate-800 truncate group-hover:text-blue-600 transition-colors">
+                      {act.title || act.description || act.message || `${config.label} updated`}
+                    </p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      {getTimeAgo(act.created_at || act.timestamp || act.date)}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold truncate" style={{ color: '#1e293b' }}>{activity.title}</p>
-                  <p className="text-xs truncate mt-0.5" style={{ color: '#64748b' }}>{activity.description}</p>
-                </div>
-                <div className="flex flex-col items-end gap-1 shrink-0">
-                  <span
-                    className="text-xs px-2 py-0.5 rounded-md font-medium"
-                    style={{ background: cfg.bg, color: cfg.color }}
-                  >
-                    {cfg.label}
-                  </span>
-                  <span className="text-xs" style={{ color: '#94a3b8' }}>
-                    {getTimeAgo(activity.created_at)}
-                  </span>
-                </div>
+                <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all shrink-0 ml-2" />
               </div>
             )
           })
         )}
+      </div>
+
+      {/* Card Footer */}
+      <div className="px-6 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+        <span>Activity synced with MySQL database</span>
+        <button
+          onClick={() => navigate('/teacher/students')}
+          className="font-semibold text-blue-600 hover:underline cursor-pointer"
+        >
+          View Students &rarr;
+        </button>
       </div>
     </div>
   )
