@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react'
-import { Users, BookOpen, Video, DollarSign, FileText, Activity, Plus, CheckCircle, ArrowRight, UploadCloud, Bell } from 'lucide-react'
+import { Users, BookOpen, Video, DollarSign, FileText, Activity, Plus, ArrowRight, UploadCloud, Bell } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { AuthContext } from '../../contexts/AuthContext'
 import StatCard from '../../components/Teacher/StatCard'
@@ -49,40 +49,40 @@ export default function Overview() {
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
-      {/* ── Welcome Banner ── */}
-      <div className="relative rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white p-6 sm:p-8 lg:p-10 shadow-xl border border-slate-800 overflow-hidden">
-        {/* Subtle Ambient Glows */}
-        <div className="absolute top-0 right-0 w-80 h-80 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-1/3 w-64 h-64 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
+      {/* ── Clean Light Welcome Banner ── */}
+      <div className="relative rounded-3xl bg-white border border-slate-200/90 p-6 sm:p-8 lg:p-10 shadow-xs overflow-hidden">
+        {/* Soft Background Accents */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-50/70 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-indigo-50/50 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-blue-300 text-xs font-semibold mb-3 border border-white/10 backdrop-blur-md">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold mb-3 border border-blue-100">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
               <span>{today}</span>
             </div>
-            <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-              {getGreeting()}, <span className="bg-gradient-to-r from-blue-400 via-sky-300 to-indigo-300 bg-clip-text text-transparent">{user?.name || 'Sir Maleesha'}</span> 👋
+            <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+              {getGreeting()}, <span className="text-blue-600">{user?.name || 'Sir Maleesha'}</span> 👋
             </h1>
-            <p className="text-sm sm:text-base text-slate-300 mt-2 max-w-2xl leading-relaxed">
-              Welcome back to your central control panel. Here is the operational summary of your classes, student submissions, and fee collections for today.
+            <p className="text-sm sm:text-base text-slate-600 mt-2 max-w-2xl leading-relaxed">
+              Welcome back to your tuition dashboard. Here is a clear summary of your classes, student enrollments, and monthly learning activity.
             </p>
           </div>
 
-          {/* Quick Action Pills on Header */}
+          {/* Quick Action Buttons on Header */}
           <div className="flex flex-wrap sm:flex-nowrap items-center gap-3">
             <Link
               to="/teacher/classes"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs sm:text-sm font-bold shadow-lg shadow-blue-600/30 transition-all hover:-translate-y-0.5 cursor-pointer"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-bold shadow-xs transition-all hover:-translate-y-0.5 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Create Class</span>
             </Link>
             <Link
               to="/teacher/papers"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-slate-200 hover:text-white text-xs sm:text-sm font-semibold border border-white/10 transition-all cursor-pointer backdrop-blur-md"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs sm:text-sm font-semibold border border-slate-200 transition-all cursor-pointer"
             >
-              <UploadCloud className="w-4 h-4 text-blue-400" />
+              <UploadCloud className="w-4 h-4 text-blue-600" />
               <span>Upload Paper</span>
             </Link>
           </div>
@@ -92,8 +92,8 @@ export default function Overview() {
       {/* ── Key Metrics Stat Cards ── */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-            System Key Performance Indicators
+          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+            System Overview & Metrics
           </h2>
           <span className="text-xs text-slate-400 font-medium">Auto-synced</span>
         </div>
@@ -166,7 +166,7 @@ export default function Overview() {
             <Link
               key={index}
               to={item.href}
-              className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:shadow-md hover:border-blue-400 transition-all duration-200 flex items-center justify-between group"
+              className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:border-blue-400 hover:shadow-sm transition-all duration-200 flex items-center justify-between group"
             >
               <div className="flex items-center gap-3">
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${item.color}`}>
