@@ -3,6 +3,7 @@ import { FiPlay, FiSearch, FiVideo, FiClock } from 'react-icons/fi'
 import { AuthContext } from '../../contexts/AuthContext'
 import api from '../../api/axios'
 import { toast } from 'react-toastify'
+import { gradesMatch, institutesMatch, resolveAssetUrl as resolveSharedAssetUrl } from '../../utils/dashboardUtils'
 
 export default function Videos() {
   const { user } = useContext(AuthContext)
@@ -11,12 +12,7 @@ export default function Videos() {
   const [loading, setLoading] = useState(true)
   const [classLocations, setClassLocations] = useState({})
 
-  const resolveAssetUrl = (value) => {
-    if (!value) return ''
-    if (value.startsWith('http://') || value.startsWith('https://') || value.startsWith('data:')) return value
-    if (value.startsWith('/')) return value
-    return `/${value}`
-  }
+  const resolveAssetUrl = (value) => resolveSharedAssetUrl(value)
 
   const parseAppDate = (value) => {
     if (!value) return null
@@ -123,14 +119,12 @@ export default function Videos() {
   }
 
   const filteredVideos = videos.filter((video) => {
-    const matchesSearch = video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (video.description && video.description.toLowerCase().includes(searchQuery.toLowerCase()))
-    const userGradeKey = normalizeGradeKey(user?.grade)
-    const videoGradeKey = normalizeGradeKey(video?.grade)
-    const matchesGrade = !userGradeKey || !videoGradeKey || videoGradeKey === userGradeKey
-    const userInstitute = String(user?.institute || '').trim().toLowerCase()
-    const videoClassLocation = String(classLocations[video.classId] || '').trim().toLowerCase()
-    const matchesInstitute = !userInstitute || !video.classId || videoClassLocation === userInstitute
+    const q = searchQuery.trim().toLowerCase()
+    const matchesSearch = !q ||
+      String(video.title || '').toLowerCase().includes(q) ||
+      String(video.description || '').toLowerCase().includes(q)
+    const matchesGrade = gradesMatch(video?.grade, user?.grade, { allowEmptyItem: true })
+    const matchesInstitute = !video.classId || institutesMatch(classLocations[video.classId], user?.institute)
     return matchesSearch && matchesGrade && matchesInstitute
   })
 

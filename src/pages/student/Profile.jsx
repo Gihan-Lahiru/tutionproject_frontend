@@ -8,6 +8,7 @@ import Progress from '../../components/UI/Progress'
 import { FiUser, FiMail, FiPhone, FiAward, FiDollarSign, FiClock, FiCheckCircle, FiBookOpen, FiFileText, FiVideo, FiClipboard, FiCamera, FiEdit, FiX, FiSave, FiLock, FiLogOut } from 'react-icons/fi'
 import api from '../../api/axios'
 import Cropper from 'react-easy-crop'
+import { gradesMatch, formatGradeLabel as formatSharedGradeLabel, resolveAssetUrl, extractArray } from '../../utils/dashboardUtils'
 
 const createImage = (url) =>
   new Promise((resolve, reject) => {
@@ -82,17 +83,14 @@ export default function Profile() {
     return String(grade || '').trim().replace(/^grade\s*/i, '').trim().toLowerCase()
   }
 
-  const formatGradeLabel = (grade) => {
-    const norm = normalizeGrade(grade)
-    if (!norm) return 'Not set'
-    return norm.startsWith('grade') ? norm : `Grade ${norm.toUpperCase()}`
-  }
+  const formatGradeLabel = (grade) => formatSharedGradeLabel(grade)
 
   const getClassFee = () => {
     const grade = normalizeGrade(user?.grade)
     if (!grade) return null
-    if (grade.includes('a/l')) return 'Rs 2,300'
+    if (grade.includes('a/l') || grade === 'al') return 'Rs 2,300'
     const num = parseInt(grade.replace(/\D/g, ''))
+    if (num >= 12) return 'Rs 2,300'
     if (num >= 6 && num <= 9) return 'Rs 1,000'
     if (num >= 10 && num <= 11) return 'Rs 1,500'
     return null
@@ -107,12 +105,11 @@ export default function Profile() {
           api.get('/papers').catch(() => ({ data: { papers: [] } }))
         ])
         
-        const userGradeKey = normalizeGrade(user?.grade)
-        const allVideos = Array.isArray(videosRes.data) ? videosRes.data : (videosRes.data?.videos || [])
-        const allPapers = Array.isArray(papersRes.data) ? papersRes.data : (papersRes.data?.papers || [])
+        const allVideos = extractArray(videosRes.data, 'videos')
+        const allPapers = extractArray(papersRes.data, 'papers')
 
-        const videoMatchesGrade = (v) => !userGradeKey || normalizeGrade(v?.grade) === userGradeKey
-        const paperMatchesGrade = (p) => !userGradeKey || normalizeGrade(p?.grade) === userGradeKey
+        const videoMatchesGrade = (v) => gradesMatch(v?.grade, user?.grade, { allowEmptyItem: true })
+        const paperMatchesGrade = (p) => gradesMatch(p?.grade, user?.grade)
 
         setVideos(allVideos.filter(videoMatchesGrade))
         setNotes(allPapers.filter(p => p?.type === 'Note').filter(paperMatchesGrade))
@@ -133,7 +130,7 @@ export default function Profile() {
 
         // Papers / Notes
         allPapers.filter(paperMatchesGrade).slice(0, 2).forEach(paper => {
-          const ms = toValidDateMs(paper.uploaded_at, paper.uploadedAt)
+          const ms = toValidDateMs(paper.createdAt, paper.created_at, paper.uploaded_at, paper.uploadedAt)
           activities.push({
             title: `New ${paper.type || 'Material'}: ${paper.title || paper.topic}`,
             time: ms ? getTimeAgo(new Date(ms)) : '—',
@@ -145,9 +142,9 @@ export default function Profile() {
         // Payments
         try {
           const paymentsRes = await api.get('/payments/my-payments')
-          const allPayments = paymentsRes.data.payments || []
+          const allPayments = extractArray(paymentsRes.data, 'payments')
           allPayments.slice(0, 2).forEach(p => {
-            const ms = toValidDateMs(p.payment_date, p.date, p.createdAt)
+            const ms = toValidDateMs(p.payment_date, p.date, p.createdAt, p.created_at)
             activities.push({
               title: `Payment: Rs ${p.amount} (${p.status === 'completed' ? 'Paid' : 'Pending'})`,
               time: ms ? getTimeAgo(new Date(ms)) : '—',
@@ -308,14 +305,7 @@ export default function Profile() {
     }
   }
 
-  const getProfileImageSrc = (value) => {
-    if (!value) return ''
-    const raw = String(value).trim()
-    if (!raw) return ''
-    if (raw.startsWith('http://') || raw.startsWith('https://') || raw.startsWith('data:')) return raw
-    const backendOrigin = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api\/?$/, '')
-    return raw.startsWith('/') ? `${backendOrigin}${raw}` : `${backendOrigin}/${raw}`
-  }
+  const getProfileImageSrc = (value) => resolveAssetUrl(value)
 
   return (
     <div className="space-y-6">

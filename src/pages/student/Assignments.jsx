@@ -4,6 +4,7 @@ import { FiClock, FiCheckCircle, FiCalendar, FiDownload, FiClipboard, FiSmile, F
 import { AuthContext } from '../../contexts/AuthContext'
 import api from '../../api/axios'
 import { toast } from 'react-toastify'
+import { gradesMatch, institutesMatch, extractArray } from '../../utils/dashboardUtils'
 
 export default function Assignments() {
   const { user } = useContext(AuthContext)
@@ -41,10 +42,17 @@ export default function Assignments() {
 
   const fetchAssignments = async () => {
     try {
-      const [assignmentsResponse, paperAssignmentsResponse] = await Promise.all([
+      const [assignmentsResponse, paperAssignmentsResponse, classesResponse] = await Promise.all([
         api.get('/assignments/my-assignments').catch(() => ({ data: { assignments: [] } })),
         api.get('/papers?type=Assignment').catch(() => ({ data: [] })),
+        api.get('/classes').catch(() => ({ data: [] })),
       ])
+
+      const classList = extractArray(classesResponse.data, 'classes')
+      const classLocations = classList.reduce((acc, c) => {
+        if (c?.id) acc[c.id] = c.location || c.institute || ''
+        return acc
+      }, {})
 
       const fetchedAssignments = (assignmentsResponse.data.assignments || []).map(a => ({
         ...a,
@@ -52,9 +60,11 @@ export default function Assignments() {
         status: a.submitted_at ? 'submitted' : 'pending'
       }))
 
-      const paperItems = Array.isArray(paperAssignmentsResponse.data)
-        ? paperAssignmentsResponse.data
-        : (paperAssignmentsResponse.data?.papers || [])
+      const paperItems = extractArray(paperAssignmentsResponse.data, 'papers').filter((item) => {
+        const gradeOk = gradesMatch(item?.grade, user?.grade, { allowEmptyItem: true })
+        const instOk = !item?.classId || institutesMatch(classLocations[item.classId], user?.institute)
+        return gradeOk && instOk
+      })
 
       const paperAssignments = paperItems.map((item) => ({
         id: item.id,

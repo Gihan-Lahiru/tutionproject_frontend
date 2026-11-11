@@ -5,6 +5,7 @@ import { AuthContext } from '../../contexts/AuthContext';
 import { useAuthModal } from '../../contexts/AuthModalContext';
 import api from '../../api/axios';
 import { toast } from 'react-toastify';
+import { resolveAssetUrl } from '../../utils/dashboardUtils';
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -39,15 +40,7 @@ export default function Navbar() {
   // Check if we're on a dashboard page (include root paths like '/student' and '/teacher')
   const isDashboard = location.pathname.startsWith('/student') || location.pathname.startsWith('/teacher');
 
-  const getProfileImageSrc = (value) => {
-    if (!value) return '';
-    const raw = String(value).trim();
-    if (!raw) return '';
-    if (raw.startsWith('http://') || raw.startsWith('https://') || raw.startsWith('data:')) {
-      return raw;
-    }
-    return raw.startsWith('/') ? `http://localhost:5000${raw}` : `http://localhost:5000/${raw}`;
-  };
+  const getProfileImageSrc = (value) => resolveAssetUrl(value);
 
   // Fetch real notifications
   useEffect(() => {

@@ -49,7 +49,7 @@ export default function PaperUpload({ onUploadSuccess, classContext = null, init
 
   const grades = [
     "Grade 6", "Grade 7", "Grade 8", "Grade 9", 
-    "Grade 10", "Grade 11", "Grade 12", "Grade 13"
+    "Grade 10", "Grade 11", "Grade 12", "Grade 13", "A/L"
   ];
 
   const types = ["Note", "Paper", "Assignment"];
@@ -153,7 +153,7 @@ export default function PaperUpload({ onUploadSuccess, classContext = null, init
         formData.append('type', selectedType);
         formData.append('topic', topic);
         if (selectedClassId) {
-          formData.append('class_id', String(selectedClassId));
+          formData.append('classId', String(selectedClassId));
         }
         
         if (thumbnail) {

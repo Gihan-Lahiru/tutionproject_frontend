@@ -2,13 +2,14 @@ import { createContext, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../api/axios'
 import { toast } from 'react-toastify'
+import { getBackendOrigin, resolveAssetUrl } from '../utils/dashboardUtils'
 
 export const AuthContext = createContext()
 
 const TOKEN_KEY = 'token'
 const AUTH_STORAGE_KEY = 'auth_storage'
 const LEGACY_USER_KEY = 'user'
-const BACKEND_ORIGIN = import.meta.env.VITE_BACKEND_ORIGIN || 'http://localhost:5000'
+const BACKEND_ORIGIN = getBackendOrigin()
 
 const clearStoredAuth = () => {
   try {
@@ -210,6 +211,7 @@ export function AuthProvider({ children }) {
     user,
     setUser,
     setAuthSession,
+    fetchCurrentUser,
     login,
     register,
     logout,

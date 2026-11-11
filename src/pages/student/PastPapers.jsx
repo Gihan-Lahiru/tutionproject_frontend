@@ -3,6 +3,7 @@ import { FiDownload, FiFileText, FiCheckSquare, FiSearch, FiBookOpen } from 'rea
 import { AuthContext } from '../../contexts/AuthContext'
 import api from '../../api/axios'
 import { toast } from 'react-toastify'
+import { gradesMatch, institutesMatch, resolveAssetUrl } from '../../utils/dashboardUtils'
 
 export default function PastPapers() {
   const { user } = useContext(AuthContext)
@@ -117,13 +118,12 @@ export default function PastPapers() {
   }
 
   const filteredPapers = papers.filter((paper) => {
-    const matchesSearch = paper.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          (paper.topic && paper.topic.toLowerCase().includes(searchQuery.toLowerCase()))
-    const matchesGrade = !user?.grade || 
-      String(paper.grade).replace(/\D/g, '') === String(user.grade).replace(/\D/g, '')
-    const userInstitute = String(user?.institute || '').trim().toLowerCase()
-    const noteClassLocation = String(classLocations[paper.classId] || '').trim().toLowerCase()
-    const matchesInstitute = !userInstitute || !paper.classId || noteClassLocation === userInstitute
+    const q = searchQuery.trim().toLowerCase()
+    const matchesSearch = !q ||
+      String(paper.title || '').toLowerCase().includes(q) ||
+      String(paper.topic || '').toLowerCase().includes(q)
+    const matchesGrade = gradesMatch(paper.grade, user?.grade)
+    const matchesInstitute = !paper.classId || institutesMatch(classLocations[paper.classId], user?.institute)
     return matchesSearch && matchesGrade && matchesInstitute
   })
 
@@ -183,10 +183,10 @@ export default function PastPapers() {
               onMouseLeave={e => e.currentTarget.style.boxShadow = '0 4px 18px rgba(0,0,0,0.03)'}
             >
               {/* Thumbnail */}
-              {paper.thumbnail_url ? (
+              {paper.thumbnailUrl || paper.thumbnail_url ? (
                 <div className="w-full aspect-[1/1.414] overflow-hidden bg-slate-100">
                   <img
-                    src={paper.thumbnail_url}
+                    src={resolveAssetUrl(paper.thumbnailUrl || paper.thumbnail_url)}
                     alt={paper.title}
                     className="w-full h-full object-cover"
                   />

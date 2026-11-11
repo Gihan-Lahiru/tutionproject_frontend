@@ -22,6 +22,14 @@ import {
 } from 'react-icons/fi'
 import Progress from '../../components/UI/Progress'
 import api from '../../api/axios'
+import {
+  gradesMatch,
+  institutesMatch,
+  resolveAssetUrl,
+  formatGradeLabel,
+  extractArray,
+  parseAppDate,
+} from '../../utils/dashboardUtils'
 
 export default function StudentOverview() {
   const { user } = useContext(AuthContext)
@@ -36,17 +44,83 @@ export default function StudentOverview() {
 
   useEffect(() => {
     fetchStudentData()
-  }, [])
+  }, [user?.grade, user?.institute, user?.dashboardAccess])
 
   const fetchStudentData = async () => {
     try {
       setLoading(true)
-      const [statsRes, activityRes] = await Promise.all([
-        api.get('/stats/student-stats'),
-        api.get('/stats/student-activity'),
+      const [statsRes, activityRes, videosRes, papersRes, classesRes] = await Promise.all([
+        api.get('/stats/student-stats').catch(() => ({ data: {} })),
+        api.get('/stats/student-activity').catch(() => ({ data: { activities: [] } })),
+        user?.dashboardAccess === false ? Promise.resolve({ data: [] }) : api.get('/videos').catch(() => ({ data: [] })),
+        user?.dashboardAccess === false ? Promise.resolve({ data: [] }) : api.get('/papers').catch(() => ({ data: [] })),
+        api.get('/classes').catch(() => ({ data: [] })),
       ])
-      setStats(statsRes.data || {})
-      setActivities(activityRes.data?.activities || [])
+
+      const classList = extractArray(classesRes.data, 'classes')
+      const classLocations = classList.reduce((acc, c) => {
+        if (c?.id) acc[c.id] = c.location || c.institute || ''
+        return acc
+      }, {})
+
+      const allVideos = extractArray(videosRes.data, 'videos').filter((v) => {
+        const gOk = gradesMatch(v?.grade, user?.grade, { allowEmptyItem: true })
+        const iOk = !v?.classId || institutesMatch(classLocations[v.classId], user?.institute)
+        return gOk && iOk
+      })
+
+      const allPapers = extractArray(papersRes.data, 'papers').filter((p) => {
+        const gOk = gradesMatch(p?.grade, user?.grade, { allowEmptyItem: false })
+        const iOk = !p?.classId || institutesMatch(classLocations[p.classId], user?.institute)
+        return gOk && iOk
+      })
+
+      const paperCount = allPapers.filter((p) => String(p?.type || 'Paper') === 'Paper').length
+      const noteCount = allPapers.filter((p) => String(p?.type || '') === 'Note').length
+      const assignmentCount = allPapers.filter((p) => String(p?.type || '') === 'Assignment').length
+
+      const hasDirectMaterialData =
+        user?.dashboardAccess !== false &&
+        (allVideos.length > 0 || allPapers.length > 0 || Array.isArray(videosRes.data) || Array.isArray(papersRes.data))
+
+      if (hasDirectMaterialData) {
+        setStats({
+          totalVideos: allVideos.length,
+          totalPapers: paperCount,
+          totalNotes: noteCount,
+          totalAssignments: assignmentCount,
+        })
+
+        const combinedActivities = [
+          ...allVideos.slice(0, 4).map((v) => ({
+            id: v.id,
+            type: 'video',
+            title: `Video Lesson: ${v.title}`,
+            status: `Grade ${v.grade || user?.grade || ''} • Ready to watch`.trim(),
+            timestamp: v.createdAt || v.created_at,
+          })),
+          ...allPapers.slice(0, 4).map((p) => ({
+            id: p.id,
+            type: String(p.type || 'paper').toLowerCase() === 'note' ? 'notes' : String(p.type || 'paper').toLowerCase(),
+            title: `${p.type || 'Material'}: ${p.topic || p.title}`,
+            status: `${p.grade || ''} • Available for download`.trim(),
+            timestamp: p.createdAt || p.created_at || p.uploaded_at,
+          })),
+        ]
+          .sort((a, b) => {
+            const ta = parseAppDate(a.timestamp)?.getTime() || 0
+            const tb = parseAppDate(b.timestamp)?.getTime() || 0
+            return tb - ta
+          })
+          .slice(0, 6)
+
+        setActivities(
+          combinedActivities.length > 0 ? combinedActivities : (activityRes.data?.activities || [])
+        )
+      } else {
+        setStats(statsRes.data || {})
+        setActivities(activityRes.data?.activities || [])
+      }
     } catch (error) {
       console.error('Failed to fetch student data:', error)
     } finally {
@@ -111,16 +185,7 @@ export default function StudentOverview() {
     }
   }
 
-  const getProfileImageSrc = (value) => {
-    if (!value) return ''
-    const raw = String(value).trim()
-    if (!raw) return ''
-    if (raw.startsWith('http://') || raw.startsWith('https://') || raw.startsWith('data:')) {
-      return raw
-    }
-    const backendOrigin = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api\/?$/, '')
-    return raw.startsWith('/') ? `${backendOrigin}${raw}` : `${backendOrigin}/${raw}`
-  }
+  const getProfileImageSrc = (value) => resolveAssetUrl(value)
 
   return (
     <div className="space-y-6">
@@ -143,7 +208,7 @@ export default function StudentOverview() {
               <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-blue-50 border border-blue-100 text-blue-700 text-xs font-semibold mb-1">
                 <span>MW Student Portal</span>
                 <span>•</span>
-                <span>{user?.grade ? (String(user.grade).toLowerCase().startsWith('grade') ? user.grade : `Grade ${user.grade}`) : 'Science Student'}</span>
+                <span>{user?.grade ? formatGradeLabel(user.grade) : 'Science Student'}</span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
                 Welcome back, {user?.name}! 👋
@@ -253,7 +318,7 @@ export default function StudentOverview() {
       <div className="bg-white rounded-2xl p-6 border border-slate-200/90 shadow-xs">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-base font-bold text-slate-900">Student Information</h2>
-          <Link to="/student/dashboard" className="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline">
+          <Link to="/student/profile" className="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline">
             Edit Profile
           </Link>
         </div>
@@ -274,7 +339,7 @@ export default function StudentOverview() {
             </div>
             <div className="min-w-0">
               <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Grade Level</p>
-              <p className="text-sm font-bold text-slate-800 truncate">{user?.grade ? `Grade ${user.grade}` : 'Not Set'}</p>
+              <p className="text-sm font-bold text-slate-800 truncate">{user?.grade ? formatGradeLabel(user.grade) : 'Not Set'}</p>
             </div>
           </div>
 

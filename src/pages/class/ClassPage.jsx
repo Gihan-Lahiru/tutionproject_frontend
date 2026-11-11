@@ -7,6 +7,7 @@ import Modal from '../../components/UI/Modal'
 import api from '../../api/axios'
 import { toast } from 'react-toastify'
 import { FiVideo, FiBell, FiUsers } from 'react-icons/fi'
+import { extractArray, gradesMatch, resolveAssetUrl, formatShortDate } from '../../utils/dashboardUtils'
 
 export default function ClassPage() {
   const { id } = useParams()
@@ -82,13 +83,21 @@ export default function ClassPage() {
       ])
 
       const classPayload = classRes?.data
-      setClassData(classPayload?.class || classPayload || null)
-      setAnnouncements(announcementsRes?.data?.announcements || [])
-      setAssignments(assignmentsRes?.data?.assignments || [])
-      setNotes(notesRes?.data?.notes || [])
-      setVideos(videosRes?.data || [])
-      setStudents(studentsRes?.data?.students || [])
-      setPapers(papersRes?.data?.papers || [])
+      const resolvedClass = classPayload?.class || classPayload || null
+      setClassData(resolvedClass)
+      setAnnouncements(extractArray(announcementsRes?.data, 'announcements'))
+      setAssignments(extractArray(assignmentsRes?.data, 'assignments'))
+      setNotes(extractArray(notesRes?.data, 'notes'))
+      setVideos(extractArray(videosRes?.data, 'videos'))
+      setStudents(extractArray(studentsRes?.data, 'students'))
+      const rawPapers = extractArray(papersRes?.data, 'papers')
+      setPapers(
+        rawPapers.filter((p) =>
+          p?.classId
+            ? String(p.classId) === String(id)
+            : gradesMatch(p?.grade, resolvedClass?.grade)
+        )
+      )
     } catch (error) {
       console.error('Failed to load class data:', error)
       toast.error('Failed to load class data')
@@ -165,11 +174,11 @@ export default function ClassPage() {
 
     try {
       setSaving(true)
-      await api.post(`/assignments/class/${id}`, {
+      await api.post(`/assignments/${id}`, {
         title: assignmentForm.title.trim(),
-        description: assignmentForm.description.trim() || null,
-        due_date: assignmentForm.due_date || null,
-        attachment_url: assignmentForm.attachment_url.trim() || null,
+        description: assignmentForm.description.trim() || undefined,
+        dueDate: assignmentForm.due_date ? new Date(assignmentForm.due_date).toISOString() : undefined,
+        attachmentUrl: assignmentForm.attachment_url.trim() || undefined,
       })
       toast.success('Assignment created successfully')
       setAssignmentForm({ title: '', description: '', due_date: '', attachment_url: '' })
@@ -249,7 +258,7 @@ export default function ClassPage() {
       formData.append('topic', paperForm.topic.trim())
       formData.append('grade', classData?.grade || '')
       formData.append('type', paperForm.type)
-      formData.append('class_id', String(id))
+      formData.append('classId', String(id))
       formData.append('file', paperForm.file)
       if (paperForm.thumbnail) {
         formData.append('thumbnail', paperForm.thumbnail)
@@ -449,17 +458,34 @@ export default function ClassPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-gradient-to-r from-primary to-secondary text-white py-8">
+    <div className="min-h-screen bg-slate-50">
+      <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-8">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid sm:grid-cols-2 gap-4 text-sm sm:text-base">
-            <div className="bg-white/10 rounded-lg px-4 py-3">
-              <p className="opacity-80">Class Time</p>
-              <p className="font-semibold">{classTimeText}</p>
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-5">
+            <div>
+              <button
+                type="button"
+                onClick={() => navigate(isTeacher ? '/teacher/classes' : '/student/classes')}
+                className="text-xs font-semibold text-blue-100 hover:text-white mb-2 inline-flex items-center gap-1 cursor-pointer"
+              >
+                ← Back to {isTeacher ? 'Teacher Classes' : 'My Classes'}
+              </button>
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                {classData.title || classData.name || 'Class Details'}
+              </h1>
+              {classData.location && (
+                <p className="text-sm text-blue-100 mt-1">{classData.location}</p>
+              )}
             </div>
-            <div className="bg-white/10 rounded-lg px-4 py-3">
-              <p className="opacity-80">Class Fee</p>
-              <p className="font-semibold">{classFeeText}</p>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-4 text-sm sm:text-base">
+            <div className="bg-white/10 backdrop-blur-xs rounded-xl px-4 py-3 border border-white/15">
+              <p className="text-blue-100 text-xs uppercase font-semibold">Class Time</p>
+              <p className="font-bold mt-0.5">{classTimeText}</p>
+            </div>
+            <div className="bg-white/10 backdrop-blur-xs rounded-xl px-4 py-3 border border-white/15">
+              <p className="text-blue-100 text-xs uppercase font-semibold">Class Fee</p>
+              <p className="font-bold mt-0.5">{classFeeText}</p>
             </div>
           </div>
         </div>
@@ -514,7 +540,7 @@ function AnnouncementsTab({ announcements }) {
             </div>
             <div className="flex-1">
               <p className="text-gray-700">{announcement.message || announcement.content || '-'}</p>
-              <p className="text-sm text-gray-500 mt-2">{new Date(announcement.created_at).toLocaleString()}</p>
+              <p className="text-sm text-gray-500 mt-2">{formatShortDate(announcement.createdAt || announcement.created_at)}</p>
             </div>
           </div>
         </Card>
@@ -532,7 +558,7 @@ function AssignmentsTab({ assignments, isTeacher }) {
         <Card key={assignment.id}>
           <h3 className="text-xl font-bold mb-2">{assignment.title}</h3>
           <p className="text-gray-700 mb-3">{assignment.description || '-'}</p>
-          <p className="text-sm text-gray-600">Due: {assignment.due_date ? new Date(assignment.due_date).toLocaleDateString() : '-'}</p>
+          <p className="text-sm text-gray-600">Due: {formatShortDate(assignment.dueDate || assignment.due_date, '-')}</p>
           {!isTeacher && <Button className="mt-3" size="sm">Submit Assignment</Button>}
         </Card>
       ))}
@@ -599,15 +625,34 @@ function NotesTab({ notes }) {
 function VideosTab({ videos }) {
   if (!videos.length) return <EmptyState message="No videos available yet" />
 
+  const handleWatch = (video) => {
+    const url = resolveAssetUrl(video.videoUrl || video.url || video.video_url)
+    if (!url) {
+      toast.error('Video link is unavailable')
+      return
+    }
+    window.open(url, '_blank', 'noopener,noreferrer')
+  }
+
   return (
     <div className="grid md:grid-cols-3 gap-4">
       {videos.map((video) => (
         <Card key={video.id}>
-          <div className="bg-gray-200 h-40 rounded-lg mb-3 flex items-center justify-center">
-            <FiVideo size={48} className="text-gray-400" />
+          <div className="bg-slate-100 h-40 rounded-lg mb-3 overflow-hidden flex items-center justify-center">
+            {video.thumbnailUrl || video.thumbnail_url ? (
+              <img
+                src={resolveAssetUrl(video.thumbnailUrl || video.thumbnail_url)}
+                alt={video.title}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <FiVideo size={48} className="text-slate-400" />
+            )}
           </div>
           <h3 className="font-bold mb-2">{video.title}</h3>
-          <Button size="sm" className="w-full">Watch Now</Button>
+          <Button size="sm" className="w-full" onClick={() => handleWatch(video)}>
+            Watch Now
+          </Button>
         </Card>
       ))}
     </div>
@@ -617,13 +662,40 @@ function VideosTab({ videos }) {
 function PapersTab({ papers }) {
   if (!papers.length) return <EmptyState message="No papers available for this class" />
 
+  const handleDownload = async (paper) => {
+    const downloadToastId = toast.info('Download starts...', { autoClose: false })
+    try {
+      const response = await api.get(`/papers/${paper.id}/download`, { responseType: 'blob' })
+      const blob = new Blob([response.data], {
+        type: response.headers['content-type'] || 'application/pdf',
+      })
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      const filename =
+        response.headers['content-disposition']?.match(/filename="?([^"]+)"?/)?.[1] ||
+        `${String(paper.topic || paper.title || 'paper').trim()}.pdf`
+      link.download = filename
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+      toast.update(downloadToastId, { render: 'Download completed', type: 'success', autoClose: 3000 })
+    } catch (error) {
+      console.error('Paper download error:', error)
+      toast.update(downloadToastId, { render: 'Failed to download paper', type: 'error', autoClose: 3000 })
+    }
+  }
+
   return (
     <div className="grid md:grid-cols-2 gap-4">
       {papers.map((paper) => (
         <Card key={paper.id}>
           <h3 className="font-bold mb-2">{paper.topic || paper.title}</h3>
           <p className="text-sm text-gray-600 mb-3">{paper.type || 'Paper'}</p>
-          <Button size="sm" variant="outline">Download</Button>
+          <Button size="sm" variant="outline" onClick={() => handleDownload(paper)}>
+            Download
+          </Button>
         </Card>
       ))}
     </div>

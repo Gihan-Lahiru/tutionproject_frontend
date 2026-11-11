@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Send, CheckCircle2, AlertCircle, Check, X } from "lucide-react";
 import api from "../../api/axios";
 import { toast } from "react-toastify";
+import { resolveAssetUrl, formatShortDate, extractArray, formatGradeLabel } from "../../utils/dashboardUtils";
 
 export default function FeeTable() {
   const [feeRecords, setFeeRecords] = useState([]);
@@ -14,79 +15,79 @@ export default function FeeTable() {
   const [selectedReceiptId, setSelectedReceiptId] = useState(null)
   const [approvalNotes, setApprovalNotes] = useState('')
 
+  const fetchPayments = async () => {
+    try {
+      setLoading(true);
+      const [paymentsRes, studentsRes, receiptsRes] = await Promise.all([
+        api.get('/payments').catch(() => ({ data: { payments: [] } })),
+        api.get('/users/students').catch(() => ({ data: { users: [] } })),
+        api.get('/payments/receipts/pending').catch(() => ({ data: { payments: [] } })),
+      ]);
+
+      const rows = extractArray(paymentsRes.data, 'payments');
+      const studentRows = extractArray(studentsRes.data, 'users');
+      const receipts = extractArray(receiptsRes.data, 'payments');
+
+      setStudents(studentRows);
+      setPendingReceipts(receipts);
+
+      const normalizeGradeForRecord = (value) => {
+        const formatted = formatGradeLabel(value);
+        return formatted === 'Not set' ? 'No Grade' : formatted;
+      };
+
+      const studentsById = new Map(studentRows.map((s) => [String(s.id || '').trim(), s]));
+      const studentsByEmail = new Map(
+        studentRows
+          .filter((s) => s.email)
+          .map((s) => [String(s.email).trim().toLowerCase(), s])
+      );
+
+      const mapStatus = (status, approvalStatus) => {
+        const s = String(status || '').toLowerCase();
+        const a = String(approvalStatus || '').toLowerCase();
+        if (s === 'completed' || a === 'approved') return 'paid';
+        if (s === 'failed' || a === 'rejected') return 'overdue';
+        return 'pending';
+      };
+
+      setFeeRecords(
+        rows.map((p) => {
+          const monthYear = [p.month, p.year].filter(Boolean).join(' ') || formatShortDate(p.createdAt, '-');
+          const rawStudentId = String(p.userId || p.user?.id || p.student_id || p.user_id || p.payer_id || '').trim();
+          const rawEmail = String(p.user?.email || p.payer_email || '').trim().toLowerCase();
+          const matchedStudent = p.user || studentsById.get(rawStudentId) || studentsByEmail.get(rawEmail) || null;
+          const studentId = String(matchedStudent?.id || rawStudentId || '').trim();
+          const studentEmail = String(matchedStudent?.email || rawEmail || '').trim().toLowerCase();
+          const mappedStatus = mapStatus(p.status, p.approvalStatus || p.approval_status);
+          const rawPaidDate = p.payment_date || p.date || p.updatedAt || p.createdAt || null;
+
+          return {
+            id: p.id,
+            studentId: studentId || null,
+            studentEmail: studentEmail || '',
+            transactionId: p.transaction_id || p.id,
+            student: matchedStudent?.name || p.payer_name || studentEmail || 'Student',
+            grade: normalizeGradeForRecord(matchedStudent?.grade),
+            class: monthYear,
+            month: String(p.month || '').trim(),
+            year: String(p.year || '').trim(),
+            amount: Number(p.amount || 0),
+            dueDate: p.transaction_id || p.method || (p.id ? String(p.id).slice(0, 8) : '-'),
+            status: mappedStatus,
+            paidDate: mappedStatus === 'paid' ? formatShortDate(rawPaidDate, '-') : null,
+          };
+        })
+      );
+    } catch (e) {
+      console.error('Failed to fetch payments:', e);
+      setFeeRecords([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchPayments = async () => {
-      try {
-        setLoading(true);
-        const [paymentsRes, studentsRes, receiptsRes] = await Promise.all([
-          api.get('/payments').catch(() => ({ data: { payments: [] } })),
-          api.get('/users/students').catch(() => ({ data: { users: [] } })),
-          api.get('/payments/receipts/pending').catch(() => ({ data: { payments: [] } })),
-        ]);
-
-        const rows = paymentsRes.data.payments || (Array.isArray(paymentsRes.data) ? paymentsRes.data : []);
-        const studentRows = studentsRes.data.users || (Array.isArray(studentsRes.data) ? studentsRes.data : []);
-        const receipts = receiptsRes.data.payments || (Array.isArray(receiptsRes.data) ? receiptsRes.data : []);
-        
-        setStudents(studentRows);
-        setPendingReceipts(receipts);
-        setStudents(studentRows);
-
-        const normalizeGradeForRecord = (value) => {
-          const raw = String(value || '').trim();
-          if (!raw) return 'No Grade';
-          const digits = raw.match(/\d+/)?.[0];
-          if (digits) return `Grade ${digits}`;
-          if (/^grade\s+/i.test(raw)) return raw.replace(/^grade\s+/i, 'Grade ');
-          return raw;
-        };
-
-        const studentsById = new Map(studentRows.map((s) => [String(s.id || '').trim(), s]));
-        const studentsByEmail = new Map(
-          studentRows
-            .filter((s) => s.email)
-            .map((s) => [String(s.email).trim().toLowerCase(), s])
-        );
-
-        const mapStatus = (status) => {
-          const s = String(status || '').toLowerCase();
-          if (s === 'completed') return 'paid';
-          if (s === 'failed') return 'overdue';
-          return 'pending';
-        };
-
-        setFeeRecords(
-          rows.map((p) => {
-            const monthYear = [p.month, p.year].filter(Boolean).join(' ') || '-';
-            const paidDate = p.payment_date || p.date || null;
-            const studentId = String(p.student_id || p.user_id || p.payer_id || '').trim();
-            const studentEmail = String(p.payer_email || '').trim().toLowerCase();
-            const matchedStudent = studentsById.get(studentId) || studentsByEmail.get(studentEmail) || null;
-            return {
-              id: p.id,
-              studentId: studentId || null,
-              studentEmail: studentEmail || '',
-              transactionId: p.transaction_id,
-              student: p.payer_name || p.payer_email || 'Student',
-              grade: normalizeGradeForRecord(matchedStudent?.grade),
-              class: monthYear,
-              month: String(p.month || '').trim(),
-              year: String(p.year || '').trim(),
-              amount: Number(p.amount || 0),
-              dueDate: p.transaction_id || '-',
-              status: mapStatus(p.status),
-              paidDate: String(p.status || '').toLowerCase() === 'completed' ? paidDate : null,
-            };
-          })
-        );
-      } catch (e) {
-        console.error('Failed to fetch payments:', e);
-        setFeeRecords([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchPayments();
   }, []);
 
@@ -133,7 +134,7 @@ export default function FeeTable() {
   };
 
   const handleSendReminder = async (record) => {
-    const reminderKey = record.id || record.transactionId;
+    const reminderKey = record.id || record.transactionId || record.studentId;
     if (!reminderKey) {
       toast.error("Cannot send reminder for this record");
       return;
@@ -142,12 +143,21 @@ export default function FeeTable() {
     try {
       setSendingReminderIds((prev) => new Set(prev).add(reminderKey));
 
-      await api.post('/payments/remind', {
-        paymentId: record.id || null,
-        transactionId: record.transactionId || null,
-      });
+      if (record.studentId) {
+        await api.post('/notifications', {
+          userId: record.studentId,
+          type: 'payment',
+          message: `Payment reminder: Your monthly tuition fee${record.class && record.class !== '-' ? ` (${record.class})` : ''} is pending. Please upload your payment receipt.`,
+          read: 0,
+        });
+      } else {
+        await api.post('/payments/remind', {
+          paymentId: record.id || null,
+          transactionId: record.transactionId || null,
+        });
+      }
 
-      toast.success(`Reminder sent to ${record.student}`);
+      toast.success(`Payment reminder sent to ${record.student}`);
     } catch (error) {
       const message = error?.response?.data?.message || 'Failed to send reminder';
       toast.error(message);
@@ -182,7 +192,10 @@ export default function FeeTable() {
 
       const studentId = String(student.id || '').trim();
       const studentEmail = String(student.email || '').trim().toLowerCase();
-      const isPaid = (studentId && paidStudentIds.has(studentId)) || (studentEmail && paidStudentEmails.has(studentEmail));
+      const isPaid =
+        (studentId && paidStudentIds.has(studentId)) ||
+        (studentEmail && paidStudentEmails.has(studentEmail)) ||
+        String(student.paymentStatus || '').toLowerCase() === 'paid';
 
       const item = {
         id: student.id,
@@ -214,7 +227,7 @@ export default function FeeTable() {
       toast.success('Payment receipt approved and completed!');
       setSelectedReceiptId(null);
       setApprovalNotes('');
-      setPendingReceipts((prev) => prev.filter((r) => r.id !== receiptId));
+      await fetchPayments();
     } catch (error) {
       toast.error(error?.response?.data?.message || 'Failed to approve receipt');
     } finally {
@@ -235,7 +248,7 @@ export default function FeeTable() {
       toast.success('Payment receipt rejected. Student has been notified.');
       setSelectedReceiptId(null);
       setApprovalNotes('');
-      setPendingReceipts((prev) => prev.filter((r) => r.id !== receiptId));
+      await fetchPayments();
     } catch (error) {
       toast.error(error?.response?.data?.message || 'Failed to reject receipt');
     } finally {
@@ -340,16 +353,7 @@ export default function FeeTable() {
                   const receiptObj = pendingReceipts.find((r) => r.id === selectedReceiptId);
                   const rawUrl = receiptObj?.receiptUrl || receiptObj?.receipt_url;
                   
-                  const getFormattedUrl = (val) => {
-                    if (!val) return null;
-                    const cleanVal = String(val).trim();
-                    if (cleanVal.startsWith('http://') || cleanVal.startsWith('https://') || cleanVal.startsWith('data:')) {
-                      return cleanVal;
-                    }
-                    return cleanVal.startsWith('/') ? `http://localhost:5000${cleanVal}` : `http://localhost:5000/${cleanVal}`;
-                  };
-
-                  const receiptUrl = getFormattedUrl(rawUrl);
+                  const receiptUrl = resolveAssetUrl(rawUrl) || null;
                   if (!receiptUrl) return null;
                   
                   const isPdf = receiptUrl.toLowerCase().includes('.pdf') || receiptUrl.toLowerCase().includes('/pdf') || receiptUrl.toLowerCase().includes('pdf');

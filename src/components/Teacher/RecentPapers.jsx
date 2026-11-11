@@ -255,7 +255,7 @@ export default function RecentPapers({ refreshTrigger, searchQuery = "" }) {
                       {(paper.type && ['Note', 'Paper', 'Assignment'].includes(paper.type)) ? paper.type : 'Document'}
                     </span>
                     <span>•</span>
-                    <span>{formatDate(paper.uploaded_at)}</span>
+                    <span>{formatDate(paper.createdAt || paper.created_at || paper.uploaded_at)}</span>
                   </div>
                 </div>
               </div>
@@ -263,7 +263,7 @@ export default function RecentPapers({ refreshTrigger, searchQuery = "" }) {
                 <div className="text-right">
                   <p className="text-sm font-medium text-gray-900 flex items-center gap-1">
                     <Download className="w-4 h-4" />
-                    {paper.downloads} downloads
+                    {paper.downloads || 0} downloads
                   </p>
                 </div>
                 <div className="flex items-center gap-2">

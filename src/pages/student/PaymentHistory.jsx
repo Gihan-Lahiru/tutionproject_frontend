@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState, useContext, useRef } from 'react'
 import PayNowButton from '../../components/Student/PayNowButton'
-import { FiCreditCard, FiDownload, FiCheckCircle, FiXCircle, FiCalendar, FiUpload, FiAlertCircle } from 'react-icons/fi'
+import { FiCreditCard, FiDownload, FiCheckCircle, FiXCircle, FiCalendar, FiUpload, FiAlertCircle, FiBookOpen } from 'react-icons/fi'
 import { AuthContext } from '../../contexts/AuthContext'
 import { toast } from 'react-toastify'
 import api from '../../api/axios'
 import QRCode from 'qrcode'
 import html2canvas from 'html2canvas'
+import { extractArray } from '../../utils/dashboardUtils'
 
 export default function PaymentHistory() {
   const { user, fetchCurrentUser } = useContext(AuthContext)
@@ -70,7 +71,7 @@ export default function PaymentHistory() {
   }
 
   const isCurrentMonthPayment = (payment) => {
-    const parsedDate = getDateFromRaw(payment.payment_date || payment.date)
+    const parsedDate = getDateFromRaw(payment.payment_date || payment.date || payment.createdAt || payment.updatedAt)
     const monthIndex = getMonthIndexFromValue(payment.month)
     const yearValue = payment.year != null ? Number(payment.year) : null
     const effectiveMonthIndex = monthIndex != null ? monthIndex : parsedDate?.getMonth()
@@ -84,7 +85,7 @@ export default function PaymentHistory() {
       try {
         setLoadingPayments(true)
         const res = await api.get('/payments/my-payments')
-        setPayments(Array.isArray(res.data) ? res.data : (res.data.payments || []))
+        setPayments(extractArray(res.data, 'payments'))
       } catch (e) {
         console.error('Failed to fetch payments:', e)
         setPayments([])
@@ -98,7 +99,8 @@ export default function PaymentHistory() {
   const isPaidForCurrentMonth = useMemo(() => {
     return (payments || []).some((p) => {
       const status = String(p.status || '').toLowerCase()
-      return status === 'completed' && isCurrentMonthPayment(p)
+      const approval = String(p.approvalStatus || p.approval_status || '').toLowerCase()
+      return (status === 'completed' || approval === 'approved') && isCurrentMonthPayment(p)
     })
   }, [payments, currentMonthIndex, currentYear])
 
@@ -116,7 +118,7 @@ export default function PaymentHistory() {
 
   const sortedPayments = useMemo(() => {
     const toTime = (p) => {
-      const raw = p?.payment_date || p?.date || ''
+      const raw = p?.payment_date || p?.date || p?.createdAt || p?.updatedAt || ''
       if (!raw) return 0
       const normalized = String(raw).includes(' ') ? String(raw).replace(' ', 'T') : String(raw)
       const t = Date.parse(normalized)
@@ -168,7 +170,7 @@ export default function PaymentHistory() {
         month: selectedPayment.month || '',
         year: selectedPayment.year || '',
         amount: Number(selectedPayment.amount || 0),
-        paidAt: formatWhen(selectedPayment.payment_date || selectedPayment.date || ''),
+        paidAt: formatWhen(selectedPayment.payment_date || selectedPayment.date || selectedPayment.updatedAt || selectedPayment.createdAt || ''),
       }
       try {
         const encodedPayload = encodeURIComponent(JSON.stringify(payload))
@@ -210,6 +212,7 @@ export default function PaymentHistory() {
   const handlePaymentSuccess = () => {
     toast.success('Payment recorded successfully')
     setRefreshKey(prev => prev + 1)
+    if (fetchCurrentUser) fetchCurrentUser()
   }
 
   const handleRequestReactivation = async () => {
@@ -228,17 +231,22 @@ export default function PaymentHistory() {
 
   const handleReceiptUpload = async () => {
     if (!receiptFile || !receiptUploadPaymentId) return
+    const targetPayment = payments.find((p) => String(p.id) === String(receiptUploadPaymentId))
     try {
       setUploading(true)
       const data = new FormData()
       data.append('receipt', receiptFile)
-      await api.post(`/payments/${receiptUploadPaymentId}/upload-receipt`, data, {
+      data.append('amount', String(targetPayment?.amount || monthlyFee))
+      data.append('month', String(targetPayment?.month || currentMonthName))
+      data.append('year', String(targetPayment?.year || currentYear))
+      await api.post('/payments/upload-receipt', data, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
       toast.success('Receipt uploaded successfully')
       setReceiptUploadPaymentId(null)
       setReceiptFile(null)
       setRefreshKey(prev => prev + 1)
+      if (fetchCurrentUser) fetchCurrentUser()
     } catch {
       toast.error('Failed to upload receipt')
     } finally {
@@ -386,12 +394,12 @@ export default function PaymentHistory() {
             <div className="space-y-3">
               {sortedPayments.map((payment) => {
                 const status = String(payment.status || '').toLowerCase()
-                const isCompleted = status === 'completed'
-                const badgeClass = isCompleted ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/15' : status === 'failed' ? 'bg-rose-500/10 text-rose-600 border-rose-500/15' : 'bg-amber-500/10 text-amber-600 border-amber-500/15'
-                const when = payment.payment_date || payment.date
+                const approvalStatus = String(payment.approvalStatus || payment.approval_status || 'pending').toLowerCase()
+                const isCompleted = status === 'completed' || approvalStatus === 'approved'
+                const badgeClass = isCompleted ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/15' : (status === 'failed' || approvalStatus === 'rejected') ? 'bg-rose-500/10 text-rose-600 border-rose-500/15' : 'bg-amber-500/10 text-amber-600 border-amber-500/15'
+                const when = payment.payment_date || payment.date || payment.createdAt || payment.updatedAt
                 const label = [payment.month, payment.year].filter(Boolean).join(' ') || 'Class Fee'
-                const hasReceipt = payment.receipt_url
-                const approvalStatus = String(payment.approval_status || 'pending').toLowerCase()
+                const hasReceipt = payment.receiptUrl || payment.receipt_url
 
                 return (
                   <div
@@ -537,7 +545,7 @@ export default function PaymentHistory() {
               <div className="space-y-1.5 text-xs text-slate-600 font-medium">
                 <p><span className="text-slate-400">Class Month:</span> {selectedPayment.month || '-'} {selectedPayment.year || ''}</p>
                 <p><span className="text-slate-400">Amount Paid:</span> Rs. {Number(selectedPayment.amount || 0).toLocaleString()}</p>
-                <p><span className="text-slate-400">Verified On:</span> {formatWhen(selectedPayment.payment_date || selectedPayment.date)}</p>
+                <p><span className="text-slate-400">Verified On:</span> {formatWhen(selectedPayment.payment_date || selectedPayment.date || selectedPayment.updatedAt || selectedPayment.createdAt)}</p>
               </div>
 
               <div className="flex flex-col items-center gap-3 pt-2">

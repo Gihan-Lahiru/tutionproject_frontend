@@ -90,7 +90,7 @@ export default function UpcomingClasses() {
                     ) : null}
                     <span className="flex items-center gap-1 font-medium">
                       <Users className="w-3 h-3 text-slate-400" />
-                      {cls.studentCount || cls.studentsCount || 0} students
+                      {cls.student_count ?? cls.studentCount ?? cls.studentsCount ?? 0} students
                     </span>
                   </div>
                 </div>

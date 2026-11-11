@@ -5,6 +5,7 @@ import { FiSearch, FiDownload, FiFileText } from 'react-icons/fi'
 import { AuthContext } from '../../contexts/AuthContext'
 import api from '../../api/axios'
 import { toast } from 'react-toastify'
+import { gradesMatch, institutesMatch, resolveAssetUrl } from '../../utils/dashboardUtils'
 
 export default function Notes() {
   const { user } = useContext(AuthContext)
@@ -119,13 +120,12 @@ export default function Notes() {
   }
 
   const filteredNotes = notes.filter((note) => {
-    const matchesSearch = note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          (note.topic && note.topic.toLowerCase().includes(searchQuery.toLowerCase()))
-    const matchesGrade = !user?.grade || 
-      String(note.grade).replace(/\D/g, '') === String(user.grade).replace(/\D/g, '')
-    const userInstitute = String(user?.institute || '').trim().toLowerCase()
-    const noteClassLocation = String(classLocations[note.classId] || '').trim().toLowerCase()
-    const matchesInstitute = !userInstitute || !note.classId || noteClassLocation === userInstitute
+    const q = searchQuery.trim().toLowerCase()
+    const matchesSearch = !q ||
+      String(note.title || '').toLowerCase().includes(q) ||
+      String(note.topic || '').toLowerCase().includes(q)
+    const matchesGrade = gradesMatch(note.grade, user?.grade)
+    const matchesInstitute = !note.classId || institutesMatch(classLocations[note.classId], user?.institute)
     return matchesSearch && matchesGrade && matchesInstitute
   })
 
@@ -188,7 +188,7 @@ export default function Notes() {
               {note.thumbnailUrl || note.thumbnail_url ? (
                 <div className="w-full aspect-[1/1.414] overflow-hidden bg-slate-100">
                   <img
-                    src={note.thumbnailUrl || note.thumbnail_url}
+                    src={resolveAssetUrl(note.thumbnailUrl || note.thumbnail_url)}
                     alt={note.title}
                     className="w-full h-full object-cover"
                   />

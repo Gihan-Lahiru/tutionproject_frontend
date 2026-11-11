@@ -5,6 +5,7 @@ import { AuthContext } from '../../contexts/AuthContext'
 import { FiHome, FiBook, FiFileText, FiVideo, FiDollarSign, FiUser, FiBookOpen, FiLogOut, FiCheckCircle, FiClock, FiMenu, FiX, FiUploadCloud, FiAlertCircle, FiSettings, FiActivity, FiClipboard, FiExternalLink } from 'react-icons/fi'
 import Navbar from '../../components/Layout/Navbar'
 import api from '../../api/axios'
+import { resolveAssetUrl, formatGradeLabel } from '../../utils/dashboardUtils'
 
 // Sub-pages
 import StudentOverview from './StudentOverview'
@@ -177,16 +178,7 @@ export default function StudentDashboard() {
   const location = useLocation()
   const [paymentBanner, setPaymentBanner] = useState(null)
 
-  const getProfileImageSrc = (value) => {
-    if (!value) return ''
-    const raw = String(value).trim()
-    if (!raw) return ''
-    if (raw.startsWith('http://') || raw.startsWith('https://') || raw.startsWith('data:')) {
-      return raw
-    }
-    const backendOrigin = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api\/?$/, '')
-    return raw.startsWith('/') ? `${backendOrigin}${raw}` : `${backendOrigin}/${raw}`
-  }
+  const getProfileImageSrc = (value) => resolveAssetUrl(value)
 
   useEffect(() => {
     const params = new URLSearchParams(location.search)
@@ -247,13 +239,14 @@ export default function StudentDashboard() {
   }, [])
 
   const navItems = [
-    { path: '/student', icon: FiHome, label: 'Dashboard' },
+    { path: '/student/dashboard', icon: FiHome, label: 'Dashboard' },
+    { path: '/student/classes', icon: FiBook, label: 'Classes' },
     { path: '/student/notes', icon: FiFileText, label: 'Notes' },
     { path: '/student/past-papers', icon: FiBookOpen, label: 'Past Papers' },
     { path: '/student/assignments', icon: FiClipboard, label: 'Assignments' },
     { path: '/student/videos', icon: FiVideo, label: 'Video Lessons' },
     { path: '/student/payments', icon: FiDollarSign, label: 'Payments' },
-    { path: '/student/dashboard', icon: FiUser, label: 'Profile' },
+    { path: '/student/profile', icon: FiUser, label: 'Profile' },
   ]
 
   if (user?.approvalStatus === 'pending') {
@@ -282,8 +275,8 @@ export default function StudentDashboard() {
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <Navbar />
 
-      {/* Below navbar — fills remaining viewport */}
-      <div className="flex flex-1 overflow-hidden" style={{ marginTop: '5rem' }}>
+      {/* Below navbar — fills remaining viewport (matches Navbar height h-16 md:h-20) */}
+      <div className="flex flex-1 overflow-hidden mt-16 md:mt-20">
         {sidebarOpen && (
           <button
             type="button"
@@ -296,7 +289,7 @@ export default function StudentDashboard() {
         {/* ── Modern Clean Light Sidebar ── */}
         <aside
           id="student-dashboard-sidebar"
-          className={`fixed left-0 top-20 z-40 h-[calc(100vh-5rem)] w-72 max-w-[85vw] flex flex-col border-r border-slate-200/90 bg-white text-slate-700 transform transition-transform duration-300 ease-out lg:static lg:top-auto lg:z-auto lg:h-[calc(100vh-5rem)] lg:w-64 lg:max-w-none lg:translate-x-0 lg:flex-shrink-0 lg:overflow-y-auto shadow-xs ${
+          className={`fixed left-0 top-16 md:top-20 z-40 h-[calc(100vh-4rem)] md:h-[calc(100vh-5rem)] w-72 max-w-[85vw] flex flex-col border-r border-slate-200/90 bg-white text-slate-700 transform transition-transform duration-300 ease-out lg:static lg:top-auto lg:z-auto lg:h-[calc(100vh-5rem)] lg:w-64 lg:max-w-none lg:translate-x-0 lg:flex-shrink-0 lg:overflow-y-auto shadow-xs ${
             sidebarOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
         >
@@ -316,7 +309,7 @@ export default function StudentDashboard() {
 
           {/* Profile Card in Sidebar */}
           <Link
-            to="/student/dashboard"
+            to="/student/profile"
             onClick={() => setSidebarOpen(false)}
             className="mx-3.5 my-3.5 rounded-xl p-3 flex items-center gap-3 bg-slate-50/80 hover:bg-blue-50/50 border border-slate-200/80 hover:border-blue-200 transition-all duration-200 group cursor-pointer"
           >
@@ -334,9 +327,7 @@ export default function StudentDashboard() {
             <div className="min-w-0 flex-1">
               <p className="font-bold text-sm text-slate-900 truncate group-hover:text-blue-600 transition-colors">{user?.name}</p>
               <p className="text-xs text-slate-500 font-medium truncate mt-0.5">
-                {user?.grade
-                  ? (String(user.grade).toLowerCase().startsWith('grade') ? user.grade : `Grade ${user.grade}`)
-                  : 'Student'}
+                {user?.grade ? formatGradeLabel(user.grade) : 'Student'}
               </p>
             </div>
             <FiSettings className="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors shrink-0" />
@@ -346,8 +337,10 @@ export default function StudentDashboard() {
           <nav className="p-3 space-y-1 flex-1 overflow-y-auto">
             {navItems.map((item) => {
               const Icon = item.icon
-              const isActive = item.path === '/student'
-                ? (location.pathname === '/student' || location.pathname === '/student/')
+              const isActive = item.path === '/student/dashboard'
+                ? (location.pathname === '/student' || location.pathname === '/student/' || location.pathname === '/student/dashboard')
+                : item.path === '/student/profile'
+                ? (location.pathname === '/student/profile' || location.pathname === '/student/settings')
                 : location.pathname === item.path
               return (
                 <Link
@@ -394,7 +387,7 @@ export default function StudentDashboard() {
         </aside>
 
         {/* ── Main Content ── */}
-        <main className="flex-1 min-w-0 overflow-y-auto h-[calc(100vh-5rem)] p-4 sm:p-6 lg:p-8 bg-slate-50">
+        <main className="flex-1 min-w-0 overflow-y-auto h-[calc(100vh-4rem)] md:h-[calc(100vh-5rem)] p-4 sm:p-6 lg:p-8 bg-slate-50">
           {/* Mobile menu trigger */}
           <div className="mb-4 lg:hidden sticky top-0 z-20">
             <button
@@ -431,7 +424,9 @@ export default function StudentDashboard() {
           <div className="max-w-7xl mx-auto">
             <Routes>
               <Route index element={<StudentOverview />} />
-              <Route path="dashboard" element={<Profile />} />
+              <Route path="dashboard" element={<StudentOverview />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="settings" element={<Profile />} />
               <Route path="classes" element={<MyClasses />} />
               <Route path="assignments" element={<Assignments />} />
               <Route path="notes" element={user?.dashboardAccess === false ? <LockedContent /> : <Notes />} />

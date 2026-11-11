@@ -3,6 +3,7 @@ import { Routes, Route, Link, useLocation } from 'react-router-dom'
 import { AuthContext } from '../../contexts/AuthContext'
 import api from '../../api/axios'
 import { toast } from 'react-toastify'
+import { resolveAssetUrl, formatShortDate } from '../../utils/dashboardUtils'
 import {
   LayoutDashboard, BookOpen, FileText, Users, Video, DollarSign,
   Settings as SettingsIcon, LogOut, ChevronLeft,
@@ -24,6 +25,10 @@ export default function TeacherDashboard() {
   const [desktopCollapsed, setDesktopCollapsed] = useState(false)
   const [pendingReceiptsCount, setPendingReceiptsCount] = useState(0)
   const [pendingStudentsCount, setPendingStudentsCount] = useState(0)
+  const [notifications, setNotifications] = useState([])
+  const [unreadCount, setUnreadCount] = useState(0)
+  const [showNotifications, setShowNotifications] = useState(false)
+  const notificationRef = useRef(null)
   const notifiedAboutStudents = useRef(false)
   const location = useLocation()
 
@@ -32,11 +37,24 @@ export default function TeacherDashboard() {
   }, [location.pathname])
 
   useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+        setShowNotifications(false)
+      }
+    }
+    if (showNotifications) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [showNotifications])
+
+  useEffect(() => {
     const fetchPendingData = async () => {
       try {
-        const [receiptsRes, studentsRes] = await Promise.all([
+        const [receiptsRes, studentsRes, notifRes] = await Promise.all([
           api.get('/payments/receipts/pending').catch(() => ({ data: { payments: [] } })),
-          api.get('/users/students').catch(() => ({ data: { users: [] } }))
+          api.get('/users/students').catch(() => ({ data: { users: [] } })),
+          api.get('/notifications/my-notifications').catch(() => ({ data: [] })),
         ])
         
         const rCount = (receiptsRes.data.payments || []).length
@@ -49,6 +67,15 @@ export default function TeacherDashboard() {
         }).length
 
         setPendingStudentsCount(pCount)
+
+        const rawNotifs = Array.isArray(notifRes.data) ? notifRes.data : (notifRes.data?.notifications || [])
+        const normalizedNotifs = rawNotifs.map((n) => ({
+          ...n,
+          unread: Boolean(n?.unread ?? Number(n?.read) === 0),
+          created_at: n?.created_at || n?.createdAt,
+        }))
+        setNotifications(normalizedNotifs)
+        setUnreadCount(normalizedNotifs.filter((n) => n.unread).length)
 
         if (pCount > 0 && !notifiedAboutStudents.current) {
           toast.info(`You have ${pCount} pending student registration${pCount > 1 ? 's' : ''} to review.`, {
@@ -66,6 +93,20 @@ export default function TeacherDashboard() {
     return () => clearInterval(interval)
   }, [])
 
+  const handleToggleNotifications = async () => {
+    const nextOpen = !showNotifications
+    setShowNotifications(nextOpen)
+    if (nextOpen && unreadCount > 0) {
+      setUnreadCount(0)
+      setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })))
+      try {
+        await api.patch('/notifications/mark-read')
+      } catch (error) {
+        console.error('Failed to mark teacher notifications as read:', error)
+      }
+    }
+  }
+
   const navItems = [
     { path: '/teacher/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { path: '/teacher/classes',   icon: BookOpen,        label: 'Classes' },
@@ -76,13 +117,7 @@ export default function TeacherDashboard() {
     { path: '/teacher/settings',  icon: SettingsIcon,    label: 'Settings' },
   ]
 
-  const getProfileSrc = (v) => {
-    if (!v) return ''
-    const s = String(v).trim()
-    if (!s) return ''
-    if (s.startsWith('http') || s.startsWith('data:')) return s
-    return s.startsWith('/') ? `http://localhost:5000${s}` : `http://localhost:5000/${s}`
-  }
+  const getProfileSrc = (v) => resolveAssetUrl(v)
 
   const sidebarW = desktopCollapsed ? 'lg:w-20' : 'lg:w-64'
 
@@ -275,6 +310,52 @@ export default function TeacherDashboard() {
               </Link>
             )}
 
+            {/* Notifications Dropdown */}
+            <div className="relative" ref={notificationRef}>
+              <button
+                type="button"
+                onClick={handleToggleNotifications}
+                className="relative p-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/80 text-slate-600 transition-colors cursor-pointer"
+                aria-label="Notifications"
+              >
+                <Bell className="w-4 h-4" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {showNotifications && (
+                <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-slate-200 z-50 overflow-hidden">
+                  <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
+                    <h3 className="font-bold text-slate-900 text-sm">Notifications</h3>
+                    <button
+                      type="button"
+                      onClick={() => setShowNotifications(false)}
+                      className="text-xs font-semibold text-slate-500 hover:text-slate-700"
+                    >
+                      Close
+                    </button>
+                  </div>
+                  <div className="max-h-80 overflow-y-auto divide-y divide-slate-100">
+                    {notifications.length > 0 ? (
+                      notifications.slice(0, 10).map((n) => (
+                        <div key={n.id} className={`p-3.5 text-xs ${n.unread ? 'bg-blue-50/60' : 'bg-white'}`}>
+                          <p className="text-slate-800 font-medium leading-snug">{n.message}</p>
+                          <p className="text-[11px] text-slate-400 mt-1">{formatShortDate(n.created_at)}</p>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="py-8 text-center text-slate-400 text-xs">
+                        No notifications yet
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
             <Link
               to="/"
               className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-blue-600 bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-colors"
@@ -317,6 +398,7 @@ export default function TeacherDashboard() {
             <Route path="videos"    element={<Videos />} />
             <Route path="fees"      element={<Payments />} />
             <Route path="settings"  element={<SettingsPage />} />
+            <Route path="profile"   element={<SettingsPage />} />
           </Routes>
         </div>
       </main>

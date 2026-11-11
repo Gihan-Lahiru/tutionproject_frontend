@@ -251,6 +251,7 @@ export default function VideoUpload({ onUploadSuccess, classContext = null }) {
               {[6, 7, 8, 9, 10, 11, 12, 13].map(grade => (
                 <option key={grade} value={grade}>Grade {grade}</option>
               ))}
+              <option value="A/L">A/L Chemistry</option>
             </select>
           </div>
           <div>
