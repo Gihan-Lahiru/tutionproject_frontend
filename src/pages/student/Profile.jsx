@@ -633,7 +633,7 @@ export default function Profile() {
       </div>
 
       {/* Stats Cards Row */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4">
         {[
           { label: "Class Fee", value: getClassFee() || 'N/A', icon: FiDollarSign },
           { label: "Your Grade", value: formatGradeLabel(user?.grade), icon: FiAward },
