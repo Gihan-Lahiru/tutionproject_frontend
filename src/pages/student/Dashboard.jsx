@@ -17,6 +17,8 @@ import PaymentHistory from './PaymentHistory'
 import Profile from './Profile'
 import PastPapers from './PastPapers'
 import PaymentStatus from './PaymentStatus'
+import QuizzesView from './QuizzesView'
+import AttendanceView from './AttendanceView'
 
 // ── Payment Notice Banner ────────────────────────────────────────────────────
 function PaymentNoticeBanner({ user }) {
@@ -244,6 +246,8 @@ export default function StudentDashboard() {
     { path: '/student/notes', icon: FiFileText, label: 'Notes' },
     { path: '/student/past-papers', icon: FiBookOpen, label: 'Past Papers' },
     { path: '/student/assignments', icon: FiClipboard, label: 'Assignments' },
+    { path: '/student/quizzes', icon: FiCheckCircle, label: 'Timed Quizzes' },
+    { path: '/student/attendance', icon: FiActivity, label: 'Attendance & Marks' },
     { path: '/student/videos', icon: FiVideo, label: 'Video Lessons' },
     { path: '/student/payments', icon: FiDollarSign, label: 'Payments' },
     { path: '/student/profile', icon: FiUser, label: 'Profile' },
@@ -429,6 +433,8 @@ export default function StudentDashboard() {
               <Route path="settings" element={<Profile />} />
               <Route path="classes" element={<MyClasses />} />
               <Route path="assignments" element={<Assignments />} />
+              <Route path="quizzes" element={<QuizzesView />} />
+              <Route path="attendance" element={<AttendanceView />} />
               <Route path="notes" element={user?.dashboardAccess === false ? <LockedContent /> : <Notes />} />
               <Route path="past-papers" element={user?.dashboardAccess === false ? <LockedContent /> : <PastPapers />} />
               <Route path="videos" element={user?.dashboardAccess === false ? <LockedContent /> : <Videos />} />

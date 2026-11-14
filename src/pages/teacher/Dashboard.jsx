@@ -3,7 +3,7 @@ import { Routes, Route, Link, useLocation } from 'react-router-dom'
 import { AuthContext } from '../../contexts/AuthContext'
 import { 
   LayoutDashboard, BookOpen, Users, DollarSign, Settings as SettingsIcon,
-  Menu, X, LogOut, GraduationCap, ChevronLeft, ChevronRight, Video, FileText, MessageSquare
+  Menu, X, LogOut, GraduationCap, ChevronLeft, ChevronRight, Video, FileText, MessageSquare, CheckSquare
 } from 'lucide-react'
 
 // Sub-pages
@@ -14,6 +14,7 @@ import Payments from './Payments'
 import Settings from './Settings'
 import Videos from './Videos'
 import Messages from './Messages'
+import TeacherQuizzesView from './TeacherQuizzesView'
 
 export default function TeacherDashboard() {
   const { user, logout } = useContext(AuthContext)
@@ -35,6 +36,7 @@ export default function TeacherDashboard() {
     { path: '/teacher/classes', icon: BookOpen, label: 'Classes' },
     { path: '/teacher/students', icon: Users, label: 'Students' },
     { path: '/teacher/papers', icon: FileText, label: 'Papers' },
+    { path: '/teacher/quizzes', icon: CheckSquare, label: 'Quizzes & AI' },
     { path: '/teacher/videos', icon: Video, label: 'Videos' },
     { path: '/teacher/payments', icon: DollarSign, label: 'Fees' },
     { path: '/teacher/messages', icon: MessageSquare, label: 'Messages' },
@@ -149,6 +151,7 @@ export default function TeacherDashboard() {
               <Route index element={<Overview />} />
               <Route path="dashboard" element={<Overview />} />
               <Route path="classes" element={<MyClasses />} />
+              <Route path="quizzes" element={<TeacherQuizzesView />} />
               <Route path="videos" element={<Videos />} />
               <Route path="students" element={<Students />} />
               <Route path="payments" element={<Payments />} />
