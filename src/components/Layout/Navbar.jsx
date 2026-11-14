@@ -635,51 +635,62 @@ export default function Navbar() {
             </div>
 
             {/* Modal Body */}
-            <div className="p-6 space-y-4">
-              <div className="bg-blue-50/70 border border-blue-100 rounded-2xl p-4 text-center">
-                <div className="inline-flex p-3 bg-white rounded-2xl shadow-sm border border-slate-100 mb-2">
-                  <img
-                    src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=http://localhost:5174/lms"
-                    alt="Scan to install LMS"
-                    className="w-28 h-28 object-contain"
-                  />
-                </div>
-                <p className="text-xs font-bold text-slate-800">Scan QR Code with your Phone Camera</p>
-                <p className="text-[11px] text-slate-500 mt-0.5">Opens the mobile LMS instantly on your phone browser</p>
-              </div>
+            {(() => {
+              const mobileHost = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+                ? '172.17.92.155'
+                : (typeof window !== 'undefined' ? window.location.hostname : 'localhost');
+              const mobileAppUrl = `http://${mobileHost}:5174/lms`;
+              return (
+                <div className="p-6 space-y-4">
+                  <div className="bg-blue-50/70 border border-blue-100 rounded-2xl p-4 text-center">
+                    <div className="inline-flex p-3 bg-white rounded-2xl shadow-sm border border-slate-100 mb-2">
+                      <img
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(mobileAppUrl)}`}
+                        alt="Scan to install LMS"
+                        className="w-32 h-32 object-contain"
+                      />
+                    </div>
+                    <p className="text-xs font-bold text-slate-800">Scan with your Phone Camera</p>
+                    <p className="text-[11px] text-slate-500 mt-0.5">Or type this on your mobile browser (same Wi-Fi):</p>
+                    <div className="mt-1.5 inline-block px-2.5 py-1 bg-white rounded-lg border border-blue-200 text-[11px] font-mono font-bold text-blue-700 select-all">
+                      {mobileAppUrl}
+                    </div>
+                  </div>
 
-              {/* Install Instructions */}
-              <div className="space-y-2 text-xs text-slate-600">
-                <div className="flex items-start gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-100">
-                  <span className="font-bold text-blue-600 shrink-0">Android:</span>
-                  <span>Open in Chrome ➔ Tap <strong>"Install App"</strong> or the 3 dots (⋮) ➔ <strong>"Add to Home screen"</strong>.</span>
-                </div>
-                <div className="flex items-start gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-100">
-                  <span className="font-bold text-indigo-600 shrink-0">iPhone:</span>
-                  <span>Open in Safari ➔ Tap the <strong>Share</strong> button ➔ <strong>"Add to Home Screen"</strong>.</span>
-                </div>
-              </div>
+                  {/* Install Instructions */}
+                  <div className="space-y-2 text-xs text-slate-600">
+                    <div className="flex items-start gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                      <span className="font-bold text-blue-600 shrink-0">Android:</span>
+                      <span>Open on phone ➔ Tap <strong>"Install App"</strong> in header or Chrome menu (⋮) ➔ <strong>"Add to Home screen"</strong>.</span>
+                    </div>
+                    <div className="flex items-start gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                      <span className="font-bold text-indigo-600 shrink-0">iPhone:</span>
+                      <span>Open in Safari ➔ Tap the <strong>Share</strong> button (box with arrow) ➔ <strong>"Add to Home Screen"</strong>.</span>
+                    </div>
+                  </div>
 
-              {/* Action Buttons */}
-              <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
-                <a
-                  href="http://localhost:5174/lms"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xs hover:from-blue-500 hover:to-indigo-500 shadow-md shadow-blue-500/20 transition-all text-center"
-                >
-                  <FiExternalLink className="w-4 h-4" />
-                  <span>Launch Mobile Web App</span>
-                </a>
-                <button
-                  type="button"
-                  onClick={() => setShowAppModal(false)}
-                  className="py-3 px-4 rounded-xl bg-slate-100 text-slate-700 font-semibold text-xs hover:bg-slate-200 transition-colors cursor-pointer"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
+                  {/* Action Buttons */}
+                  <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
+                    <a
+                      href={mobileAppUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xs hover:from-blue-500 hover:to-indigo-500 shadow-md shadow-blue-500/20 transition-all text-center"
+                    >
+                      <FiExternalLink className="w-4 h-4" />
+                      <span>Launch Mobile App</span>
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => setShowAppModal(false)}
+                      className="py-3 px-4 rounded-xl bg-slate-100 text-slate-700 font-semibold text-xs hover:bg-slate-200 transition-colors cursor-pointer"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         </div>
       )}
