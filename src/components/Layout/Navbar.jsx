@@ -1,6 +1,6 @@
 import { useState, useContext, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { FiMenu, FiX, FiUser, FiBell } from 'react-icons/fi';
+import { FiMenu, FiX, FiUser, FiBell, FiDownload, FiSmartphone, FiExternalLink } from 'react-icons/fi';
 import { AuthContext } from '../../contexts/AuthContext';
 import { useAuthModal } from '../../contexts/AuthModalContext';
 import api from '../../api/axios';
@@ -9,6 +9,7 @@ import { resolveAssetUrl } from '../../utils/dashboardUtils';
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showAppModal, setShowAppModal] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -353,6 +354,21 @@ export default function Navbar() {
                   </div>
                 </button>
 
+                {/* Mobile App Download / Install Icon */}
+                <button
+                  type="button"
+                  onClick={() => setShowAppModal(true)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all text-xs font-semibold cursor-pointer shadow-xs ${
+                    isDarkHeader
+                      ? 'border-blue-500/40 bg-blue-500/15 text-blue-300 hover:bg-blue-500/25'
+                      : 'border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:border-blue-300'
+                  }`}
+                  title="Download / Install Mobile LMS App"
+                >
+                  <FiDownload className="w-4 h-4 text-blue-600 shrink-0" />
+                  <span className="hidden sm:inline">Get Mobile App</span>
+                </button>
+
                 {/* Notifications Bell - Only on Dashboard */}
                 {isDashboard && (
                   <div className="relative" ref={notificationRef}>
@@ -477,17 +493,28 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className={`lg:hidden p-2 rounded-xl transition-colors cursor-pointer ${
-              isDarkHeader
-                ? 'text-white hover:bg-slate-800/80'
-                : 'text-slate-800 hover:bg-slate-100'
-            }`}
-          >
-            {mobileMenuOpen ? <FiX className="w-6 h-6" /> : <FiMenu className="w-6 h-6" />}
-          </button>
+          {/* Mobile Right Controls */}
+          <div className="flex items-center gap-1.5 lg:hidden">
+            <button
+              type="button"
+              onClick={() => setShowAppModal(true)}
+              className="p-2 rounded-xl text-blue-600 bg-blue-50 border border-blue-200 hover:bg-blue-100 cursor-pointer"
+              title="Download Mobile App"
+              aria-label="Download Mobile App"
+            >
+              <FiDownload className="w-5 h-5" />
+            </button>
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className={`p-2 rounded-xl transition-colors cursor-pointer ${
+                isDarkHeader
+                  ? 'text-white hover:bg-slate-800/80'
+                  : 'text-slate-800 hover:bg-slate-100'
+              }`}
+            >
+              {mobileMenuOpen ? <FiX className="w-6 h-6" /> : <FiMenu className="w-6 h-6" />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Navigation Drawer */}
@@ -581,6 +608,81 @@ export default function Navbar() {
           </div>
         )}
       </div>
+
+      {/* Mobile App Download & Install Modal */}
+      {showAppModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden text-slate-800">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 p-6 text-white relative">
+              <button
+                type="button"
+                onClick={() => setShowAppModal(false)}
+                className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+                title="Close"
+              >
+                <FiX className="w-5 h-5" />
+              </button>
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center shadow-inner">
+                  <FiSmartphone className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-extrabold text-white">MW Tuition Mobile App</h3>
+                  <p className="text-xs text-blue-100 mt-0.5">Progressive Web App (PWA) for Android & iOS</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-4">
+              <div className="bg-blue-50/70 border border-blue-100 rounded-2xl p-4 text-center">
+                <div className="inline-flex p-3 bg-white rounded-2xl shadow-sm border border-slate-100 mb-2">
+                  <img
+                    src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=http://localhost:5174/lms"
+                    alt="Scan to install LMS"
+                    className="w-28 h-28 object-contain"
+                  />
+                </div>
+                <p className="text-xs font-bold text-slate-800">Scan QR Code with your Phone Camera</p>
+                <p className="text-[11px] text-slate-500 mt-0.5">Opens the mobile LMS instantly on your phone browser</p>
+              </div>
+
+              {/* Install Instructions */}
+              <div className="space-y-2 text-xs text-slate-600">
+                <div className="flex items-start gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                  <span className="font-bold text-blue-600 shrink-0">Android:</span>
+                  <span>Open in Chrome ➔ Tap <strong>"Install App"</strong> or the 3 dots (⋮) ➔ <strong>"Add to Home screen"</strong>.</span>
+                </div>
+                <div className="flex items-start gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                  <span className="font-bold text-indigo-600 shrink-0">iPhone:</span>
+                  <span>Open in Safari ➔ Tap the <strong>Share</strong> button ➔ <strong>"Add to Home Screen"</strong>.</span>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
+                <a
+                  href="http://localhost:5174/lms"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xs hover:from-blue-500 hover:to-indigo-500 shadow-md shadow-blue-500/20 transition-all text-center"
+                >
+                  <FiExternalLink className="w-4 h-4" />
+                  <span>Launch Mobile Web App</span>
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setShowAppModal(false)}
+                  className="py-3 px-4 rounded-xl bg-slate-100 text-slate-700 font-semibold text-xs hover:bg-slate-200 transition-colors cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
