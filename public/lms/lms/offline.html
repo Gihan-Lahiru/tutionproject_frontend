@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Offline — MW Tuition LMS</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, sans-serif;
+        background: #f1f5f9;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 24px;
+      }
+      .card {
+        max-width: 380px;
+        width: 100%;
+        background: #fff;
+        border-radius: 24px;
+        padding: 28px;
+        text-align: center;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+      }
+      button {
+        margin-top: 16px;
+        width: 100%;
+        background: #1d4ed8;
+        color: #fff;
+        border: 0;
+        border-radius: 14px;
+        padding: 13px 16px;
+        font-weight: 600;
+        font-size: 15px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div style="font-size: 36px; margin-bottom: 10px">📡</div>
+      <h1 style="margin: 0 0 8px; font-size: 20px">You are offline</h1>
+      <p style="margin: 0; font-size: 14px; color: #475569; line-height: 1.5">
+        MW Tuition LMS cannot reach the server right now. Student marks, papers, and quiz attempts are never stored in shared offline caches for privacy.
+      </p>
+      <button onclick="window.location.reload()">Try Reconnecting</button>
+    </div>
+  </body>
+</html>
+

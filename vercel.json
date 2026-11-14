@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/lms/:path*",
+      "destination": "/lms/index.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

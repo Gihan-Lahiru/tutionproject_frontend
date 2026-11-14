@@ -636,32 +636,63 @@ export default function Navbar() {
 
             {/* Modal Body */}
             {(() => {
-              const mobileHost = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-                ? '172.17.92.155'
-                : (typeof window !== 'undefined' ? window.location.hostname : 'localhost');
-              const mobileAppUrl = `http://${mobileHost}:5174/lms`;
+              const isLocal = typeof window !== 'undefined' && (
+                window.location.hostname === 'localhost' ||
+                window.location.hostname === '127.0.0.1' ||
+                window.location.hostname.startsWith('192.168.') ||
+                window.location.hostname.startsWith('172.')
+              );
+              
+              const isMobileDevice = typeof navigator !== 'undefined' && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+              
+              // Public production URL without port numbers (HTTPS)
+              const productionUrl = typeof window !== 'undefined' && !isLocal
+                ? `${window.location.protocol}//${window.location.host}/lms`
+                : 'https://www.learnwithmaleesha.com/lms';
+                
+              const localWifiUrl = 'http://172.17.92.155:5174/lms';
+              
+              const targetUrl = isLocal ? localWifiUrl : productionUrl;
+
               return (
                 <div className="p-6 space-y-4">
-                  <div className="bg-blue-50/70 border border-blue-100 rounded-2xl p-4 text-center">
-                    <div className="inline-flex p-3 bg-white rounded-2xl shadow-sm border border-slate-100 mb-2">
-                      <img
-                        src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(mobileAppUrl)}`}
-                        alt="Scan to install LMS"
-                        className="w-32 h-32 object-contain"
-                      />
+                  {/* Direct Mobile Quick Action if viewing on a mobile device */}
+                  {isMobileDevice ? (
+                    <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-4 text-white text-center shadow-lg">
+                      <p className="font-extrabold text-sm mb-1">Direct Mobile Installation</p>
+                      <p className="text-xs text-blue-100 mb-3">
+                        Tap below to launch the LMS and install directly onto your home screen
+                      </p>
+                      <a
+                        href={targetUrl}
+                        className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl bg-white text-blue-700 font-bold text-sm shadow-md active:scale-95 transition-all"
+                      >
+                        <FiSmartphone className="w-5 h-5 text-blue-600" />
+                        <span>Install App to This Device</span>
+                      </a>
                     </div>
-                    <p className="text-xs font-bold text-slate-800">Scan with your Phone Camera</p>
-                    <p className="text-[11px] text-slate-500 mt-0.5">Or type this on your mobile browser (same Wi-Fi):</p>
-                    <div className="mt-1.5 inline-block px-2.5 py-1 bg-white rounded-lg border border-blue-200 text-[11px] font-mono font-bold text-blue-700 select-all">
-                      {mobileAppUrl}
+                  ) : (
+                    <div className="bg-blue-50/70 border border-blue-100 rounded-2xl p-4 text-center">
+                      <div className="inline-flex p-3 bg-white rounded-2xl shadow-sm border border-slate-100 mb-2">
+                        <img
+                          src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(targetUrl)}`}
+                          alt="Scan to install LMS on mobile"
+                          className="w-32 h-32 object-contain"
+                        />
+                      </div>
+                      <p className="text-xs font-bold text-slate-800">Scan with your Phone Camera</p>
+                      <p className="text-[11px] text-slate-500 mt-0.5">Instant direct mobile install link:</p>
+                      <div className="mt-1.5 inline-block px-3 py-1 bg-white rounded-lg border border-blue-200 text-xs font-mono font-bold text-blue-700 select-all">
+                        {targetUrl}
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   {/* Install Instructions */}
                   <div className="space-y-2 text-xs text-slate-600">
                     <div className="flex items-start gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-100">
                       <span className="font-bold text-blue-600 shrink-0">Android:</span>
-                      <span>Open on phone ➔ Tap <strong>"Install App"</strong> in header or Chrome menu (⋮) ➔ <strong>"Add to Home screen"</strong>.</span>
+                      <span>Open link ➔ Tap <strong>"Install App"</strong> in header or Chrome menu (⋮) ➔ <strong>"Install / Add to Home screen"</strong>.</span>
                     </div>
                     <div className="flex items-start gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-100">
                       <span className="font-bold text-indigo-600 shrink-0">iPhone:</span>
@@ -672,13 +703,13 @@ export default function Navbar() {
                   {/* Action Buttons */}
                   <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
                     <a
-                      href={mobileAppUrl}
+                      href={targetUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xs hover:from-blue-500 hover:to-indigo-500 shadow-md shadow-blue-500/20 transition-all text-center"
                     >
                       <FiExternalLink className="w-4 h-4" />
-                      <span>Launch Mobile App</span>
+                      <span>{isMobileDevice ? 'Launch App' : 'Open Mobile Web App'}</span>
                     </a>
                     <button
                       type="button"

@@ -1,0 +1,22 @@
+{
+  "id": "/lms/",
+  "name": "MW Tuition LMS",
+  "short_name": "MW LMS",
+  "description": "Mobile-first Tuition Learning Management System for Past Papers, Timed Quizzes, Assignments, Attendance and Term Marks.",
+  "start_url": "/lms/dashboard",
+  "scope": "/lms/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f8fafc",
+  "theme_color": "#1d4ed8",
+  "categories": ["education", "productivity"],
+  "icons": [
+    {
+      "src": "/lms/icons/lms-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
+
