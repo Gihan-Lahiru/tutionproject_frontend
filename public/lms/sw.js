@@ -4,7 +4,7 @@
  * - Cache ONLY static app shell files.
  * - NEVER cache /api/* responses, student marks, receipts, auth tokens, or watermarked PDFs.
  */
-const CACHE_NAME = 'mw-lms-shell-v1';
+const CACHE_NAME = 'mw-lms-shell-v3';
 const STATIC_SHELL = [
   '/lms/manifest.webmanifest',
   '/lms/offline.html',
