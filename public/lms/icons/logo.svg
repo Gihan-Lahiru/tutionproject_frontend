@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#2563eb"/>
+      <stop offset="50%" stop-color="#4f46e5"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0" y1="0" x2="512" y2="256" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="drop" x="-10%" y="-10%" width="120%" height="130%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="16" stdDeviation="24" flood-color="#1e1b4b" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- Base Squircle -->
+  <rect width="512" height="512" rx="128" fill="url(#bgGrad)" filter="url(#drop)"/>
+  
+  <!-- Subtle Glass Shine Curve -->
+  <path d="M0 128C0 57.3 57.3 0 128 0H384C454.7 0 512 57.3 512 128V192C360 210 160 270 0 340V128Z" fill="url(#shine)"/>
+
+  <!-- Outer Ring Accent -->
+  <rect x="24" y="24" width="464" height="464" rx="108" stroke="#ffffff" stroke-width="4" stroke-opacity="0.2" fill="none"/>
+
+  <!-- Academic Cap (Mortarboard) -->
+  <path d="M256 120L416 195L256 270L96 195L256 120Z" fill="#ffffff" fill-opacity="0.95"/>
+  <path d="M380 210V290C380 295 376 300 370 300" stroke="#fbbf24" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="370" cy="305" r="7" fill="#fbbf24"/>
+
+  <!-- Open Book Silhouette -->
+  <path d="M140 260V345C175 330 215 330 256 350C297 330 337 330 372 345V260C337 245 297 245 256 265C215 245 175 245 140 260Z" fill="#ffffff" fill-opacity="0.9"/>
+  <path d="M256 268V352" stroke="#4f46e5" stroke-width="8" stroke-linecap="round"/>
+
+  <!-- Monogram MW Core -->
+  <text x="256" y="425" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="52" fill="#ffffff" letter-spacing="6">MW TUITION</text>
+</svg>

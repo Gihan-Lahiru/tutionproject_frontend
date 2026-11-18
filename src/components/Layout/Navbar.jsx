@@ -654,10 +654,10 @@ export default function Navbar() {
               
               // Public production URL without port numbers (HTTPS)
               const productionUrl = typeof window !== 'undefined' && !isLocal
-                ? `${window.location.protocol}//${window.location.host}/lms`
-                : 'https://www.learnwithmaleesha.com/lms';
+                ? `${window.location.protocol}//${window.location.host}/lms/`
+                : 'https://www.learnwithmaleesha.com/lms/';
                 
-              const localWifiUrl = 'http://172.17.46.126:5174/lms';
+              const localWifiUrl = 'http://172.17.46.126:5174/lms/';
               const targetUrl = isLocal ? localWifiUrl : productionUrl;
 
               return (
