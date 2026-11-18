@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/api/:path*",
+      "destination": "https://tutionproject-backendv2-qpji.vercel.app/api/:path*"
+    },
+    {
       "source": "/lms/:path*",
       "destination": "/lms/index.html"
     },
