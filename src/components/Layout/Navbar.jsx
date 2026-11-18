@@ -611,30 +611,36 @@ export default function Navbar() {
 
       {/* Mobile App Download & Install Modal */}
       {showAppModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden text-slate-800">
+        <div
+          className="fixed inset-0 z-[100] overflow-y-auto bg-slate-900/70 backdrop-blur-sm p-4 sm:p-6 flex items-center justify-center animate-in fade-in duration-200"
+          onClick={(e) => { if (e.target === e.currentTarget) setShowAppModal(false); }}
+        >
+          <div
+            className="relative w-full max-w-md my-auto max-h-[88vh] bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden text-slate-800 flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Modal Header */}
-            <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 p-6 text-white relative">
+            <div className="shrink-0 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 p-5 text-white relative">
               <button
                 type="button"
                 onClick={() => setShowAppModal(false)}
-                className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+                className="absolute top-3.5 right-3.5 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
                 title="Close"
               >
                 <FiX className="w-5 h-5" />
               </button>
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center shadow-inner">
+              <div className="flex items-center gap-3 pr-8">
+                <div className="w-11 h-11 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center shadow-inner shrink-0">
                   <FiSmartphone className="w-6 h-6 text-white" />
                 </div>
-                <div>
-                  <h3 className="text-lg font-extrabold text-white">MW Tuition Mobile App</h3>
-                  <p className="text-xs text-blue-100 mt-0.5">Progressive Web App (PWA) for Android & iOS</p>
+                <div className="min-w-0">
+                  <h3 className="text-base sm:text-lg font-extrabold text-white truncate">MW Tuition Mobile App</h3>
+                  <p className="text-xs text-blue-100 truncate mt-0.5">Install on Android & iOS</p>
                 </div>
               </div>
             </div>
 
-            {/* Modal Body */}
+            {/* Modal Scrollable Body */}
             {(() => {
               const isLocal = typeof window !== 'undefined' && (
                 window.location.hostname === 'localhost' ||
@@ -650,34 +656,33 @@ export default function Navbar() {
                 ? `${window.location.protocol}//${window.location.host}/lms`
                 : 'https://www.learnwithmaleesha.com/lms';
                 
-              const localWifiUrl = 'http://172.17.92.155:5174/lms';
-              
+              const localWifiUrl = 'http://172.17.46.126:5174/lms';
               const targetUrl = isLocal ? localWifiUrl : productionUrl;
 
               return (
-                <div className="p-6 space-y-4">
-                  {/* Direct Mobile Quick Action if viewing on a mobile device */}
+                <div className="overflow-y-auto flex-1 p-5 space-y-4">
+                  {/* Direct Mobile Quick Action */}
                   {isMobileDevice ? (
-                    <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-4 text-white text-center shadow-lg">
-                      <p className="font-extrabold text-sm mb-1">Direct Mobile Installation</p>
+                    <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-4 text-white text-center shadow-md">
+                      <p className="font-extrabold text-sm mb-1">Instant App Installation</p>
                       <p className="text-xs text-blue-100 mb-3">
-                        Tap below to launch the LMS and install directly onto your home screen
+                        Tap below to launch the LMS and add it directly to your home screen
                       </p>
                       <a
                         href={targetUrl}
                         className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl bg-white text-blue-700 font-bold text-sm shadow-md active:scale-95 transition-all"
                       >
                         <FiSmartphone className="w-5 h-5 text-blue-600" />
-                        <span>Install App to This Device</span>
+                        <span>Install / Open App Now</span>
                       </a>
                     </div>
                   ) : (
                     <div className="bg-blue-50/70 border border-blue-100 rounded-2xl p-4 text-center">
-                      <div className="inline-flex p-3 bg-white rounded-2xl shadow-sm border border-slate-100 mb-2">
+                      <div className="inline-flex p-2.5 bg-white rounded-2xl shadow-sm border border-slate-100 mb-2">
                         <img
-                          src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(targetUrl)}`}
+                          src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(targetUrl)}`}
                           alt="Scan to install LMS on mobile"
-                          className="w-32 h-32 object-contain"
+                          className="w-28 h-28 object-contain"
                         />
                       </div>
                       <p className="text-xs font-bold text-slate-800">Scan with your Phone Camera</p>
@@ -690,31 +695,33 @@ export default function Navbar() {
 
                   {/* Install Instructions */}
                   <div className="space-y-2 text-xs text-slate-600">
-                    <div className="flex items-start gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                    <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
                       <span className="font-bold text-blue-600 shrink-0">Android:</span>
-                      <span>Open link ➔ Tap <strong>"Install App"</strong> in header or Chrome menu (⋮) ➔ <strong>"Install / Add to Home screen"</strong>.</span>
+                      <span>Open link ➔ Tap <strong>"Install App"</strong> in header or Chrome menu (⋮) ➔ <strong>"Add to Home screen"</strong>.</span>
                     </div>
-                    <div className="flex items-start gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                    <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
                       <span className="font-bold text-indigo-600 shrink-0">iPhone:</span>
                       <span>Open in Safari ➔ Tap the <strong>Share</strong> button (box with arrow) ➔ <strong>"Add to Home Screen"</strong>.</span>
                     </div>
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
-                    <a
-                      href={targetUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xs hover:from-blue-500 hover:to-indigo-500 shadow-md shadow-blue-500/20 transition-all text-center"
-                    >
-                      <FiExternalLink className="w-4 h-4" />
-                      <span>{isMobileDevice ? 'Launch App' : 'Open Mobile Web App'}</span>
-                    </a>
+                  <div className="pt-1 flex gap-2.5">
+                    {!isMobileDevice && (
+                      <a
+                        href={targetUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xs hover:from-blue-500 hover:to-indigo-500 shadow-md shadow-blue-500/20 transition-all text-center"
+                      >
+                        <FiExternalLink className="w-4 h-4" />
+                        <span>Open Web App</span>
+                      </a>
+                    )}
                     <button
                       type="button"
                       onClick={() => setShowAppModal(false)}
-                      className="py-3 px-4 rounded-xl bg-slate-100 text-slate-700 font-semibold text-xs hover:bg-slate-200 transition-colors cursor-pointer"
+                      className="flex-1 py-2.5 px-4 rounded-xl bg-slate-100 text-slate-700 font-semibold text-xs hover:bg-slate-200 transition-colors cursor-pointer text-center"
                     >
                       Close
                     </button>
