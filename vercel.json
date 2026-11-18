@@ -1,4 +1,28 @@
 {
+  "headers": [
+    {
+      "source": "/(lms/)?(sw.js|manifest.webmanifest)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate, max-age=0"
+        },
+        {
+          "key": "Service-Worker-Allowed",
+          "value": "/lms/"
+        }
+      ]
+    },
+    {
+      "source": "/lms/icons/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, must-revalidate"
+        }
+      ]
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/:path*",
