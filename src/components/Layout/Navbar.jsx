@@ -1,4 +1,5 @@
 import { useState, useContext, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FiMenu, FiX, FiUser, FiBell, FiDownload, FiSmartphone, FiExternalLink } from 'react-icons/fi';
 import { AuthContext } from '../../contexts/AuthContext';
@@ -609,10 +610,10 @@ export default function Navbar() {
         )}
       </div>
 
-      {/* Mobile App Download & Install Modal */}
-      {showAppModal && (
+      {/* Mobile App Download & Install Modal (Rendered at Body root via Portal to escape Navbar stacking context) */}
+      {showAppModal && typeof document !== 'undefined' && createPortal(
         <div
-          className="fixed inset-0 z-[100] overflow-y-auto bg-slate-900/70 backdrop-blur-sm p-4 sm:p-6 flex items-center justify-center animate-in fade-in duration-200"
+          className="fixed inset-0 z-[9999] overflow-y-auto bg-slate-950/80 backdrop-blur-md p-4 sm:p-6 flex items-center justify-center animate-in fade-in duration-200"
           onClick={(e) => { if (e.target === e.currentTarget) setShowAppModal(false); }}
         >
           <div
@@ -730,7 +731,8 @@ export default function Navbar() {
               );
             })()}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </nav>
   );
