@@ -1,13 +1,13 @@
 {
   "id": "/lms/",
-  "name": "MW Tuition LMS",
-  "short_name": "MW LMS",
+  "name": "MW Learn - Tuition Platform",
+  "short_name": "MW Learn",
   "description": "Mobile-first Tuition Learning Management System for Past Papers, Timed Quizzes, Assignments, Attendance and Term Marks.",
   "start_url": "/lms/dashboard",
   "scope": "/lms/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#f8fafc",
+  "background_color": "#030712",
   "theme_color": "#1d4ed8",
   "categories": ["education", "productivity"],
   "icons": [
@@ -36,11 +36,10 @@
       "purpose": "maskable"
     },
     {
-      "src": "/lms/icons/logo.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/lms/icons/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any"
     }
   ]
 }
-

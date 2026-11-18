@@ -3,8 +3,9 @@
  * Strict security contract from Blueprint:
  * - Cache ONLY static app shell files.
  * - NEVER cache /api/* responses, student marks, receipts, auth tokens, or watermarked PDFs.
+ * - Handle native Web Push notifications even when the app is closed.
  */
-const CACHE_NAME = 'mw-lms-shell-v3';
+const CACHE_NAME = 'mw-lms-shell-v4';
 const STATIC_SHELL = [
   '/lms/manifest.webmanifest',
   '/lms/offline.html',
@@ -15,6 +16,7 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_SHELL)),
   );
+  self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
@@ -85,3 +87,70 @@ self.addEventListener('fetch', (event) => {
   }
 });
 
+// ==========================================
+// Native Mobile Web Push Notification Events
+// ==========================================
+self.addEventListener('push', (event) => {
+  let payload = {
+    title: 'MW Tuition LMS',
+    body: 'You have a new update from Sir.',
+    url: '/lms/notifications',
+  };
+
+  if (event.data) {
+    try {
+      payload = Object.assign(payload, event.data.json());
+    } catch {
+      payload.body = event.data.text();
+    }
+  }
+
+  const title = payload.title || 'MW Tuition LMS';
+  const options = {
+    body: payload.body,
+    icon: payload.icon || '/lms/icons/logo.svg',
+    badge: payload.badge || '/lms/icons/logo.svg',
+    vibrate: [200, 100, 200, 100, 300],
+    tag: payload.tag || 'mw-tuition-alert',
+    renotify: true,
+    data: {
+      url: payload.url || '/lms/notifications',
+      ...(payload.data || {}),
+    },
+    actions: [
+      { action: 'open', title: 'Open LMS' },
+      { action: 'dismiss', title: 'Dismiss' },
+    ],
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+
+  if (event.action === 'dismiss') {
+    return;
+  }
+
+  const targetPath = (event.notification.data && event.notification.data.url) || '/lms/notifications';
+  const targetUrl = new URL(targetPath, self.location.origin).href;
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+      // Focus existing open tab if available
+      for (const client of windowClients) {
+        if (client.url.includes('/lms/') && 'focus' in client) {
+          if ('navigate' in client) {
+            client.navigate(targetUrl);
+          }
+          return client.focus();
+        }
+      }
+      // Open new window/PWA instance if app was closed
+      if (clients.openWindow) {
+        return clients.openWindow(targetUrl);
+      }
+    }),
+  );
+});
